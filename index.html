@@ -377,7 +377,7 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
 
     <div class="card">
       <div class="cardhead"><h3>Plantel del participante</h3></div>
-      <div class="callout">Elegí quién sale y luego quién entra. Quien hace un cambio queda protegido; quien pasa sigue expuesto a robos durante toda la ronda.</div>
+      <div class="callout">Elegí quién sale y luego quién entra. La app puede reacomodar titulares/suplentes y cambiar la formación para que el plantel siga siendo válido. Quien hace un cambio queda protegido; quien pasa sigue expuesto a robos durante toda la ronda.</div>
       <div id="transferRoster" class="roster" style="max-height:650px"></div>
     </div>
   </div>
@@ -1812,25 +1812,68 @@ function reservedConfirmedOwner(id){
   }
   return "";
 }
+function rebalanceTransferRoster(r,previousRoles={},preferredFormation=null){
+  const ids=r.picks.map(Number);
+  const byPos={ARQ:[],DEF:[],VOL:[],DEL:[]};
+  ids.forEach(id=>{
+    const p=player(id);
+    if(p)byPos[p.position].push(id);
+  });
+
+  const candidates=[];
+  for(const [formationName,f] of Object.entries(FORMATIONS)){
+    const fullCounts={ARQ:f.ARQ+1,DEF:f.DEF+1,VOL:f.VOL+1,DEL:f.DEL+1};
+    if(!["ARQ","DEF","VOL","DEL"].every(pos=>byPos[pos].length===fullCounts[pos]))continue;
+
+    for(const subARQ of byPos.ARQ)
+    for(const subDEF of byPos.DEF)
+    for(const subVOL of byPos.VOL)
+    for(const subDEL of byPos.DEL){
+      const subs=new Set([subARQ,subDEF,subVOL,subDEL]);
+      const roles={};
+      ids.forEach(id=>roles[id]=subs.has(id)?"Suplente":"Titular");
+
+      let changes=0;
+      ids.forEach(id=>{
+        if(previousRoles[id]&&previousRoles[id]!==roles[id])changes++;
+      });
+
+      const formationPenalty=(preferredFormation&&formationName!==preferredFormation)?0.1:0;
+      candidates.push({formation:formationName,roles,score:changes+formationPenalty});
+    }
+  }
+
+  if(!candidates.length)return null;
+  candidates.sort((a,b)=>a.score-b.score||a.formation.localeCompare(b.formation));
+  const best=candidates[0];
+  r.formation=best.formation;
+  r.roles=best.roles;
+
+  if(r.captain&&r.roles[r.captain]!=="Titular")r.captain=null;
+  return r;
+}
+
 function simulateTransferRoster(m,outId,inId,tr=currentTransfer()){
-  const r=clone(state.confirmedTeams[m]),forced=tr?.forced?.[m];
+  const current=state.confirmedTeams[m];
+  if(!current)return null;
+
+  const r=clone(current),forced=tr?.forced?.[m];
+  const previousRoles=clone(current.roles||{});
+
   if(forced){
     if(r.picks.length!==14)return null;
-    r.picks.push(inId);
-    r.roles[inId]=forced.role||"Titular";
+    r.picks.push(Number(inId));
     if(forced.wasCap)r.captain=null;
   }else{
     const idx=r.picks.indexOf(Number(outId));
     if(idx<0)return null;
-    const oldRole=r.roles[outId],wasCap=r.captain===Number(outId);
+    const wasCap=r.captain===Number(outId);
     r.picks[idx]=Number(inId);
-    delete r.roles[outId];
-    r.roles[inId]=oldRole;
+    delete previousRoles[outId];
     if(wasCap)r.captain=null;
   }
-  const inferred=inferFormationForRoster(r);
-  if(inferred)r.formation=inferred;
-  return r;
+
+  return rebalanceTransferRoster(r,previousRoles,current.formation);
 }
 function transferPlayerOwnerAllowed(p,m,tr){
   const owner=reservedConfirmedOwner(p.id);
@@ -1983,7 +2026,7 @@ function renderTransferRoster(){
   if(!r)return $("transferRoster").innerHTML="";
   if(forced){
     $("transferRoster").innerHTML=`
-      <div class="callout">A <b>${esc(m)}</b> le robaron a <b>${esc(forced.playerName)}</b> (${forced.role}). Tiene 14 jugadores y debe completar el plantel.${forced.mode==="late"?" Como había pasado, dispone de un único sorteo válido.":` Conserva sus ${transferMaxDraws(tr,m)} sorteos reglamentarios.`}</div>
+      <div class="callout">A <b>${esc(m)}</b> le robaron a <b>${esc(forced.playerName)}</b>. Tiene 14 jugadores y debe completar el plantel con cualquier incorporación que permita una formación válida.${forced.mode==="late"?" Como había pasado, dispone de un único sorteo válido.":` Conserva sus ${transferMaxDraws(tr,m)} sorteos reglamentarios.`}</div>
       ${sortIdsByPosition(r.picks).map(id=>{
         const p=player(id);
         return `<div class="pick"><span class="pos pos-${p.position}">${p.position}</span><span><b>${esc(p.name)}</b><br><small>${esc(p.team)} · ${r.roles[id]||""}</small></span><span></span><span></span></div>`;
@@ -2091,7 +2134,7 @@ function chooseIncoming(inId){
 
   const outgoingText=forced?forced.playerName:player(outId)?.name;
   const theft=owner&&owner!==m?` Se lo robás a ${owner}, que deberá reponerlo.`:"";
-  const formationText=` La formación resultante será ${simulated.formation}.`;
+  const formationText=` La formación resultante será ${simulated.formation}; la app reacomodará titulares y suplentes para mantener un suplente por posición.`;
   if(!confirm(forced
     ?`¿Confirmar reemplazo obligatorio para ${m}? Entra ${inP.name}.${theft}${formationText}`
     :`¿Confirmar cambio para ${m}? Sale ${outgoingText} y entra ${inP.name}.${theft}${formationText}`))return;

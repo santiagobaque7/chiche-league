@@ -172,12 +172,14 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
 .scores-rank-card td,.scores-rank-card th{white-space:nowrap}
 
 
-.transfer-history-list{display:grid;gap:10px;margin-top:6px}
-.transfer-history-row{display:grid;grid-template-columns:100px minmax(0,1fr) 32px minmax(0,1.18fr) minmax(120px,.72fr);gap:14px;align-items:center;padding:12px 15px;border:1px solid var(--border);border-radius:12px;background:var(--card2)}
-.transfer-history-row.pass{grid-template-columns:100px minmax(0,1fr) 32px minmax(0,1.18fr) minmax(120px,.72fr)}
-.transfer-history-manager{font-weight:900;font-size:15px}.transfer-history-arrow{text-align:center;color:var(--muted);font-weight:900;font-size:15px}.transfer-history-meta{font-size:11px;color:var(--muted);text-align:right;line-height:1.35}.transfer-history-empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:10px}
-.transfer-history-block{line-height:1.25}.transfer-history-block b{font-size:13px}.transfer-history-sub{font-size:11px;color:var(--muted);margin-top:3px}.transfer-history-pass-note{font-size:13px;font-weight:800}.transfer-history-pass-extra{font-size:11px;color:var(--muted);margin-top:3px}
-@media(max-width:850px){.transfer-history-row,.transfer-history-row.pass{grid-template-columns:1fr;gap:6px;padding:11px 12px}.transfer-history-arrow{display:none}.transfer-history-meta{text-align:left}}
+.transfer-history-card-head{padding:7px 11px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:7px}
+.transfer-history-body{padding:10px 11px 11px}
+.transfer-history-list{display:grid;gap:7px}
+.transfer-history-row{display:grid;grid-template-columns:96px minmax(0,1fr) 18px minmax(0,1.1fr) 92px;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--card2)}
+.transfer-history-row.pass{grid-template-columns:96px minmax(0,1fr)}
+.transfer-history-manager{font-weight:900;font-size:14px}.transfer-history-arrow{text-align:center;color:var(--muted);font-weight:900;font-size:14px}.transfer-history-meta{font-size:10.5px;color:var(--muted);text-align:right;line-height:1.2}.transfer-history-empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:10px}
+.transfer-history-block{line-height:1.15}.transfer-history-block b{font-size:12.5px}.transfer-history-sub{font-size:10.5px;color:var(--muted);margin-top:2px}.transfer-history-pass-inline{font-size:12.5px;font-weight:800;line-height:1.15}
+@media(max-width:850px){.transfer-history-card-head{display:block}.transfer-history-row,.transfer-history-row.pass{grid-template-columns:1fr;gap:5px;padding:9px 10px}.transfer-history-arrow{display:none}.transfer-history-meta{text-align:left;margin-top:2px}}
 </style>
 </head>
 <body>
@@ -391,11 +393,11 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
   </div>
 
   <div id="transferHistoryCard" class="card" style="margin-top:14px">
-    <div class="toolbar" style="justify-content:space-between;align-items:center">
+    <div class="transfer-history-card-head">
       <div><h3 style="margin:0">Historial de cambios</h3><div class="muted" style="font-size:11px;margin-top:3px">Cambios confirmados por fecha. Incluye también a quienes no realizaron cambios.</div></div>
       <select id="transferHistoryRound" class="select" style="width:auto;min-width:120px"></select>
     </div>
-    <div id="transferHistoryList" style="margin-top:10px"></div>
+    <div class="transfer-history-body"><div id="transferHistoryList"></div></div>
   </div>
 </section>
 
@@ -1970,10 +1972,7 @@ function renderTransferHistory(){
     if(ev.type==="pass"){
       return `<div class="transfer-history-row pass">
         <div class="transfer-history-manager">${esc(ev.manager)}</div>
-        <div class="transfer-history-block"><div class="transfer-history-pass-note">No realizó cambios</div><div class="transfer-history-pass-extra">Decidió pasar en su turno.</div></div>
-        <div class="transfer-history-arrow">—</div>
-        <div class="transfer-history-block"><div class="transfer-history-pass-note">Plantel sin modificaciones</div><div class="transfer-history-pass-extra">Quedó expuesto a robos mientras no hubiera usado su cambio.</div></div>
-        <div class="transfer-history-meta">Sin cambios</div>
+        <div class="transfer-history-pass-inline">No realizó cambios.</div>
       </div>`;
     }
     const outName=ev.outPlayerName||"—",inName=ev.inPlayerName||"—";

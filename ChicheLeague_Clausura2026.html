@@ -172,10 +172,12 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
 .scores-rank-card td,.scores-rank-card th{white-space:nowrap}
 
 
-.transfer-history-list{display:grid;gap:7px}
-.transfer-history-row{display:grid;grid-template-columns:90px minmax(0,1fr) 28px minmax(0,1.25fr) minmax(110px,.7fr);gap:10px;align-items:center;padding:9px 11px;border:1px solid var(--border);border-radius:10px;background:var(--card2)}
-.transfer-history-manager{font-weight:900}.transfer-history-arrow{text-align:center;color:var(--muted);font-weight:900}.transfer-history-meta{font-size:11px;color:var(--muted);text-align:right}.transfer-history-empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:10px}
-@media(max-width:850px){.transfer-history-row{grid-template-columns:1fr;gap:4px}.transfer-history-arrow{display:none}.transfer-history-meta{text-align:left}}
+.transfer-history-list{display:grid;gap:10px;margin-top:6px}
+.transfer-history-row{display:grid;grid-template-columns:100px minmax(0,1fr) 32px minmax(0,1.18fr) minmax(120px,.72fr);gap:14px;align-items:center;padding:12px 15px;border:1px solid var(--border);border-radius:12px;background:var(--card2)}
+.transfer-history-row.pass{grid-template-columns:100px minmax(0,1fr) 32px minmax(0,1.18fr) minmax(120px,.72fr)}
+.transfer-history-manager{font-weight:900;font-size:15px}.transfer-history-arrow{text-align:center;color:var(--muted);font-weight:900;font-size:15px}.transfer-history-meta{font-size:11px;color:var(--muted);text-align:right;line-height:1.35}.transfer-history-empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:10px}
+.transfer-history-block{line-height:1.25}.transfer-history-block b{font-size:13px}.transfer-history-sub{font-size:11px;color:var(--muted);margin-top:3px}.transfer-history-pass-note{font-size:13px;font-weight:800}.transfer-history-pass-extra{font-size:11px;color:var(--muted);margin-top:3px}
+@media(max-width:850px){.transfer-history-row,.transfer-history-row.pass{grid-template-columns:1fr;gap:6px;padding:11px 12px}.transfer-history-arrow{display:none}.transfer-history-meta{text-align:left}}
 </style>
 </head>
 <body>
@@ -390,7 +392,7 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
 
   <div id="transferHistoryCard" class="card" style="margin-top:14px">
     <div class="toolbar" style="justify-content:space-between;align-items:center">
-      <div><h3 style="margin:0">Historial de cambios</h3><div class="muted" style="font-size:11px;margin-top:3px">Cambios confirmados por fecha.</div></div>
+      <div><h3 style="margin:0">Historial de cambios</h3><div class="muted" style="font-size:11px;margin-top:3px">Cambios confirmados por fecha. Incluye también a quienes no realizaron cambios.</div></div>
       <select id="transferHistoryRound" class="select" style="width:auto;min-width:120px"></select>
     </div>
     <div id="transferHistoryList" style="margin-top:10px"></div>
@@ -1964,8 +1966,16 @@ function renderTransferHistory(){
     box.innerHTML=`<div class="transfer-history-empty">${tr?.done?"Esta ronda pertenece a una versión anterior que no guardaba el detalle de cada operación.":"Todavía no hay cambios confirmados registrados en esta ronda."}${passed.length?`<div style="margin-top:8px">Pasaron sin cambiar: <b>${passed.map(esc).join(", ")}</b></div>`:""}</div>`;
     return;
   }
-  const actual=events.filter(e=>e.type!=="pass"),passes=events.filter(e=>e.type==="pass");
-  box.innerHTML=`<div class="transfer-history-list">${actual.map(ev=>{
+  box.innerHTML=`<div class="transfer-history-list">${events.map(ev=>{
+    if(ev.type==="pass"){
+      return `<div class="transfer-history-row pass">
+        <div class="transfer-history-manager">${esc(ev.manager)}</div>
+        <div class="transfer-history-block"><div class="transfer-history-pass-note">No realizó cambios</div><div class="transfer-history-pass-extra">Decidió pasar en su turno.</div></div>
+        <div class="transfer-history-arrow">—</div>
+        <div class="transfer-history-block"><div class="transfer-history-pass-note">Plantel sin modificaciones</div><div class="transfer-history-pass-extra">Quedó expuesto a robos mientras no hubiera usado su cambio.</div></div>
+        <div class="transfer-history-meta">Sin cambios</div>
+      </div>`;
+    }
     const outName=ev.outPlayerName||"—",inName=ev.inPlayerName||"—";
     const outObj=historyPlayerByName(outName),inObj=historyPlayerByName(inName);
     const outTeam=ev.outPlayerTeam||outObj?.team||"";
@@ -1974,12 +1984,12 @@ function renderTransferHistory(){
     const meta=[transferHistoryEventLabel(ev),ev.formation||""].filter(Boolean).join(" · ");
     return `<div class="transfer-history-row">
       <div class="transfer-history-manager">${esc(ev.manager)}</div>
-      <div><span class="muted">Sale</span> <b>${esc(outName)}</b>${outTeam?`<div class="muted" style="font-size:10.5px;margin-top:2px">${esc(outTeam)}</div>`:""}</div>
+      <div class="transfer-history-block"><span class="muted">Sale</span> <b>${esc(outName)}</b>${outTeam?`<div class="transfer-history-sub">${esc(outTeam)}</div>`:""}</div>
       <div class="transfer-history-arrow">→</div>
-      <div><span class="muted">Entra</span> <b>${esc(inName)}</b><div class="muted" style="font-size:10.5px;margin-top:2px">${[inTeam,origin].filter(Boolean).map(esc).join(" · ")}</div></div>
+      <div class="transfer-history-block"><span class="muted">Entra</span> <b>${esc(inName)}</b><div class="transfer-history-sub">${[inTeam,origin].filter(Boolean).map(esc).join(" · ")}</div></div>
       <div class="transfer-history-meta">${esc(meta)}</div>
     </div>`;
-  }).join("")}</div>${passes.length?`<div class="muted" style="font-size:11px;margin-top:9px">Sin cambios: ${passes.map(e=>esc(e.manager)).join(", ")}</div>`:""}`;
+  }).join("")}</div>`;
 }
 
 

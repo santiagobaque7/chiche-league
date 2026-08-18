@@ -171,6 +171,11 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
 .scores-rank-card tbody tr{height:auto!important}
 .scores-rank-card td,.scores-rank-card th{white-space:nowrap}
 
+
+.transfer-history-list{display:grid;gap:7px}
+.transfer-history-row{display:grid;grid-template-columns:90px minmax(0,1.1fr) 28px minmax(0,1.1fr) minmax(120px,.8fr);gap:10px;align-items:center;padding:9px 11px;border:1px solid var(--border);border-radius:10px;background:var(--card2)}
+.transfer-history-manager{font-weight:900}.transfer-history-arrow{text-align:center;color:var(--muted);font-weight:900}.transfer-history-meta{font-size:11px;color:var(--muted);text-align:right}.transfer-history-empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:10px}
+@media(max-width:850px){.transfer-history-row{grid-template-columns:1fr;gap:4px}.transfer-history-arrow{display:none}.transfer-history-meta{text-align:left}}
 </style>
 </head>
 <body>
@@ -352,6 +357,7 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
       </div>
     </div>
     <div id="transferStatus" class="callout">Todavía no hay una ronda de cambios iniciada.</div>
+<div id="transferPublicHint" class="callout" style="display:none;margin-top:8px">Vista pública · podés seguir el estado de la ronda y consultar el historial. Sólo el administrador puede sortear, elegir jugadores, pasar o iniciar una ronda.</div>
   </div>
 
   <div id="transferArea" class="grid" style="display:none">
@@ -380,6 +386,14 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
       <div class="callout">Elegí quién sale y luego quién entra. La app puede reacomodar titulares/suplentes y cambiar la formación para que el plantel siga siendo válido. Quien hace un cambio queda protegido; quien pasa sigue expuesto a robos durante toda la ronda.</div>
       <div id="transferRoster" class="roster" style="max-height:650px"></div>
     </div>
+  </div>
+
+  <div id="transferHistoryCard" class="card" style="margin-top:14px">
+    <div class="toolbar" style="justify-content:space-between;align-items:center">
+      <div><h3 style="margin:0">Historial de cambios</h3><div class="muted" style="font-size:11px;margin-top:3px">Cambios confirmados por fecha.</div></div>
+      <select id="transferHistoryRound" class="select" style="width:auto;min-width:120px"></select>
+    </div>
+    <div id="transferHistoryList" style="margin-top:10px"></div>
   </div>
 </section>
 
@@ -729,7 +743,8 @@ function applyCloudAccessMode(){
   const admin=isCloudAdmin();
   if($("adminLoginBtn"))$("adminLoginBtn").style.display=admin?"none":"";
   if($("adminLogoutBtn"))$("adminLogoutBtn").style.display=admin?"":"none";
-  document.querySelectorAll('.nav button[data-page="draft"],.nav button[data-page="transfers"],.nav button[data-page="database"]').forEach(b=>b.style.display=admin?"":"none");
+  document.querySelectorAll('.nav button[data-page="draft"],.nav button[data-page="database"]').forEach(b=>b.style.display=admin?"":"none");
+  document.querySelectorAll('.nav button[data-page="transfers"]').forEach(b=>b.style.display="");
   if(!admin){
     document.querySelectorAll('.nav button[data-page="welcome"],.nav button[data-page="setup"]').forEach(b=>b.style.display="none");
   }
@@ -759,7 +774,7 @@ async function initCloud(){
     }
   }else{
     const active=document.querySelector(".page.active")?.id;
-    if(!["formations","scores"].includes(active))setPage("scores");
+    if(!["formations","scores","transfers"].includes(active))setPage("scores");
   }
 
   cloudBooting=false;
@@ -939,7 +954,7 @@ function fillStatic(){
 
 }
 function setPage(id){
-  if(!isCloudAdmin()&&["draft","transfers","database","setup","welcome"].includes(id))id="scores";
+  if(!isCloudAdmin()&&["draft","database","setup","welcome"].includes(id))id="scores";
   if(isCloudAdmin()&&state.phase==="welcome"&&id!=="welcome")id="welcome";
   if(isCloudAdmin()&&state.phase==="setup"&&id!=="setup")id="setup";
   document.querySelector(".top").style.display=id==="welcome"?"none":"flex";
@@ -1730,6 +1745,7 @@ function initTransferState(rk){
     statuses,
     forced:{},
     robbedOnce:{},
+    history:[],
     outPlayer:null,
     done:false
   };
@@ -1752,6 +1768,7 @@ function normalizeTransferRound(tr){
   }
   if(!tr.forced)tr.forced={};
   if(!tr.robbedOnce)tr.robbedOnce={};
+  if(!Array.isArray(tr.history))tr.history=[];
   if(tr.outPlayer===undefined)tr.outPlayer=null;
   return tr;
 }
@@ -1912,7 +1929,54 @@ function transferOrderMarkup(tr){
     return `<span class="badge ${active?"blue":s==="changed"||s==="forced_resolved"?"green":s==="forced_pending"?"red":""}" style="margin:2px">${active?"▶ ":""}${i+1}. ${esc(x)} · ${esc(transferStatusLabel(s))}</span>`;
   }).join(" ");
 }
+
+function transferHistoryRounds(){
+  return roundsDescending(Object.keys(state.transferRounds||{}).filter(r=>Number(r)>=5));
+}
+function transferHistoryEventLabel(ev){
+  if(ev.type==="pass")return "Sin cambios";
+  if(ev.type==="forced")return ev.stolenFrom?`Reposición · robo a ${ev.stolenFrom}`:"Reposición obligatoria";
+  if(ev.stolenFrom)return `Robo a ${ev.stolenFrom}`;
+  return "Cambio";
+}
+function renderTransferHistory(){
+  const sel=$("transferHistoryRound"),box=$("transferHistoryList");
+  if(!sel||!box)return;
+  const rounds=transferHistoryRounds(),current=sel.value;
+  sel.innerHTML=rounds.length?rounds.map(r=>`<option value="${r}">Fecha ${r}</option>`).join(""):'<option value="">Sin historial</option>';
+  if(current&&rounds.includes(current))sel.value=current; else if(rounds.length)sel.value=rounds[0];
+  if(!rounds.length){box.innerHTML='<div class="transfer-history-empty">Todavía no hay rondas de cambios registradas.</div>';return;}
+  const rk=sel.value,tr=normalizeTransferRound(state.transferRounds[rk]),events=tr?.history||[];
+  if(!events.length){
+    const passed=Object.entries(tr?.statuses||{}).filter(([,s])=>s==="passed").map(([m])=>m);
+    box.innerHTML=`<div class="transfer-history-empty">${tr?.done?"Esta ronda pertenece a una versión anterior que no guardaba el detalle de cada operación.":"Todavía no hay cambios confirmados registrados en esta ronda."}${passed.length?`<div style="margin-top:8px">Pasaron sin cambiar: <b>${passed.map(esc).join(", ")}</b></div>`:""}</div>`;
+    return;
+  }
+  const actual=events.filter(e=>e.type!=="pass"),passes=events.filter(e=>e.type==="pass");
+  box.innerHTML=`<div class="transfer-history-list">${actual.map(ev=>{
+    const meta=[transferHistoryEventLabel(ev),ev.formation||"",ev.club||""].filter(Boolean).join(" · ");
+    return `<div class="transfer-history-row"><div class="transfer-history-manager">${esc(ev.manager)}</div><div><span class="muted">Sale</span> <b>${esc(ev.outPlayerName||"—")}</b></div><div class="transfer-history-arrow">→</div><div><span class="muted">Entra</span> <b>${esc(ev.inPlayerName||"—")}</b></div><div class="transfer-history-meta">${esc(meta)}</div></div>`;
+  }).join("")}</div>${passes.length?`<div class="muted" style="font-size:11px;margin-top:9px">Sin cambios: ${passes.map(e=>esc(e.manager)).join(", ")}</div>`:""}`;
+}
+
+
+function applyTransferReadOnlyMode(){
+  const admin=isCloudAdmin();
+  const start=$("startTransferRound"),draw=$("drawTransferClub"),pass=$("passTransfer");
+  if(start){start.style.display=admin?"":"none";start.disabled=!admin;}
+  if(draw){draw.style.display=admin?"":"none";draw.disabled=!admin;}
+  if(pass){pass.style.display=admin?"":"none";pass.disabled=!admin;}
+  document.querySelectorAll("#transferRoster button,#transferPlayersBody button").forEach(b=>{
+    b.style.display=admin?"":"none";
+    b.disabled=!admin;
+  });
+  const hint=$("transferPublicHint");
+  if(hint)hint.style.display=admin?"none":"";
+}
+
 function renderTransferPage(){
+  applyTransferReadOnlyMode();
+  renderTransferHistory();
   const previous=$("transferRoundSelect").value;
   const rounds=roundsDescending(allRounds().filter(r=>Number(r)>=5));
   $("transferRoundSelect").innerHTML=rounds.map(r=>`<option value="${r}">Fecha ${r}</option>`).join("");
@@ -1957,11 +2021,18 @@ function renderTransferPage(){
 
   renderTransferPlayers();
   renderTransferRoster();
+  applyTransferReadOnlyMode();
+}
+function latestCompletedRoundForTransfers(){
+  const completed=roundsDescending(allRounds().filter(r=>Number(r)>=5&&roundComplete(r)));
+  return completed[0]||null;
 }
 function startTransferRound(){
   if(!isCloudAdmin())return alert("Sólo el administrador puede iniciar cambios.");
   const rk=$("transferRoundSelect").value;
   if(!rk||!roundComplete(rk))return;
+  const latest=latestCompletedRoundForTransfers();
+  if(!state.transferRounds[rk]&&rk!==latest)return alert(`Sólo se puede iniciar una nueva ronda para la última fecha finalizada (Fecha ${latest}). Las anteriores quedan como historial.`);
   if(state.transferRounds[rk]&&!state.transferRounds[rk].done)return renderTransferPage();
   if(state.transferRounds[rk]?.done)return alert("La ronda de cambios de esta fecha ya está finalizada.");
   initTransferState(rk);renderTransferPage();
@@ -2094,25 +2165,18 @@ function registerTransferVictim(owner,inP,tr){
   if(late&&!tr.lateQueue.includes(owner))tr.lateQueue.push(owner);
 }
 function finishTransferCommit(m,tr,simulated,inP,owner,forced){
+  const outgoingId=forced?.playerId||tr.outPlayer;
+  const outgoing=player(outgoingId),activeClub=tr.activeClub;
   state.confirmedTeams[m]=simulated;
 
   if(owner&&owner!==m)registerTransferVictim(owner,inP,tr);
 
-  if(forced){
-    tr.statuses[m]="forced_resolved";
-    delete tr.forced[m];
-  }else{
-    tr.statuses[m]="changed";
-  }
+  tr.history=tr.history||[];
+  tr.history.push({type:forced?"forced":"change",manager:m,outPlayerId:outgoingId||null,outPlayerName:forced?.playerName||outgoing?.name||"",inPlayerId:inP.id,inPlayerName:inP.name,club:activeClub||inP.team,stolenFrom:(owner&&owner!==m)?owner:"",formation:simulated.formation||"",at:new Date().toISOString()});
 
-  tr.outPlayer=null;
-  tr.draws=[];
-  tr.activeClub=null;
-  advanceTransferTurn(tr);
-  persist();
-  renderTransferPage();
-  renderFormations();
-  renderScores(false);
+  if(forced){tr.statuses[m]="forced_resolved";delete tr.forced[m];}else{tr.statuses[m]="changed";}
+  tr.outPlayer=null;tr.draws=[];tr.activeClub=null;
+  advanceTransferTurn(tr);persist();renderTransferPage();renderTransferHistory();renderFormations();renderScores(false);
 }
 function chooseIncoming(inId){
   if(!isCloudAdmin())return;
@@ -2152,11 +2216,11 @@ function passTransfer(){
   if(tr.forced?.[m])return alert("Este participante fue robado y está obligado a completar el plantel.");
   if(!confirm(`${m} quedará sin hacer cambios. Seguirá expuesto a que cualquier participante todavía habilitado le robe un jugador. ¿Confirmar?`))return;
   tr.statuses[m]="passed";
-  tr.outPlayer=null;
-  tr.draws=[];
-  tr.activeClub=null;
+  tr.history=tr.history||[];
+  tr.history.push({type:"pass",manager:m,at:new Date().toISOString()});
+  tr.outPlayer=null;tr.draws=[];tr.activeClub=null;
   advanceTransferTurn(tr);
-  persist();renderTransferPage();
+  persist();renderTransferPage();renderTransferHistory();
 }
 function findNextNormalTransferIndex(tr,start){
   let i=Math.max(0,start);
@@ -2250,7 +2314,7 @@ $("manager").onchange=()=>{
 ["search","posFilter","availFilter"].forEach(id=>$(id).addEventListener(id==="search"?"input":"change",renderPlayers));
 $("roundInput").onchange=()=>{renderScores();renderResults()};$("scoreSearch").oninput=()=>renderScores(false);
 $("formationManager").onchange=renderFormations;$("formationRound").onchange=renderFormations;
-$("transferRoundSelect").onchange=renderTransferPage;$("startTransferRound").onclick=startTransferRound;$("drawTransferClub").onclick=drawTransferClub;$("passTransfer").onclick=passTransfer;$("transferSearch").oninput=renderTransferPlayers;$("transferClubFilter").onchange=renderTransferPlayers;$("transferAvailability").onchange=renderTransferPlayers;
+$("transferRoundSelect").onchange=renderTransferPage;$("transferHistoryRound").onchange=renderTransferHistory;$("startTransferRound").onclick=startTransferRound;$("drawTransferClub").onclick=drawTransferClub;$("passTransfer").onclick=passTransfer;$("transferSearch").oninput=renderTransferPlayers;$("transferClubFilter").onchange=renderTransferPlayers;$("transferAvailability").onchange=renderTransferPlayers;
 $("backupBtn").onclick=backup;
 $("pullCloudBtn").onclick=async()=>{const ok=await pullCloudState({force:true});alert(ok?"Partida oficial recargada desde Supabase.":"No se pudo obtener una partida válida desde Supabase.")};
 $("adminLoginBtn").onclick=showAdminLogin;

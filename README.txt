@@ -1,18 +1,22 @@
-CHICHE LEAGUE CLAUSURA 2026 — V51
+CHICHE LEAGUE CLAUSURA 2026 — V53
 
-CORRECCIÓN CAMBIOS — REACOMODO DE FORMACIÓN
+CAMBIOS VISIBLE PARA USUARIOS COMUNES
 
-- Para cada incorporación se evalúan todas las formaciones habilitadas.
-- El plantel final conserva exactamente 1 suplente ARQ, 1 DEF, 1 VOL y 1 DEL.
-- La app puede pasar un titular al banco y poner al nuevo jugador de titular.
-- Puede cambiar automáticamente la formación.
-- Elige una configuración válida minimizando cambios de rol.
-- Si el capitán deja de ser titular, obliga a elegir uno nuevo.
-- La misma lógica vale para cambios normales y reemplazos obligatorios por robo.
+- La solapa Cambios ahora permanece visible en modo público.
+- Los usuarios comunes pueden ver:
+  * estado de la ronda actual;
+  * DT de turno;
+  * sorteos consumidos / club activo / descartados;
+  * historial de cambios por fecha.
+- No pueden:
+  * iniciar una ronda;
+  * sortear clubes;
+  * elegir jugador saliente;
+  * elegir jugador entrante;
+  * pasar / no cambiar;
+  * realizar ninguna escritura.
 
-Ejemplo:
-Si Jero tiene a Gaitán (Aldosivi) como suplente VOL y sortea Aldosivi,
-ahora pueden aparecer también DEF o DEL de Aldosivi si el plantel puede
-reacomodarse a una formación válida.
-
-Se preserva Supabase, STORAGE v25, base 17/08, puntajes, planteles e historial.
+- El administrador conserva exactamente los mismos controles de Cambios.
+- Supabase y STORAGE chicheLeagueDB_v25 se preservan.
+- El estado actual de la ronda no se reinicia.
+- El historial de Cambios sigue leyéndose desde state.transferRounds.

@@ -173,7 +173,7 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
 
 
 .transfer-history-list{display:grid;gap:7px}
-.transfer-history-row{display:grid;grid-template-columns:90px minmax(0,1.1fr) 28px minmax(0,1.1fr) minmax(120px,.8fr);gap:10px;align-items:center;padding:9px 11px;border:1px solid var(--border);border-radius:10px;background:var(--card2)}
+.transfer-history-row{display:grid;grid-template-columns:90px minmax(0,1fr) 28px minmax(0,1.25fr) minmax(110px,.7fr);gap:10px;align-items:center;padding:9px 11px;border:1px solid var(--border);border-radius:10px;background:var(--card2)}
 .transfer-history-manager{font-weight:900}.transfer-history-arrow{text-align:center;color:var(--muted);font-weight:900}.transfer-history-meta{font-size:11px;color:var(--muted);text-align:right}.transfer-history-empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:10px}
 @media(max-width:850px){.transfer-history-row{grid-template-columns:1fr;gap:4px}.transfer-history-arrow{display:none}.transfer-history-meta{text-align:left}}
 </style>
@@ -1933,6 +1933,18 @@ function transferOrderMarkup(tr){
 function transferHistoryRounds(){
   return roundsDescending(Object.keys(state.transferRounds||{}).filter(r=>Number(r)>=5));
 }
+function historyPlayerByName(name){
+  if(!name)return null;
+  const retired=state.retiredPlayers?Object.values(state.retiredPlayers):[];
+  return [...(state.players||[]),...retired].find(p=>p&&p.name===name)||null;
+}
+function transferHistoryOrigin(ev){
+  const owner=ev.sourceOwner||ev.stolenFrom||"";
+  if(owner)return `Lo tenía ${owner}`;
+  if(ev.wasFree===true)return "Libre";
+  if(ev.wasFree===false)return "Ocupado";
+  return "";
+}
 function transferHistoryEventLabel(ev){
   if(ev.type==="pass")return "Sin cambios";
   if(ev.type==="forced")return ev.stolenFrom?`Reposición · robo a ${ev.stolenFrom}`:"Reposición obligatoria";
@@ -1954,8 +1966,19 @@ function renderTransferHistory(){
   }
   const actual=events.filter(e=>e.type!=="pass"),passes=events.filter(e=>e.type==="pass");
   box.innerHTML=`<div class="transfer-history-list">${actual.map(ev=>{
-    const meta=[transferHistoryEventLabel(ev),ev.formation||"",ev.club||""].filter(Boolean).join(" · ");
-    return `<div class="transfer-history-row"><div class="transfer-history-manager">${esc(ev.manager)}</div><div><span class="muted">Sale</span> <b>${esc(ev.outPlayerName||"—")}</b></div><div class="transfer-history-arrow">→</div><div><span class="muted">Entra</span> <b>${esc(ev.inPlayerName||"—")}</b></div><div class="transfer-history-meta">${esc(meta)}</div></div>`;
+    const outName=ev.outPlayerName||"—",inName=ev.inPlayerName||"—";
+    const outObj=historyPlayerByName(outName),inObj=historyPlayerByName(inName);
+    const outTeam=ev.outPlayerTeam||outObj?.team||"";
+    const inTeam=ev.inPlayerTeam||inObj?.team||ev.club||"";
+    const origin=transferHistoryOrigin(ev);
+    const meta=[transferHistoryEventLabel(ev),ev.formation||""].filter(Boolean).join(" · ");
+    return `<div class="transfer-history-row">
+      <div class="transfer-history-manager">${esc(ev.manager)}</div>
+      <div><span class="muted">Sale</span> <b>${esc(outName)}</b>${outTeam?`<div class="muted" style="font-size:10.5px;margin-top:2px">${esc(outTeam)}</div>`:""}</div>
+      <div class="transfer-history-arrow">→</div>
+      <div><span class="muted">Entra</span> <b>${esc(inName)}</b><div class="muted" style="font-size:10.5px;margin-top:2px">${[inTeam,origin].filter(Boolean).map(esc).join(" · ")}</div></div>
+      <div class="transfer-history-meta">${esc(meta)}</div>
+    </div>`;
   }).join("")}</div>${passes.length?`<div class="muted" style="font-size:11px;margin-top:9px">Sin cambios: ${passes.map(e=>esc(e.manager)).join(", ")}</div>`:""}`;
 }
 
@@ -2172,7 +2195,7 @@ function finishTransferCommit(m,tr,simulated,inP,owner,forced){
   if(owner&&owner!==m)registerTransferVictim(owner,inP,tr);
 
   tr.history=tr.history||[];
-  tr.history.push({type:forced?"forced":"change",manager:m,outPlayerId:outgoingId||null,outPlayerName:forced?.playerName||outgoing?.name||"",inPlayerId:inP.id,inPlayerName:inP.name,club:activeClub||inP.team,stolenFrom:(owner&&owner!==m)?owner:"",formation:simulated.formation||"",at:new Date().toISOString()});
+  tr.history.push({type:forced?"forced":"change",manager:m,outPlayerId:outgoingId||null,outPlayerName:forced?.playerName||outgoing?.name||"",outPlayerTeam:outgoing?.team||"",inPlayerId:inP.id,inPlayerName:inP.name,inPlayerTeam:inP.team||activeClub||"",club:activeClub||inP.team,sourceOwner:(owner&&owner!==m)?owner:"",wasFree:!(owner&&owner!==m),stolenFrom:(owner&&owner!==m)?owner:"",formation:simulated.formation||"",at:new Date().toISOString()});
 
   if(forced){tr.statuses[m]="forced_resolved";delete tr.forced[m];}else{tr.statuses[m]="changed";}
   tr.outPlayer=null;tr.draws=[];tr.activeClub=null;

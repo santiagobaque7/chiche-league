@@ -356,7 +356,7 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
     <div class="cardhead">
       <div><h2>Ronda de cambios</h2><div class="muted" style="font-size:11px">Se habilita después de completar una fecha. Orden: último → primero. Los empates se desempatan por la tabla general previa.</div></div>
       <div class="toolbar">
-        <span class="muted">Fecha base</span><select id="transferRoundSelect" class="select"></select>
+        <span class="muted">Cambios previos a</span><select id="transferRoundSelect" class="select"></select>
         <button id="startTransferRound" class="btn primary">Iniciar ronda de cambios</button>
       </div>
     </div>
@@ -394,7 +394,7 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
 
   <div id="transferHistoryCard" class="card" style="margin-top:14px">
     <div class="transfer-history-card-head">
-      <div><h3 style="margin:0">Historial de cambios</h3><div class="muted" style="font-size:11px;margin-top:3px">Cambios confirmados por fecha. Incluye también a quienes no realizaron cambios.</div></div>
+      <div><h3 style="margin:0">Historial de cambios</h3><div class="muted" style="font-size:11px;margin-top:3px">Cambios realizados antes de cada fecha. Incluye también a quienes no realizaron cambios.</div></div>
       <select id="transferHistoryRound" class="select" style="width:auto;min-width:120px"></select>
     </div>
     <div class="transfer-history-body"><div id="transferHistoryList"></div></div>
@@ -757,6 +757,7 @@ function applyCloudAccessMode(){
 function renderAllCloudAware(){
   syncNavAvailability();
   applyCloudAccessMode();
+  syncCompetitionRoundContext(false);
   fillStatic();
   renderDraft();
   renderFormations();
@@ -770,6 +771,9 @@ async function initCloud(){
   applyCloudAccessMode();
 
   const loaded=await pullCloudState({force:true});
+  syncCompetitionRoundContext(true);
+  renderFormations();
+  renderScores();
   if(isCloudAdmin()){
     setCloudStatus(loaded?"Admin · sincronizado":"Admin · sin datos en nube",loaded?"admin":"error");
     const active=document.querySelector(".page.active")?.id;
@@ -1457,6 +1461,30 @@ function normalizeScore(v){
   const n=Number(t.replace(",", "."));
   return Number.isFinite(n)?n:null;
 }
+let lastAutoCompetitionRound=null;
+function competitionActiveRound(){
+  let target=5;
+  const scored=allRounds().map(Number).filter(Number.isFinite);
+  if(scored.length)target=Math.max(target,...scored);
+  const completedTransfers=Object.entries(state.transferRounds||{})
+    .filter(([,tr])=>tr&&tr.done)
+    .map(([rk])=>Number(rk)+1)
+    .filter(Number.isFinite);
+  if(completedTransfers.length)target=Math.max(target,...completedTransfers);
+  return target;
+}
+function syncCompetitionRoundContext(force=false){
+  const target=competitionActiveRound();
+  if(force||lastAutoCompetitionRound===null||target!==lastAutoCompetitionRound){
+    if($("roundInput"))$("roundInput").value=String(target);
+    if($("formationRound"))$("formationRound").value=String(target);
+  }
+  lastAutoCompetitionRound=target;
+  return target;
+}
+function transferTargetRoundLabel(baseRound){
+  return `Fecha ${Number(baseRound)+1}`;
+}
 function roundKey(){return String(Math.max(5,parseInt($("roundInput").value)||5))}
 function setScore(id,val){
   if(state.phase!=="confirmed")return;
@@ -1494,7 +1522,7 @@ function getConfirmedPlayerRows(rk=roundKey()){
   });
 }
 function renderScores(resetFocus=true){
-  if($("scoresModeText"))$("scoresModeText").textContent=isCloudAdmin()?"Administrador · cambios sincronizados con Supabase.":"Vista pública · se actualiza automáticamente desde Supabase.";
+  if($("scoresModeText"))$("scoresModeText").textContent=(isCloudAdmin()?"Administrador · ":"Vista pública · ")+`Fecha activa ${roundKey()} · `+(isCloudAdmin()?"cambios sincronizados con Supabase.":"se actualiza automáticamente desde Supabase.");
   const locked=state.phase!=="confirmed";$("scoresLocked").style.display=locked?"block":"none";$("scoresArea").style.display=locked?"none":"grid";if(locked)return;
   const rk=roundKey(),q=low($("scoreSearch").value),vals=state.rounds[rk]||{};
   const rows=getConfirmedPlayerRows(rk).filter(x=>!q||low(x.p.name+" "+x.p.team+" "+x.m).includes(q));
@@ -1559,8 +1587,9 @@ function renderDb(){
 
 function formationTeamsObject(){return state.phase==="confirmed"?state.confirmedTeams:state.draftRosters}
 function formationRoundOptions(){
-  const previous=$("formationRound").value,current=String(Math.max(5,parseInt($("roundInput")?.value)||5));
-  const opts=roundsDescending([...new Set([...allRounds().filter(r=>Number(r)>=5),current])]);
+  const previous=$("formationRound").value,current=String(Math.max(5,parseInt($("roundInput")?.value)||competitionActiveRound()));
+  const active=String(competitionActiveRound());
+  const opts=roundsDescending([...new Set([...allRounds().filter(r=>Number(r)>=5),current,active])]);
   $("formationRound").innerHTML=opts.map(r=>`<option value="${r}">Fecha ${r}</option>`).join("");
   if(previous&&opts.includes(previous))$("formationRound").value=previous;
   else $("formationRound").value=current;
@@ -1959,7 +1988,7 @@ function renderTransferHistory(){
   const sel=$("transferHistoryRound"),box=$("transferHistoryList");
   if(!sel||!box)return;
   const rounds=transferHistoryRounds(),current=sel.value;
-  sel.innerHTML=rounds.length?rounds.map(r=>`<option value="${r}">Fecha ${r}</option>`).join(""):'<option value="">Sin historial</option>';
+  sel.innerHTML=rounds.length?rounds.map(r=>`<option value="${r}">${transferTargetRoundLabel(r)}</option>`).join(""):'<option value="">Sin historial</option>';
   if(current&&rounds.includes(current))sel.value=current; else if(rounds.length)sel.value=rounds[0];
   if(!rounds.length){box.innerHTML='<div class="transfer-history-empty">Todavía no hay rondas de cambios registradas.</div>';return;}
   const rk=sel.value,tr=normalizeTransferRound(state.transferRounds[rk]),events=tr?.history||[];
@@ -2011,7 +2040,7 @@ function renderTransferPage(){
   renderTransferHistory();
   const previous=$("transferRoundSelect").value;
   const rounds=roundsDescending(allRounds().filter(r=>Number(r)>=5));
-  $("transferRoundSelect").innerHTML=rounds.map(r=>`<option value="${r}">Fecha ${r}</option>`).join("");
+  $("transferRoundSelect").innerHTML=rounds.map(r=>`<option value="${r}">${transferTargetRoundLabel(r)}</option>`).join("");
   if(previous&&rounds.includes(previous))$("transferRoundSelect").value=previous;
   if(!rounds.length){
     $("transferStatus").textContent="Todavía no hay fechas cargadas desde la Fecha 5.";
@@ -2019,21 +2048,21 @@ function renderTransferPage(){
   }
   const rk=$("transferRoundSelect").value||rounds[0],tr=normalizeTransferRound(state.transferRounds[rk]);
   if(!roundComplete(rk)){
-    $("transferStatus").textContent=`La Fecha ${rk} todavía no tiene todos los puntajes cargados. La ronda de cambios permanece bloqueada.`;
+    $("transferStatus").textContent=`La Fecha ${rk} todavía no tiene todos los puntajes cargados. Los cambios previos a la Fecha ${Number(rk)+1} permanecen bloqueados.`;
     $("transferArea").style.display="none";return;
   }
   if(!tr){
-    $("transferStatus").textContent=`Fecha ${rk} completa. Podés iniciar la ronda de cambios.`;
+    $("transferStatus").textContent=`Fecha ${rk} completa. Podés iniciar los cambios previos a la Fecha ${Number(rk)+1}.`;
     $("transferArea").style.display="none";return;
   }
   if(tr.done){
-    $("transferStatus").innerHTML=`La ronda de cambios posterior a la Fecha ${rk} ya terminó. <b>Todos los planteles quedaron cerrados.</b>`;
+    $("transferStatus").innerHTML=`Los cambios previos a la Fecha ${Number(rk)+1} ya terminaron. <b>Todos los planteles quedaron cerrados para la próxima fecha.</b>`;
     $("transferArea").style.display="none";return;
   }
 
   const m=currentTransferManager(tr),forced=tr.forced?.[m],limit=transferTurnLimit(m,tr);
   $("transferArea").style.display="grid";
-  $("transferStatus").innerHTML=`Ronda posterior a la Fecha ${rk}. Turno de <b>${esc(m)}</b>${forced?` · <span class="badge red">reemplazo obligatorio</span>`:""}.`;
+  $("transferStatus").innerHTML=`Cambios previos a la Fecha ${Number(rk)+1}. Turno de <b>${esc(m)}</b>${forced?` · <span class="badge red">reemplazo obligatorio</span>`:""}.`;
   $("transferTurnTitle").textContent=`Turno de ${m}`;
   $("transferOrderText").innerHTML=transferOrderMarkup(tr);
 
@@ -2064,7 +2093,7 @@ function startTransferRound(){
   const rk=$("transferRoundSelect").value;
   if(!rk||!roundComplete(rk))return;
   const latest=latestCompletedRoundForTransfers();
-  if(!state.transferRounds[rk]&&rk!==latest)return alert(`Sólo se puede iniciar una nueva ronda para la última fecha finalizada (Fecha ${latest}). Las anteriores quedan como historial.`);
+  if(!state.transferRounds[rk]&&rk!==latest)return alert(`Sólo se pueden iniciar cambios para la próxima fecha correspondiente a la última fecha finalizada (cambios previos a Fecha ${Number(latest)+1}). Las anteriores quedan como historial.`);
   if(state.transferRounds[rk]&&!state.transferRounds[rk].done)return renderTransferPage();
   if(state.transferRounds[rk]?.done)return alert("La ronda de cambios de esta fecha ya está finalizada.");
   initTransferState(rk);renderTransferPage();
@@ -2252,7 +2281,9 @@ function passTransfer(){
   tr.history.push({type:"pass",manager:m,at:new Date().toISOString()});
   tr.outPlayer=null;tr.draws=[];tr.activeClub=null;
   advanceTransferTurn(tr);
-  persist();renderTransferPage();renderTransferHistory();
+  persist();
+  renderTransferPage();renderTransferHistory();
+  if(tr.done){renderFormations();renderScores(false);}
 }
 function findNextNormalTransferIndex(tr,start){
   let i=Math.max(0,start);
@@ -2290,6 +2321,7 @@ function advanceTransferTurn(tr){
       return;
     }
     tr.done=true;
+    syncCompetitionRoundContext(true);
   }
 }
 

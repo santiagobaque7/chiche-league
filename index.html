@@ -739,8 +739,9 @@ async function cloudLogout(){
   }catch{}
   saveCloudSession(null);
   setCloudStatus("Vista pública","online");
+  lastLandingLifecycleKey=null;
   await pullCloudState({force:true,quiet:true});
-  setPage("scores");
+  applyLandingLifecycle({force:true,allowSwitch:true});
 }
 function showAdminLogin(){
   modal("Acceso administrador",`
@@ -759,7 +760,7 @@ function showAdminLogin(){
         $("modalBack").classList.remove("show");
         const loaded=await pullCloudState({force:true});
         renderAllCloudAware();
-        setPage(state.phase==="confirmed"?"formations":state.phase==="draft"?"draft":"scores");
+        applyLandingLifecycle({force:true,allowSwitch:true});
         alert(loaded?"Sesión iniciada. Se cargó la partida oficial desde Supabase.":"Sesión iniciada, pero no se encontró una partida válida en Supabase.");
       }catch(e){$("cloudLoginError").textContent=e.message}
     }
@@ -858,25 +859,33 @@ function renderAllCloudAware(){
   renderMatchScores();
   renderDb();
   if(document.querySelector("#transfers.active"))renderTransferPage();
+
+  // No pisa la navegación manual mientras la situación de la fecha no cambie.
+  // Sí cambia automáticamente cuando una fecha comienza o termina.
+  if(!cloudBooting)applyLandingLifecycle({force:false,allowSwitch:true});
 }
 async function initCloud(){
   cloudSession=getCloudSession();
   if(cloudSession&&cloudSession.expires_at&&cloudSession.expires_at-Date.now()<60000)await refreshCloudSession();
   applyCloudAccessMode();
 
+  // Durante el pull no dejamos que un render intermedio elija la pantalla;
+  // la landing se decide una sola vez con el estado oficial ya cargado.
+  lastLandingLifecycleKey=null;
   const loaded=await pullCloudState({force:true});
   syncCompetitionRoundContext(true);
   renderFormations();
   renderScores();
+  renderMatchScores();
+
   if(isCloudAdmin()){
     setCloudStatus(loaded?"Admin · sincronizado":"Admin · sin datos en nube",loaded?"admin":"error");
-    const active=document.querySelector(".page.active")?.id;
-    if(!["draft","formations","scores","transfers","database"].includes(active)){
-      setPage(state.phase==="confirmed"?"formations":state.phase==="draft"?"draft":"scores");
-    }
+    if(state.phase==="welcome")setPage("welcome");
+    else if(state.phase==="setup")setPage("setup");
+    else if(state.phase==="draft")setPage("draft");
+    else applyLandingLifecycle({force:true,allowSwitch:true});
   }else{
-    const active=document.querySelector(".page.active")?.id;
-    if(!["formations","scores","matchScores","transfers"].includes(active))setPage("scores");
+    applyLandingLifecycle({force:true,allowSwitch:true});
   }
 
   cloudBooting=false;
@@ -1601,6 +1610,21 @@ function setScore(id,val,rkOverride=null){
   }
 
   persist();renderScores(false);renderMatchScores();renderResults();renderFormations();
+
+  const life=landingLifecycle();
+  const activePage=document.querySelector(".page.active")?.id||"";
+  const defaultResultPages=["scores","matchScores"];
+
+  if(roundComplete(rk)){
+    // Último puntaje de la fecha: todos pasan a ver el cierre en Puntajes.
+    applyLandingLifecycle({force:true,allowSwitch:true});
+  }else if(defaultResultPages.includes(activePage)){
+    // Si comenzó una fecha nueva, Fixture y Resultados pasa a ser la vista
+    // natural de seguimiento. No interfiere si el Admin está en otro módulo.
+    applyLandingLifecycle({force:false,allowSwitch:true});
+  }else{
+    lastLandingLifecycleKey=life.key;
+  }
 }
 function getConfirmedPlayerRows(rk=roundKey()){
   const out=[];
@@ -1654,6 +1678,80 @@ function matchAssignedPlayers(rk,team){
   });
 }
 function scoreIsResolved(v){return typeof v==="number"||v==="NO JUEGA"}
+
+let lastLandingLifecycleKey=null;
+
+function roundHasStarted(rk){
+  const vals=state.rounds?.[rk]||{};
+  return Object.values(vals).some(v=>scoreIsResolved(v));
+}
+function startedRounds(){
+  return Object.keys(state.rounds||{})
+    .filter(r=>Number(r)>=5&&roundHasStarted(r))
+    .sort((a,b)=>Number(a)-Number(b));
+}
+function latestStartedRound(){
+  const rounds=startedRounds();
+  return rounds.length?rounds[rounds.length-1]:null;
+}
+function latestClosedRound(){
+  const rounds=startedRounds().filter(r=>roundComplete(r));
+  return rounds.length?rounds[rounds.length-1]:null;
+}
+function landingLifecycle(){
+  if(state.phase!=="confirmed"){
+    return {mode:state.phase,round:null,key:`${state.phase}:none`};
+  }
+
+  const latest=latestStartedRound();
+
+  if(latest&&!roundComplete(latest)){
+    return {mode:"live",round:String(latest),key:`live:${latest}`};
+  }
+
+  if(latest&&roundComplete(latest)){
+    return {mode:"closed",round:String(latest),key:`closed:${latest}`};
+  }
+
+  const closed=latestClosedRound();
+  if(closed)return {mode:"closed",round:String(closed),key:`closed:${closed}`};
+
+  return {mode:"waiting",round:String(competitionActiveRound()),key:`waiting:${competitionActiveRound()}`};
+}
+function applyLandingLifecycle({force=false,allowSwitch=true}={}){
+  const life=landingLifecycle();
+
+  if(state.phase==="draft"){
+    if(force&&isCloudAdmin())setPage("draft");
+    lastLandingLifecycleKey=life.key;
+    return life;
+  }
+  if(state.phase!=="confirmed"){
+    lastLandingLifecycleKey=life.key;
+    return life;
+  }
+
+  const changed=lastLandingLifecycleKey!==life.key;
+
+  if(life.mode==="live"){
+    if($("matchScoresRound"))$("matchScoresRound").value=life.round;
+    if($("roundInput"))$("roundInput").value=life.round;
+    if(allowSwitch&&(force||changed))setPage("matchScores");
+  }else if(life.mode==="closed"){
+    // Mientras no haya empezado la siguiente fecha, Puntajes debe seguir
+    // mostrando la última fecha que efectivamente terminó.
+    if($("roundInput"))$("roundInput").value=life.round;
+    if(allowSwitch&&(force||changed))setPage("scores");
+  }else{
+    // Antes de la primera fecha: no aterrizamos en Formaciones.
+    if($("roundInput"))$("roundInput").value=life.round;
+    if(allowSwitch&&force)setPage("scores");
+  }
+
+  lastLandingLifecycleKey=life.key;
+  return life;
+}
+
 function matchPlayerRowHtml(row,rk){
   const {m,r,p}=row,vals=state.rounds[rk]||{},v=vals[p.id]??"";
   const cls=v==="NO JUEGA"?"no-play":typeof v==="number"?"scored":"";
@@ -2701,8 +2799,9 @@ else if(state.lateJoin&&isCloudAdmin()){renderFormations();renderScores();render
 else{
   $("manager").value=(state.draftOrder&&state.draftOrder[0])||state.participants[0]||"";
   if(state.participants.length)loadManager();
-  renderFormations();renderScores();renderResults();renderDb();
-  setPage(isCloudAdmin()?(state.phase==="draft"?"draft":"formations"):"scores");
+  renderFormations();renderScores();renderMatchScores();renderResults();renderDb();
+  if(state.phase==="draft"&&isCloudAdmin())setPage("draft");
+  else applyLandingLifecycle({force:true,allowSwitch:true});
 }
 setTimeout(showOfficialBaseMigrationWarning,120);
 setTimeout(initCloud,80);

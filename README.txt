@@ -1,11 +1,14 @@
-CHICHE LEAGUE CLAUSURA 2026 — V57
+CHICHE LEAGUE CLAUSURA 2026 — V60
 
-FLUJO AUTOMÁTICO DE FECHAS
-- Mientras una fecha está en juego, Formaciones y Puntajes muestran esa fecha.
-- Si la fecha termina pero la ronda de cambios todavía no terminó, el contexto sigue en esa fecha.
-- Al finalizar todos los cambios posteriores a una fecha, Formaciones y Puntajes avanzan automáticamente a la fecha siguiente.
-- Cambios conserva y presenta el historial como “Cambios previos a Fecha N”.
-- El selector de Cambios muestra la fecha que se va a jugar, aunque internamente la ronda siga asociada a la fecha base anterior.
-- Funciona tanto para Admin como para usuarios públicos al recibir el estado desde Supabase.
-- No reinicia ni modifica el estado de la ronda actual.
-- Supabase y STORAGE v25 preservados.
+FIXTURE Y RESULTADOS
+- Eliminado el segundo título/subtítulo redundante.
+- Día centrado sobre el resultado.
+- Sin información de canal/TV.
+- Admin puede editar día y horario desde la app.
+- Programación guardada en state.matchSchedules y sincronizada con Supabase.
+- Si falta día u horario se muestra Día a confirmar / A confirmar.
+- Cuando se carga resultado, el horario se reemplaza por Final.
+- Jugadores de cada equipo ordenados ARQ, DEF, VOL, DEL.
+- Filtro Buscar DT para mostrar sólo partidos donde ese DT tiene jugadores asignados.
+- Público en sólo lectura.
+- STORAGE chicheLeagueDB_v25 preservado.

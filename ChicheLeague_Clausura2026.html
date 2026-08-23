@@ -1591,13 +1591,13 @@ function transferTargetRoundLabel(baseRound){
   return `Fecha ${Number(baseRound)+1}`;
 }
 function roundKey(){return String(Math.max(5,parseInt($("roundInput").value)||5))}
-function setScore(id,val,rkOverride=null){
+function setScore(id,val,rkOverride=null,keepFixtureOpen=false){
   if(state.phase!=="confirmed"||!isCloudAdmin())return;
   const norm=normalizeScore(val);
   if(norm===null){
     alert("Puntaje inválido. Ingresá un número, NJ / NO JUEGA o J / JUEGA.");
     renderScores(false);
-    renderMatchScores();
+    if(!keepFixtureOpen)renderMatchScores();
     return;
   }
   const rk=String(rkOverride||roundKey());if(!state.rounds[rk])state.rounds[rk]={};
@@ -1609,7 +1609,11 @@ function setScore(id,val,rkOverride=null){
     delete state.rosterHistory[rk];
   }
 
-  persist();renderScores(false);renderMatchScores();renderResults();renderFormations();
+  persist();
+  renderScores(false);
+  if(!keepFixtureOpen)renderMatchScores();
+  renderResults();
+  renderFormations();
 
   const life=landingLifecycle();
   const activePage=document.querySelector(".page.active")?.id||"";
@@ -1618,9 +1622,10 @@ function setScore(id,val,rkOverride=null){
   if(roundComplete(rk)){
     // Último puntaje de la fecha: todos pasan a ver el cierre en Puntajes.
     applyLandingLifecycle({force:true,allowSwitch:true});
+  }else if(keepFixtureOpen&&activePage==="matchScores"){
+    // Estamos cargando este partido: no reconstruimos la vista.
+    lastLandingLifecycleKey=life.key;
   }else if(defaultResultPages.includes(activePage)){
-    // Si comenzó una fecha nueva, Fixture y Resultados pasa a ser la vista
-    // natural de seguimiento. No interfiere si el Admin está en otro módulo.
     applyLandingLifecycle({force:false,allowSwitch:true});
   }else{
     lastLandingLifecycleKey=life.key;
@@ -1752,6 +1757,33 @@ function applyLandingLifecycle({force=false,allowSwitch=true}={}){
   return life;
 }
 
+function updateFixtureScoreInput(input,value){
+  if(!input)return;
+  input.value=value??"";
+  input.classList.toggle("no-play",value==="NO JUEGA");
+  input.classList.toggle("scored",typeof value==="number");
+}
+function updateMatchGameCounters(rk){
+  document.querySelectorAll(`.match-game[data-round="${rk}"]`).forEach(card=>{
+    const index=Number(card.dataset.index),g=(FIXTURE_2026[rk]||[])[index];
+    if(!g)return;
+    const assigned=[...matchAssignedPlayers(rk,g.home),...matchAssignedPlayers(rk,g.away)];
+    const vals=state.rounds[rk]||{};
+    const loaded=assigned.filter(x=>scoreIsResolved(vals[x.p.id])).length;
+    const pending=assigned.length-loaded;
+    const loadedEl=card.querySelector(".match-count.loaded");
+    const pendingEl=card.querySelector(".match-count.pending");
+    if(loadedEl)loadedEl.textContent=`${loaded} puntajes cargados`;
+    if(pendingEl)pendingEl.textContent=`${pending} puntajes pendientes`;
+  });
+}
+function setFixtureScore(id,input,rk){
+  setScore(id,input.value,rk,true);
+  const value=state.rounds?.[rk]?.[id]??"";
+  updateFixtureScoreInput(input,value);
+  updateMatchGameCounters(rk);
+}
+
 function matchPlayerRowHtml(row,rk){
   const {m,r,p}=row,vals=state.rounds[rk]||{},v=vals[p.id]??"";
   const cls=v==="NO JUEGA"?"no-play":typeof v==="number"?"scored":"";
@@ -1760,7 +1792,7 @@ function matchPlayerRowHtml(row,rk){
     <div class="match-player-name">${esc(p.name)}<small>${esc(role)}${r.captain===p.id?" · C":""}</small></div>
     <div class="match-player-manager">${esc(m)}</div>
     <div><span class="pos pos-${p.position}">${p.position}</span></div>
-    <div><input class="scoreinput ${cls} ${isCloudAdmin()?"":"public-readonly"}" value="${esc(v)}" placeholder="${isCloudAdmin()?"Puntos / NJ":"—"}" ${isCloudAdmin()?`onchange="setScore(${p.id},this.value,'${rk}')"`:"disabled"}></div>
+    <div><input class="scoreinput ${cls} ${isCloudAdmin()?"":"public-readonly"}" value="${esc(v)}" placeholder="${isCloudAdmin()?"Puntos / NJ":"—"}" ${isCloudAdmin()?`onchange="setFixtureScore(${p.id},this,'${rk}')"`:"disabled"}></div>
   </div>`;
 }
 function renderMatchTeam(team,rk){
@@ -1882,7 +1914,7 @@ function renderMatchScores(){
     const result=getMatchResult(rk,i,g),final=!!result;
     const central=final?`${g.home} ${result.home} - ${result.away} ${g.away}`:`${g.home} - ${g.away}`;
     const status=final?"Final":(schedule.time||"A confirmar");
-    group.items.push(`<details class="match-game">
+    group.items.push(`<details class="match-game" data-round="${rk}" data-index="${i}">
       <summary>
         <div class="match-game-status ${final?"final":""}">${esc(status)}</div>
         <div class="match-game-title">${esc(central)}</div>

@@ -1,9 +1,16 @@
-CHICHE LEAGUE CLAUSURA 2026 — V64
+CHICHE LEAGUE CLAUSURA 2026 — V66
 
-CARGA CONTINUA DESDE FIXTURE Y RESULTADOS
-- Al cargar un puntaje, el partido abierto permanece desplegado.
-- Se pueden completar de corrido todos los jugadores de local y visitante.
-- Los contadores cargados/pendientes se actualizan sin reconstruir la vista.
-- El input cambia visualmente a puntaje cargado / NO JUEGA sin cerrar el partido.
-- Al cargar el último puntaje pendiente de toda la fecha, se mantiene la regla existente: la app pasa a Puntajes porque la fecha quedó cerrada.
-- Supabase y STORAGE v25 preservados.
+FIXTURE ORDENADO AUTOMÁTICAMENTE
+
+- Fixture y Resultados ya no conserva el orden original cuando el Admin modifica programación.
+- Los partidos se ordenan siempre por:
+  1. día;
+  2. horario;
+  3. orden original sólo como desempate.
+- Los partidos sin día confirmado quedan al final.
+- Dentro de un día, los partidos sin horario confirmado quedan al final de ese día.
+- Cada encabezado de fecha aparece una sola vez.
+- Al guardar un cambio de día/horario, el fixture se reorganiza automáticamente.
+- Se preserva toda la V65: base oficial 25/08, Supabase, puntajes, resultados,
+  cambios, landing dinámica y carga continua por partido.
+- STORAGE chicheLeagueDB_v25 preservado.

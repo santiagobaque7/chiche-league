@@ -752,6 +752,132 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   .formation-summary b{font-size:9.5px}
 }
 
+
+/* V73 · Historial de cambios simplificado */
+.transfer-history-controls{
+  grid-template-columns:155px 155px minmax(180px,1fr) auto!important;
+}
+.transfer-history-summary,.transfer-history-note{display:none!important}
+.transfer-ledger-row{
+  grid-template-columns:82px minmax(0,1fr) minmax(0,1fr)!important;
+  gap:8px!important;
+  min-height:46px!important;
+}
+.transfer-ledger-row.pass{
+  grid-template-columns:82px minmax(0,1fr)!important;
+}
+.transfer-ledger-manager{
+  white-space:normal!important;
+  line-height:1.05;
+}
+.transfer-ledger-manager small{
+  display:block;
+  color:#f0c66f;
+  font-size:8.5px;
+  font-weight:800;
+  margin-top:3px;
+}
+.transfer-ledger-player{
+  min-width:0;
+}
+.transfer-ledger-sub{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.transfer-pass-text{
+  text-align:center!important;
+}
+.transfer-ledger-type{display:none!important}
+
+@media(max-width:760px){
+  .transfer-history-controls{
+    grid-template-columns:1fr 1fr!important;
+  }
+  #transferHistoryPlayer{
+    grid-column:1/-1;
+  }
+  #transferHistoryReset{
+    grid-column:1/-1;
+  }
+  .transfer-ledger-row{
+    grid-template-columns:1fr!important;
+    gap:6px!important;
+  }
+  .transfer-ledger-row.pass{
+    grid-template-columns:1fr!important;
+    text-align:center;
+  }
+  .transfer-ledger-manager{
+    grid-column:1!important;
+  }
+  .transfer-ledger-player{
+    grid-column:1!important;
+  }
+  .transfer-pass-text{
+    grid-column:1!important;
+  }
+}
+
+/* V73 · Mobile header: title completo + todas las vistas visibles */
+@media(max-width:700px){
+  .top{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-areas:
+      "brand cloud"
+      "nav nav"!important;
+    gap:5px 7px!important;
+    padding:6px 7px!important;
+  }
+  .brand{
+    grid-area:brand!important;
+    font-size:11.5px!important;
+    line-height:1.05!important;
+    white-space:nowrap!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+    min-width:0!important;
+  }
+  .cloudbar{
+    grid-area:cloud!important;
+    justify-self:end!important;
+    gap:4px!important;
+  }
+  .cloud-status{
+    display:none!important;
+  }
+  .cloudbar .btn.small{
+    font-size:9.5px!important;
+    padding:4px 6px!important;
+    min-height:27px!important;
+  }
+  .nav{
+    grid-area:nav!important;
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:4px!important;
+    overflow:visible!important;
+    width:100%!important;
+    padding:0!important;
+  }
+  .nav button{
+    width:100%!important;
+    min-width:0!important;
+    min-height:30px!important;
+    padding:5px 4px!important;
+    font-size:10px!important;
+    line-height:1.05!important;
+    white-space:normal!important;
+    text-align:center!important;
+    border-radius:7px!important;
+  }
+}
+@media(max-width:390px){
+  .brand{font-size:10.5px!important}
+  .nav button{font-size:9.5px!important;padding:5px 3px!important}
+}
+
 </style>
 </head>
 <body>
@@ -1007,23 +1133,14 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     </div>
 
     <div class="transfer-history-controls">
-      <select id="transferHistoryRound" class="select" aria-label="Ronda"></select>
+      <select id="transferHistoryRound" class="select" aria-label="Fecha"></select>
       <select id="transferHistoryManager" class="select" aria-label="DT">
         <option value="">Todos los DT</option>
       </select>
       <input id="transferHistoryPlayer" class="input" placeholder="Buscar jugador..." aria-label="Jugador">
-      <select id="transferHistoryType" class="select" aria-label="Tipo">
-        <option value="">Todos los movimientos</option>
-        <option value="robbery">Con robo</option>
-        <option value="forced">Reposición obligatoria</option>
-        <option value="free">Con jugador libre</option>
-        <option value="pass">Sin cambios</option>
-      </select>
       <button id="transferHistoryReset" class="btn small" type="button">Restablecer</button>
     </div>
 
-    <div id="transferHistorySummary" class="transfer-history-summary"></div>
-    <div class="transfer-history-note">Un movimiento puede tener más de una condición: por ejemplo, una reposición obligatoria también puede ser un robo.</div>
     <div class="transfer-history-body"><div id="transferHistoryList"></div></div>
   </div>
 </section>
@@ -3111,7 +3228,6 @@ function transferHistoryFilteredRows(){
   const roundFilter=$("transferHistoryRound")?.value||preferredTransferHistoryRound()||"all";
   const manager=low($("transferHistoryManager")?.value||"");
   const playerQ=low($("transferHistoryPlayer")?.value||"").trim();
-  const type=$("transferHistoryType")?.value||"";
 
   return transferHistoryRows(roundFilter).filter(({ev})=>{
     if(manager&&low(ev.manager)!==manager)return false;
@@ -3125,52 +3241,8 @@ function transferHistoryFilteredRows(){
     ].join(" "));
     if(playerQ&&!haystack.includes(playerQ))return false;
 
-    const flags=transferHistoryFlags(ev);
-    if(type&&type==="robbery"&&!flags.robbery)return false;
-    if(type&&type==="forced"&&!flags.forced)return false;
-    if(type&&type==="free"&&!flags.free)return false;
-    if(type&&type==="pass"&&!flags.pass)return false;
     return true;
   });
-}
-function renderTransferHistorySummary(rows){
-  const box=$("transferHistorySummary");
-  if(!box)return;
-
-  const actual=rows.filter(x=>x.ev.type!=="pass");
-  const robberies=actual.filter(x=>transferHistoryFlags(x.ev).robbery).length;
-  const forced=actual.filter(x=>transferHistoryFlags(x.ev).forced).length;
-  const free=actual.filter(x=>transferHistoryFlags(x.ev).free).length;
-  const passes=rows.filter(x=>transferHistoryFlags(x.ev).pass).length;
-
-  box.innerHTML=`
-    <div class="transfer-history-stat"><b>${actual.length}</b><span>Movimientos</span></div>
-    <div class="transfer-history-stat robbery"><b>${robberies}</b><span>Robos</span></div>
-    <div class="transfer-history-stat forced"><b>${forced}</b><span>Obligados</span></div>
-    <div class="transfer-history-stat free"><b>${free}</b><span>Libres</span></div>
-    <div class="transfer-history-stat"><b>${passes}</b><span>Sin cambios</span></div>`;
-}
-function transferHistoryTags(ev){
-  const tags=[];
-  if(ev.stolenFrom||ev.sourceOwner)tags.push(`<span class="transfer-history-tag robbery">${esc(`Robo · ${ev.stolenFrom||ev.sourceOwner}`)}</span>`);
-  else if(ev.wasFree===true)tags.push('<span class="transfer-history-tag free">Libre</span>');
-  if(ev.type==="forced")tags.push('<span class="transfer-history-tag forced">Reposición obligatoria</span>');
-  if(ev.formation)tags.push(`<span class="transfer-history-tag">${esc(ev.formation)}</span>`);
-  return tags.join("");
-}
-function transferHistoryBadges(ev){
-  const flags=transferHistoryFlags(ev);
-  if(flags.pass)return '<span class="transfer-type-badge pass">Sin cambios</span>';
-
-  const badges=[];
-  if(flags.forced)badges.push('<span class="transfer-type-badge forced">Reposición obligatoria</span>');
-  if(flags.robbery){
-    const owner=ev.stolenFrom||ev.sourceOwner||"";
-    badges.push(`<span class="transfer-type-badge robbery">${esc(owner?`Robo · ${owner}`:"Robo")}</span>`);
-  }else if(flags.free){
-    badges.push('<span class="transfer-type-badge free">Jugador libre</span>');
-  }
-  return badges.join("");
 }
 function resetTransferHistoryFilters(){
   const round=$("transferHistoryRound");
@@ -3180,8 +3252,31 @@ function resetTransferHistoryFilters(){
   }
   if($("transferHistoryManager"))$("transferHistoryManager").value="";
   if($("transferHistoryPlayer"))$("transferHistoryPlayer").value="";
-  if($("transferHistoryType"))$("transferHistoryType").value="";
   renderTransferHistory();
+}
+
+
+function transferPlayerPosition(name){
+  const p=historyPlayerByName(name);
+  return p?.position||"";
+}
+function outgoingTransferContext(groupRows,ev){
+  if(!ev.outPlayerName)return "Libre";
+  const thief=groupRows.find(row=>{
+    const other=row.ev||{};
+    return other.manager!==ev.manager
+      && other.inPlayerName===ev.outPlayerName
+      && (other.stolenFrom===ev.manager||other.sourceOwner===ev.manager);
+  });
+  return thief?`Robado por ${thief.ev.manager}`:"Libre";
+}
+function incomingTransferContext(ev){
+  const owner=ev.stolenFrom||ev.sourceOwner||"";
+  return owner?`Robado a ${owner}`:"Libre";
+}
+function movementSecondaryLabel(ev){
+  if(ev.type==="forced")return "Reposición obligatoria";
+  return "";
 }
 
 function renderTransferHistory(){
@@ -3190,7 +3285,6 @@ function renderTransferHistory(){
 
   populateTransferHistoryFilters();
   const rows=transferHistoryFilteredRows();
-  renderTransferHistorySummary(rows);
 
   if(!transferHistoryRounds().length){
     box.innerHTML='<div class="transfer-history-empty">Todavía no hay rondas de cambios registradas.</div>';
@@ -3219,7 +3313,6 @@ function renderTransferHistory(){
         return `<div class="transfer-ledger-row pass">
           <div class="transfer-ledger-manager">${esc(ev.manager)}</div>
           <div class="transfer-pass-text">No realizó cambios.</div>
-          <div class="transfer-ledger-type">${transferHistoryBadges(ev)}</div>
         </div>`;
       }
 
@@ -3227,16 +3320,23 @@ function renderTransferHistory(){
       const outObj=historyPlayerByName(outName),inObj=historyPlayerByName(inName);
       const outTeam=ev.outPlayerTeam||outObj?.team||"";
       const inTeam=ev.inPlayerTeam||inObj?.team||ev.club||"";
-      const origin=transferHistoryOrigin(ev);
+      const outPos=outObj?.position||transferPlayerPosition(outName);
+      const inPos=inObj?.position||transferPlayerPosition(inName);
+      const outContext=outgoingTransferContext(group.rows,ev);
+      const inContext=incomingTransferContext(ev);
+      const secondary=movementSecondaryLabel(ev);
 
       return `<div class="transfer-ledger-row">
-        <div class="transfer-ledger-manager">${esc(ev.manager)}</div>
+        <div class="transfer-ledger-manager">
+          ${esc(ev.manager)}
+          ${secondary?`<small>${esc(secondary)}</small>`:""}
+        </div>
 
         <div class="transfer-ledger-player out-player">
           <div class="transfer-ledger-icon out">↓</div>
           <div>
             <div class="transfer-ledger-name">${esc(outName)}</div>
-            <div class="transfer-ledger-sub">${esc(outTeam||"")}</div>
+            <div class="transfer-ledger-sub">${[outPos,outTeam,outContext].filter(Boolean).map(esc).join(" · ")}</div>
           </div>
         </div>
 
@@ -3244,13 +3344,8 @@ function renderTransferHistory(){
           <div class="transfer-ledger-icon in">↑</div>
           <div>
             <div class="transfer-ledger-name">${esc(inName)}</div>
-            <div class="transfer-ledger-sub">${[inTeam,origin].filter(Boolean).map(esc).join(" · ")}</div>
+            <div class="transfer-ledger-sub">${[inPos,inTeam,inContext].filter(Boolean).map(esc).join(" · ")}</div>
           </div>
-        </div>
-
-        <div class="transfer-ledger-type">
-          ${transferHistoryBadges(ev)}
-          ${ev.formation?`<span class="transfer-type-badge">${esc(ev.formation)}</span>`:""}
         </div>
       </div>`;
     }).join("");
@@ -3631,7 +3726,6 @@ $("transferRoundSelect").onchange=renderTransferPage;
 $("transferHistoryRound").onchange=()=>{$("transferHistoryRound").dataset.userSelected="1";renderTransferHistory()};
 $("transferHistoryManager").onchange=renderTransferHistory;
 $("transferHistoryPlayer").oninput=renderTransferHistory;
-$("transferHistoryType").onchange=renderTransferHistory;
 $("transferHistoryReset").onclick=resetTransferHistoryFilters;
 $("startTransferRound").onclick=startTransferRound;$("drawTransferClub").onclick=drawTransferClub;$("passTransfer").onclick=passTransfer;$("transferSearch").oninput=renderTransferPlayers;$("transferClubFilter").onchange=renderTransferPlayers;$("transferAvailability").onchange=renderTransferPlayers;
 $("backupBtn").onclick=backup;

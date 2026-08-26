@@ -1057,6 +1057,116 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   }
 }
 
+
+/* V75 · Fix real del esquema mobile */
+@media(max-width:700px){
+  #formations .field-wrap{
+    min-height:430px!important;
+    height:430px!important;
+    grid-template-rows:18px minmax(0,1fr) 74px!important;
+  }
+
+  /* Anula la vieja regla mobile que imponía min-height:540px */
+  #formations .football-field{
+    min-height:0!important;
+    height:auto!important;
+    width:100%!important;
+    overflow:hidden!important;
+  }
+
+  /* Cada línea reparte el ancho disponible según la cantidad de jugadores */
+  #formations .field-line{
+    left:3%!important;
+    right:3%!important;
+    width:auto!important;
+    display:flex!important;
+    justify-content:space-evenly!important;
+    align-items:flex-start!important;
+    gap:2px!important;
+  }
+
+  #formations .field-line .field-player{
+    width:auto!important;
+    max-width:82px!important;
+    min-width:0!important;
+    flex:1 1 0!important;
+  }
+
+  #formations .field-line .field-name,
+  #formations .field-line .field-team{
+    width:100%!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+  }
+
+  /* Más separación real entre líneas */
+  #formations .line-arq{bottom:5%!important}
+  #formations .line-def{bottom:29%!important}
+  #formations .line-vol{bottom:55%!important}
+  #formations .line-del{bottom:80%!important}
+
+  /* Suplentes fuera de la cancha, en su propia fila */
+  #formations .field-bench{
+    min-height:0!important;
+    height:74px!important;
+    overflow:hidden!important;
+    padding-top:4px!important;
+    border-top:1px solid #1f3143!important;
+    background:#0f1822!important;
+  }
+  #formations .field-bench-row{
+    height:54px!important;
+    display:flex!important;
+    justify-content:space-evenly!important;
+    align-items:flex-start!important;
+    gap:2px!important;
+  }
+  #formations .field-bench .field-player{
+    width:auto!important;
+    max-width:72px!important;
+    min-width:0!important;
+    flex:1 1 0!important;
+  }
+  #formations .field-bench .field-name,
+  #formations .field-bench .field-team{
+    width:100%!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+  }
+}
+
+/* Pantallas especialmente angostas */
+@media(max-width:390px){
+  #formations .field-wrap{
+    min-height:410px!important;
+    height:410px!important;
+    grid-template-rows:17px minmax(0,1fr) 70px!important;
+  }
+  #formations .field-line .field-player{
+    max-width:70px!important;
+  }
+  #formations .field-bench{
+    height:70px!important;
+  }
+  #formations .field-bench .field-player{
+    max-width:62px!important;
+  }
+  #formations .player-dot{
+    width:29px!important;
+    height:29px!important;
+  }
+  #formations .field-name{
+    font-size:9.2px!important;
+  }
+  #formations .field-team{
+    font-size:7px!important;
+  }
+}
+
 </style>
 </head>
 <body>

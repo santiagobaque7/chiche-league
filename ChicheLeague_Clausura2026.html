@@ -1167,6 +1167,31 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   }
 }
 
+
+/* V76 · Mobile: ocultar esquema táctico en Formaciones */
+@media(max-width:700px){
+  #formations .formations-layout{
+    display:block!important;
+    height:auto!important;
+  }
+  #formations .field-wrap{
+    display:none!important;
+  }
+  #formations .formations-layout::after{
+    content:"El esquema táctico no se muestra en celular para priorizar lectura y evitar cortes. Podés ver el plantel completo desde el listado.";
+    display:block;
+    margin-top:10px;
+    padding:12px 14px;
+    border:1px solid #1f4f7f;
+    border-radius:16px;
+    background:rgba(14,31,48,.78);
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.35;
+    text-align:center;
+  }
+}
+
 </style>
 </head>
 <body>

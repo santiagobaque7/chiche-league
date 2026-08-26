@@ -1,29 +1,26 @@
-CHICHE LEAGUE CLAUSURA 2026 — V69
+CHICHE LEAGUE CLAUSURA 2026 — V71
 
-CORRECCIONES FIXTURE Y CAMBIOS
+PUNTAJES · CARGA RÁPIDA
+- Enter guarda el puntaje y mueve el foco al jugador siguiente.
+- Shift+Enter vuelve al jugador anterior.
+- Flecha abajo / arriba navega entre inputs sin usar el mouse.
+- Al entrar a una celda se selecciona su contenido para reemplazarlo directamente.
+- Tocar/clickear cualquier otro input sigue funcionando normalmente.
 
-FIXTURE Y RESULTADOS
-- Restaurado el formato visual validado de V66.
-- Se elimina búsqueda libre por DT.
-- Nuevo dropdown por DT.
-- Nuevo dropdown por Equipo.
-- Ambos filtros pueden combinarse.
-- Se mantiene orden automático por día/horario.
-- No se modificó el diseño de partidos, fechas ni detalle de jugadores.
+REDISEÑO MOBILE
+- Header mucho más compacto.
+- Primera fila: marca + estado/Admin.
+- Segunda fila: navegación horizontal desplazable en una sola línea.
+- Se elimina el menú vertical sobredimensionado.
+- Menor padding general sin reducir excesivamente la tipografía.
+- Puntajes: tablas y filas más densas pero legibles.
+- Fixture: encabezado, filtros, partidos y contadores más compactos.
+- Cambios: filtros y resumen más bajos.
+- Formaciones: mejor densidad del plantel; en pantallas angostas lista y cancha se apilan.
 
-CAMBIOS
-- Eliminada la flecha gris entre jugador saliente y entrante.
-- Las filas quedan más limpias: DT / Sale / Entra / Tipo.
-- La fecha aparece una sola vez como título del bloque: "Fecha X".
-- Se elimina por completo la nomenclatura "Previos a FX".
-- En "Todas las rondas", los movimientos quedan agrupados por Fecha.
-- En una ronda individual, también se muestra el título de Fecha correspondiente.
-- Formación se conserva como etiqueta secundaria del movimiento.
-
-MOBILE
-- Dropdowns de DT y Equipo se acomodan en dos columnas.
-- Selector de Fecha queda debajo a ancho completo.
-- Se mantiene el formato responsive validado del fixture.
+CRITERIO
+- Se prioriza mostrar más información útil en celular sin hacer texto demasiado pequeño.
+- Se mantienen targets táctiles razonables.
 
 PERSISTENCIA
 - Supabase preservado.

@@ -195,14 +195,14 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
 .transfer-ledger-icon.in{background:#173f2e;color:#70e7aa}
 .transfer-ledger-name{font-size:11.5px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.05}
 .transfer-ledger-sub{font-size:9.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
-.transfer-ledger-type{display:flex;justify-content:flex-start;min-width:0}
+.transfer-ledger-type{display:flex;justify-content:flex-end;align-items:center;gap:5px;min-width:0;flex-wrap:wrap}
 .transfer-type-badge{display:inline-flex;align-items:center;max-width:100%;font-size:9.5px;font-weight:800;border-radius:999px;padding:3px 7px;border:1px solid var(--line);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .transfer-type-badge.robbery{border-color:#743d45;color:#ff9c9c;background:#25171b}
 .transfer-type-badge.forced{border-color:#766038;color:#f4c97a;background:#251f13}
 .transfer-type-badge.free{border-color:#2f6d55;color:#76e8b0;background:#11251c}
 .transfer-type-badge.pass{border-color:#38516c;color:#a8bdd2;background:#101923}
-.transfer-ledger-row.pass{grid-template-columns:78px minmax(0,1fr) 165px}
-.transfer-pass-text{font-size:11.5px;font-weight:800;color:#d6e1ec}
+.transfer-ledger-row.pass{grid-template-columns:78px minmax(0,1fr) 165px;min-height:44px}
+.transfer-pass-text{font-size:11.5px;font-weight:800;color:#d6e1ec;text-align:center;letter-spacing:.05px}
 .transfer-history-empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:10px;margin-top:9px}
 @media(max-width:1050px){
   .transfer-history-controls{grid-template-columns:145px 145px minmax(160px,1fr) 175px auto}
@@ -349,6 +349,289 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   #matchScores .match-top-tools>span.muted{display:none}
   #matchManagerFilter,#matchTeamFilter{min-width:0!important;width:100%}
   #matchScoresRound{grid-column:1/-1;width:100%}
+}
+
+
+.transfer-ledger-row.pass .transfer-ledger-manager{align-self:center}
+.transfer-ledger-row.pass .transfer-ledger-type{justify-content:flex-end}
+@media(max-width:760px){
+  .transfer-ledger-row.pass{grid-template-columns:72px minmax(0,1fr)!important;align-items:center}
+  .transfer-ledger-row.pass .transfer-ledger-manager{grid-column:1}
+  .transfer-ledger-row.pass .transfer-pass-text{grid-column:2;text-align:center}
+  .transfer-ledger-row.pass .transfer-ledger-type{grid-column:1/-1;justify-content:center}
+}
+@media(max-width:480px){
+  .transfer-ledger-row.pass{grid-template-columns:1fr!important;text-align:center}
+  .transfer-ledger-row.pass .transfer-ledger-manager,
+  .transfer-ledger-row.pass .transfer-pass-text,
+  .transfer-ledger-row.pass .transfer-ledger-type{grid-column:1}
+  .transfer-ledger-row.pass .transfer-ledger-manager{text-align:center}
+}
+
+
+.transfer-history-note{padding:5px 10px 6px;color:var(--muted);font-size:9.5px;border-bottom:1px solid var(--line);background:rgba(0,0,0,.035)}
+@media(max-width:620px){.transfer-history-note{padding:5px 8px;font-size:9px}}
+
+
+/* V71 · Mobile-first header and density */
+@media(max-width:700px){
+  .top{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:
+      "brand cloud"
+      "nav nav";
+    align-items:center;
+    gap:5px 8px;
+    padding:6px 7px 5px;
+  }
+  .brand{
+    grid-area:brand;
+    font-size:12.5px;
+    line-height:1.05;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    letter-spacing:0;
+  }
+  .brand span{display:inline;color:var(--sky)}
+  .cloudbar{
+    grid-area:cloud;
+    margin-left:0;
+    gap:5px;
+    justify-self:end;
+    min-width:0;
+  }
+  .cloud-status{
+    font-size:9px;
+    max-width:110px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .cloudbar .btn.small{
+    padding:4px 7px;
+    font-size:10px;
+    border-radius:7px;
+  }
+  .nav{
+    grid-area:nav;
+    width:100%;
+    display:flex;
+    flex-wrap:nowrap;
+    gap:5px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding:1px 0 2px;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  .nav::-webkit-scrollbar{display:none}
+  .nav button{
+    flex:0 0 auto;
+    white-space:nowrap;
+    font-size:11px;
+    line-height:1;
+    padding:6px 8px;
+    min-height:29px;
+    border-radius:8px;
+  }
+  .page{
+    padding:5px 6px;
+  }
+  .card{
+    border-radius:10px;
+  }
+  .cardhead{
+    padding:7px 9px;
+  }
+  .cardhead h2,.cardhead h3{
+    font-size:14px;
+  }
+  .muted{
+    font-size:10.5px;
+  }
+}
+
+/* Balanced mobile density by module */
+@media(max-width:620px){
+  #formations>.card:first-child .cardhead,
+  #scores>.card:first-child .cardhead{
+    gap:6px;
+  }
+
+  #formations>.card:first-child .toolbar,
+  #scores>.card:first-child .toolbar{
+    gap:5px;
+  }
+
+  #formations>.card:first-child .toolbar .select,
+  #scores>.card:first-child .toolbar .select,
+  #scores>.card:first-child .toolbar .input{
+    min-height:36px;
+    padding:7px 9px;
+  }
+
+  #scores .scores-unified{
+    gap:8px;
+  }
+  #scores .scores-side{
+    gap:8px;
+  }
+  #scores .scores-rank-card table th{
+    font-size:9.5px;
+    height:25px;
+  }
+  #scores .scores-rank-card table td{
+    font-size:12px;
+    padding-top:4px;
+    padding-bottom:4px;
+  }
+  #scores .scores-entry-card table th{
+    font-size:9.5px;
+  }
+  #scores .scores-entry-card table td{
+    font-size:12px;
+    padding-top:5px;
+    padding-bottom:5px;
+  }
+  #scores .scores-entry-card td.name{
+    font-size:12.5px;
+  }
+  #scores .scores-entry-card .scoreinput{
+    width:82px;
+    height:32px;
+    font-size:12.5px;
+  }
+
+  #matchScores>.card:first-child .cardhead{
+    display:grid;
+    grid-template-columns:1fr;
+    align-items:stretch;
+    gap:6px;
+  }
+  #matchScores .match-top-tools{
+    grid-template-columns:1fr 1fr;
+    gap:5px;
+  }
+  #matchScores .match-top-tools .select{
+    min-height:35px;
+    padding:7px 8px;
+    font-size:11px;
+  }
+  #matchScoresRound{
+    grid-column:1/-1;
+  }
+  .match-fixture-list{
+    padding:8px 8px 11px;
+    gap:11px;
+  }
+  .match-day-group{
+    gap:6px;
+  }
+  .match-day-group + .match-day-group{
+    padding-top:10px;
+  }
+  .match-day-title{
+    min-height:24px;
+    padding:3px 7px;
+    font-size:12px;
+  }
+  .match-game summary{
+    padding:8px 9px;
+  }
+  .match-game-status{
+    font-size:10.5px;
+  }
+  .match-game-title{
+    font-size:11.5px;
+  }
+  .match-count{
+    font-size:9px;
+    padding:2px 5px;
+  }
+
+  #transfers>.card:first-child .cardhead{
+    padding:8px 9px;
+  }
+  #transfers>.card:first-child .toolbar{
+    gap:5px;
+  }
+  #transfers>.card:first-child .toolbar .select,
+  #transfers>.card:first-child .toolbar .btn{
+    min-height:35px;
+    padding:7px 8px;
+    font-size:11px;
+  }
+  .transfer-history-card-head{
+    padding:8px 9px;
+  }
+  .transfer-history-controls{
+    gap:5px;
+  }
+  .transfer-history-controls .select,
+  .transfer-history-controls .input,
+  .transfer-history-controls .btn{
+    min-height:35px;
+    height:35px;
+    font-size:11px;
+  }
+  .transfer-history-summary{
+    padding:6px 8px;
+  }
+  .transfer-history-stat{
+    padding:3px 6px;
+  }
+  .transfer-history-stat b{
+    font-size:12px;
+  }
+  .transfer-history-stat span{
+    font-size:8.5px;
+  }
+
+  #formations .form-list{
+    padding-left:7px;
+    padding-right:7px;
+  }
+  #formations .form-row{
+    min-height:29px;
+    grid-template-columns:39px minmax(145px,1fr) auto;
+    gap:6px;
+  }
+  #formations .form-player-name{
+    font-size:12.5px;
+  }
+  #formations .form-player-meta{
+    font-size:9.5px;
+  }
+}
+
+
+@media(max-width:900px){
+  #formations .formations-layout{
+    grid-template-columns:1fr;
+    height:auto;
+    min-height:0;
+  }
+  #formations .form-list{
+    overflow:visible;
+  }
+  #formations .field-wrap{
+    min-height:520px;
+    height:520px;
+  }
+}
+@media(max-width:620px){
+  #formations .field-wrap{
+    min-height:470px;
+    height:470px;
+    padding:5px 7px;
+  }
+}
+
+
+@media(pointer:coarse){
+  .scoreinput{min-height:34px}
+  .select,.input,.btn,.nav button{touch-action:manipulation}
 }
 
 </style>
@@ -608,15 +891,16 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <input id="transferHistoryPlayer" class="input" placeholder="Buscar jugador..." aria-label="Jugador">
       <select id="transferHistoryType" class="select" aria-label="Tipo">
         <option value="">Todos los movimientos</option>
-        <option value="robbery">Robos</option>
+        <option value="robbery">Con robo</option>
         <option value="forced">Reposición obligatoria</option>
-        <option value="free">Incorporaciones libres</option>
+        <option value="free">Con jugador libre</option>
         <option value="pass">Sin cambios</option>
       </select>
       <button id="transferHistoryReset" class="btn small" type="button">Restablecer</button>
     </div>
 
     <div id="transferHistorySummary" class="transfer-history-summary"></div>
+    <div class="transfer-history-note">Un movimiento puede tener más de una condición: por ejemplo, una reposición obligatoria también puede ser un robo.</div>
     <div class="transfer-history-body"><div id="transferHistoryList"></div></div>
   </div>
 </section>
@@ -2103,6 +2387,37 @@ function renderMatchScores(){
   list.innerHTML=groups.map(group=>`<section class="match-day-group"><div class="match-day-title">${esc(group.dateLabel)}</div><div class="match-day-games">${group.items.join("")}</div></section>`).join("");
 }
 
+
+function focusScoreInputRelative(currentId,step=1){
+  const inputs=[...document.querySelectorAll('#scoresBody .scoreinput[data-score-id]')];
+  if(!inputs.length)return;
+  const idx=inputs.findIndex(el=>Number(el.dataset.scoreId)===Number(currentId));
+  if(idx<0)return;
+  const next=inputs[idx+step];
+  if(!next)return;
+  next.focus({preventScroll:false});
+  if(typeof next.select==="function")next.select();
+}
+function handleScoreInputKey(event,id,input){
+  if(!isCloudAdmin())return;
+  if(event.key==="Enter"){
+    event.preventDefault();
+    const step=event.shiftKey?-1:1;
+    setScore(id,input.value);
+    setTimeout(()=>focusScoreInputRelative(id,step),0);
+    return;
+  }
+  if(event.key==="ArrowDown"){
+    event.preventDefault();
+    focusScoreInputRelative(id,1);
+    return;
+  }
+  if(event.key==="ArrowUp"){
+    event.preventDefault();
+    focusScoreInputRelative(id,-1);
+  }
+}
+
 function renderScores(resetFocus=true){
   if($("scoresModeText"))$("scoresModeText").textContent=(isCloudAdmin()?"Administrador · ":"Vista pública · ")+`Fecha activa ${roundKey()} · `+(isCloudAdmin()?"cambios sincronizados con Supabase.":"se actualiza automáticamente desde Supabase.");
   const locked=state.phase!=="confirmed";$("scoresLocked").style.display=locked?"block":"none";$("scoresArea").style.display=locked?"none":"grid";if(locked)return;
@@ -2117,7 +2432,7 @@ function renderScores(resetFocus=true){
   });
   $("scoresBody").innerHTML=rows.map(({m,r,p})=>{
     const v=vals[p.id]??"",cls=v==="NO JUEGA"?"no-play":typeof v==="number"?"scored":"";
-    return `<tr><td class="name">${esc(p.name)}</td><td>${esc(p.team)}</td><td><span class="pos pos-${p.position}">${p.position}</span></td><td>${esc(m)}</td><td>${esc(r.roles[p.id]||"")}${r.captain===p.id?' <span class="badge">C</span>':""}</td><td><input class="scoreinput ${cls} ${isCloudAdmin()?"":"public-readonly"}" value="${esc(v)}" placeholder="${isCloudAdmin()?"Puntos / NJ":"—"}" ${isCloudAdmin()?`onchange="setScore(${p.id},this.value)"`:"disabled"}></td></tr>`
+    return `<tr><td class="name">${esc(p.name)}</td><td>${esc(p.team)}</td><td><span class="pos pos-${p.position}">${p.position}</span></td><td>${esc(m)}</td><td>${esc(r.roles[p.id]||"")}${r.captain===p.id?' <span class="badge">C</span>':""}</td><td><input class="scoreinput ${cls} ${isCloudAdmin()?"":"public-readonly"}" data-score-id="${p.id}" value="${esc(v)}" placeholder="${isCloudAdmin()?"Puntos / NJ":"—"}" ${isCloudAdmin()?`onfocus="this.select()" onkeydown="handleScoreInputKey(event,${p.id},this)" onchange="setScore(${p.id},this.value)"`:"disabled"}></td></tr>`
   }).join("");
   updateRoundOptions();
   renderRankingTables("scoresRoundRanking","scoresGeneralRanking","scoresRoundRankingTitle",rk);
@@ -2581,11 +2896,12 @@ function transferHistoryEventLabel(ev){
   if(ev.stolenFrom)return `Robo a ${ev.stolenFrom}`;
   return "Cambio";
 }
-function transferHistoryEventType(ev){
-  if(ev.type==="pass")return "pass";
-  if(ev.type==="forced")return "forced";
-  if(ev.stolenFrom||ev.sourceOwner)return "robbery";
-  return "free";
+function transferHistoryFlags(ev){
+  const pass=ev.type==="pass";
+  const forced=ev.type==="forced";
+  const robbery=!!(ev.stolenFrom||ev.sourceOwner);
+  const free=!pass&&!robbery&&(ev.wasFree===true||(!ev.stolenFrom&&!ev.sourceOwner));
+  return {pass,forced,robbery,free};
 }
 function transferHistoryRows(roundFilter){
   const rounds=transferHistoryRounds();
@@ -2645,8 +2961,11 @@ function transferHistoryFilteredRows(){
     ].join(" "));
     if(playerQ&&!haystack.includes(playerQ))return false;
 
-    const evType=transferHistoryEventType(ev);
-    if(type&&evType!==type)return false;
+    const flags=transferHistoryFlags(ev);
+    if(type&&type==="robbery"&&!flags.robbery)return false;
+    if(type&&type==="forced"&&!flags.forced)return false;
+    if(type&&type==="free"&&!flags.free)return false;
+    if(type&&type==="pass"&&!flags.pass)return false;
     return true;
   });
 }
@@ -2655,10 +2974,10 @@ function renderTransferHistorySummary(rows){
   if(!box)return;
 
   const actual=rows.filter(x=>x.ev.type!=="pass");
-  const robberies=actual.filter(x=>transferHistoryEventType(x.ev)==="robbery").length;
-  const forced=actual.filter(x=>transferHistoryEventType(x.ev)==="forced").length;
-  const free=actual.filter(x=>transferHistoryEventType(x.ev)==="free").length;
-  const passes=rows.filter(x=>x.ev.type==="pass").length;
+  const robberies=actual.filter(x=>transferHistoryFlags(x.ev).robbery).length;
+  const forced=actual.filter(x=>transferHistoryFlags(x.ev).forced).length;
+  const free=actual.filter(x=>transferHistoryFlags(x.ev).free).length;
+  const passes=rows.filter(x=>transferHistoryFlags(x.ev).pass).length;
 
   box.innerHTML=`
     <div class="transfer-history-stat"><b>${actual.length}</b><span>Movimientos</span></div>
@@ -2675,15 +2994,19 @@ function transferHistoryTags(ev){
   if(ev.formation)tags.push(`<span class="transfer-history-tag">${esc(ev.formation)}</span>`);
   return tags.join("");
 }
-function transferHistoryTypeLabel(ev){
-  const type=transferHistoryEventType(ev);
-  if(type==="robbery")return {text:`Robo${ev.stolenFrom||ev.sourceOwner?` · ${ev.stolenFrom||ev.sourceOwner}`:""}`,cls:"robbery"};
-  if(type==="forced"){
-    const extra=ev.stolenFrom||ev.sourceOwner;
-    return {text:extra?`Reposición obligatoria · robó a ${extra}`:"Reposición obligatoria",cls:"forced"};
+function transferHistoryBadges(ev){
+  const flags=transferHistoryFlags(ev);
+  if(flags.pass)return '<span class="transfer-type-badge pass">Sin cambios</span>';
+
+  const badges=[];
+  if(flags.forced)badges.push('<span class="transfer-type-badge forced">Reposición obligatoria</span>');
+  if(flags.robbery){
+    const owner=ev.stolenFrom||ev.sourceOwner||"";
+    badges.push(`<span class="transfer-type-badge robbery">${esc(owner?`Robo · ${owner}`:"Robo")}</span>`);
+  }else if(flags.free){
+    badges.push('<span class="transfer-type-badge free">Jugador libre</span>');
   }
-  if(type==="free")return {text:"Incorporación libre",cls:"free"};
-  return {text:"Sin cambios",cls:"pass"};
+  return badges.join("");
 }
 function resetTransferHistoryFilters(){
   const round=$("transferHistoryRound");
@@ -2728,13 +3051,11 @@ function renderTransferHistory(){
   box.innerHTML=grouped.map(group=>{
     const dateTitle=`Fecha ${Number(group.rk)+1}`;
     const body=group.rows.map(({ev})=>{
-      const typeInfo=transferHistoryTypeLabel(ev);
-
       if(ev.type==="pass"){
         return `<div class="transfer-ledger-row pass">
           <div class="transfer-ledger-manager">${esc(ev.manager)}</div>
           <div class="transfer-pass-text">No realizó cambios.</div>
-          <div class="transfer-ledger-type"><span class="transfer-type-badge pass">Sin cambios</span></div>
+          <div class="transfer-ledger-type">${transferHistoryBadges(ev)}</div>
         </div>`;
       }
 
@@ -2764,8 +3085,8 @@ function renderTransferHistory(){
         </div>
 
         <div class="transfer-ledger-type">
-          <span class="transfer-type-badge ${typeInfo.cls}">${esc(typeInfo.text)}</span>
-          ${ev.formation?`<span class="transfer-type-badge" style="margin-left:5px">${esc(ev.formation)}</span>`:""}
+          ${transferHistoryBadges(ev)}
+          ${ev.formation?`<span class="transfer-type-badge">${esc(ev.formation)}</span>`:""}
         </div>
       </div>`;
     }).join("");

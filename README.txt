@@ -1,24 +1,24 @@
-CHICHE LEAGUE CLAUSURA 2026 — V73
+CHICHE LEAGUE CLAUSURA 2026 — V74
 
-HISTORIAL DE CAMBIOS
-- Se elimina la columna/área alineada a la derecha.
-- Se elimina filtro por tipo de movimiento.
-- Se elimina resumen Movimientos / Robos / Obligados / Libres / Sin cambios.
-- Filtros restantes: Fecha / DT / Jugador.
-- Jugador que sale:
-  POS · EQUIPO · Robado por X / Libre.
-- Jugador que entra:
-  POS · EQUIPO · Robado a X / Libre.
-- Si el movimiento es una reposición obligatoria, se indica de forma secundaria debajo del DT.
-- Los jugadores que no realizaron cambios mantienen una fila compacta y centrada.
+FORMACIONES MOBILE
+- Cancha más baja y proporcionada.
+- Círculos de jugadores reducidos.
+- Nombres, clubes y puntajes algo más compactos.
+- Líneas ARQ/DEF/VOL/DEL separadas para reducir superposiciones.
+- Suplentes más compactos y claramente separados del campo.
+- En pantallas muy angostas se reduce un poco más.
 
-MOBILE HEADER
-- El título CHICHE LEAGUE · CLAUSURA 2026 se muestra completo.
-- Se oculta el texto de estado de sincronización en mobile para liberar ancho.
-- Todas las vistas quedan visibles en una grilla compacta de 3 columnas.
-- No hay navegación cortada ni desplazamiento horizontal del menú.
+FIXTURE Y RESULTADOS
+- Inputs de puntaje usan 16px en mobile para evitar el zoom automático de iOS.
+- Enter guarda y pasa al jugador siguiente del partido abierto.
+- Shift+Enter vuelve al anterior.
+- Flechas ↑/↓ navegan entre inputs.
+- Al enfocar un puntaje se selecciona el contenido.
+- El partido permanece abierto durante la carga.
+- Contadores cargados/pendientes siguen actualizándose sin cerrar el partido.
 
 PERSISTENCIA
+- Se parte de V73.
 - Supabase preservado.
 - STORAGE chicheLeagueDB_v25 preservado.
-- Base oficial 25/08/2026 preservada.
+- Historial simplificado y header mobile preservados.

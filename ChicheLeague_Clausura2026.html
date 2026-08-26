@@ -878,6 +878,185 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   .nav button{font-size:9.5px!important;padding:5px 3px!important}
 }
 
+
+/* V74 · Formaciones mobile equilibradas */
+@media(max-width:700px){
+  #formations .field-wrap{
+    min-height:410px!important;
+    height:410px!important;
+    padding:4px 6px!important;
+    grid-template-rows:18px minmax(0,1fr) 72px!important;
+    gap:2px!important;
+  }
+  #formations .field-titlebar{
+    min-height:18px!important;
+    font-size:10px!important;
+  }
+  #formations .football-field{
+    border-width:1.5px!important;
+    border-radius:10px!important;
+  }
+  #formations .football-field:before{
+    height:1.5px!important;
+  }
+  #formations .football-field:after{
+    width:88px!important;
+    height:88px!important;
+    border-width:1.5px!important;
+  }
+  #formations .box-top,
+  #formations .box-bottom{
+    width:185px!important;
+    height:66px!important;
+    border-width:1.5px!important;
+  }
+  #formations .field-line{
+    left:4%!important;
+    right:4%!important;
+    gap:2px!important;
+  }
+  #formations .line-arq{bottom:4%!important}
+  #formations .line-def{bottom:27%!important}
+  #formations .line-vol{bottom:53%!important}
+  #formations .line-del{bottom:78%!important}
+
+  #formations .field-player{
+    width:82px!important;
+  }
+  #formations .player-dot{
+    width:33px!important;
+    height:33px!important;
+    font-size:10px!important;
+    border-width:1.5px!important;
+    margin-bottom:2px!important;
+  }
+  #formations .field-name{
+    font-size:10.5px!important;
+    line-height:1.02!important;
+    max-width:82px!important;
+    margin:0 auto!important;
+  }
+  #formations .field-team{
+    font-size:8px!important;
+    line-height:1!important;
+    max-width:82px!important;
+    margin:1px auto 0!important;
+  }
+  #formations .field-score{
+    font-size:9px!important;
+    padding:1px 5px!important;
+    margin-top:1px!important;
+  }
+  #formations .captain-badge{
+    width:17px!important;
+    height:17px!important;
+    right:8px!important;
+    top:-1px!important;
+    font-size:9px!important;
+    border-width:1.5px!important;
+  }
+
+  #formations .field-bench{
+    padding-top:3px!important;
+  }
+  #formations .field-bench-title{
+    font-size:9.5px!important;
+    margin-bottom:1px!important;
+  }
+  #formations .field-bench-row{
+    height:52px!important;
+    gap:2px!important;
+  }
+  #formations .field-bench .field-player{
+    width:72px!important;
+  }
+  #formations .field-bench .player-dot{
+    width:24px!important;
+    height:24px!important;
+    font-size:8px!important;
+  }
+  #formations .field-bench .field-name{
+    font-size:8px!important;
+    max-width:72px!important;
+  }
+  #formations .field-bench .field-team{
+    font-size:6.8px!important;
+    max-width:72px!important;
+  }
+  #formations .field-bench .field-score{
+    font-size:7.5px!important;
+    padding:1px 3px!important;
+  }
+  #formations .field-bench .captain-badge{
+    width:14px!important;
+    height:14px!important;
+    right:9px!important;
+    font-size:7px!important;
+  }
+}
+
+/* Muy angosto: todavía un poco más compacto */
+@media(max-width:390px){
+  #formations .field-wrap{
+    min-height:385px!important;
+    height:385px!important;
+    grid-template-rows:17px minmax(0,1fr) 66px!important;
+  }
+  #formations .field-player{width:74px!important}
+  #formations .player-dot{width:30px!important;height:30px!important;font-size:9px!important}
+  #formations .field-name{font-size:9.8px!important;max-width:74px!important}
+  #formations .field-team{font-size:7.4px!important;max-width:74px!important}
+  #formations .field-bench .field-player{width:66px!important}
+}
+
+/* V74 · Fixture mobile: sin zoom de iOS al enfocar inputs */
+@media(max-width:700px){
+  #matchScores .match-player-row .scoreinput{
+    font-size:16px!important;
+    line-height:1.1!important;
+    height:36px!important;
+    min-height:36px!important;
+    padding:5px 6px!important;
+    width:100%!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+  }
+  #matchScores .match-player-row{
+    grid-template-columns:minmax(0,1fr) 72px 40px 104px!important;
+    gap:5px!important;
+    padding:5px 6px!important;
+  }
+  #matchScores .match-player-name{
+    font-size:11.5px!important;
+    min-width:0!important;
+  }
+  #matchScores .match-player-name small{
+    font-size:9px!important;
+  }
+  #matchScores .match-player-manager{
+    font-size:10.5px!important;
+  }
+  #matchScores .match-player-row .pos{
+    min-width:36px!important;
+    padding:4px 3px!important;
+    font-size:9.5px!important;
+  }
+}
+
+/* iPhone muy angosto */
+@media(max-width:390px){
+  #matchScores .match-player-row{
+    grid-template-columns:minmax(0,1fr) 64px 36px 96px!important;
+    gap:4px!important;
+    padding:4px 5px!important;
+  }
+  #matchScores .match-player-manager{font-size:10px!important}
+  #matchScores .match-player-row .scoreinput{
+    font-size:16px!important;
+    height:35px!important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2453,6 +2632,41 @@ function updateMatchGameCounters(rk){
     if(pendingEl)pendingEl.textContent=`${pending} puntajes pendientes`;
   });
 }
+
+function fixtureScoreInputs(input){
+  const game=input?.closest(".match-game");
+  if(!game)return [];
+  return [...game.querySelectorAll(".match-player-row .scoreinput[data-fixture-score-id]")];
+}
+function focusFixtureScoreRelative(input,step=1){
+  const inputs=fixtureScoreInputs(input);
+  const idx=inputs.indexOf(input);
+  if(idx<0)return;
+  const next=inputs[idx+step];
+  if(!next)return;
+  next.focus({preventScroll:false});
+  if(typeof next.select==="function")next.select();
+}
+function handleFixtureScoreKey(event,id,input,rk){
+  if(!isCloudAdmin())return;
+  if(event.key==="Enter"){
+    event.preventDefault();
+    const step=event.shiftKey?-1:1;
+    setFixtureScore(id,input,rk);
+    setTimeout(()=>focusFixtureScoreRelative(input,step),0);
+    return;
+  }
+  if(event.key==="ArrowDown"){
+    event.preventDefault();
+    focusFixtureScoreRelative(input,1);
+    return;
+  }
+  if(event.key==="ArrowUp"){
+    event.preventDefault();
+    focusFixtureScoreRelative(input,-1);
+  }
+}
+
 function setFixtureScore(id,input,rk){
   setScore(id,input.value,rk,true);
   const value=state.rounds?.[rk]?.[id]??"";
@@ -2468,7 +2682,7 @@ function matchPlayerRowHtml(row,rk){
     <div class="match-player-name">${esc(p.name)}<small>${esc(role)}${r.captain===p.id?" · C":""}</small></div>
     <div class="match-player-manager">${esc(m)}</div>
     <div><span class="pos pos-${p.position}">${p.position}</span></div>
-    <div><input class="scoreinput ${cls} ${isCloudAdmin()?"":"public-readonly"}" value="${esc(v)}" placeholder="${isCloudAdmin()?"Puntos / NJ":"—"}" ${isCloudAdmin()?`onchange="setFixtureScore(${p.id},this,'${rk}')"`:"disabled"}></div>
+    <div><input class="scoreinput ${cls} ${isCloudAdmin()?"":"public-readonly"}" data-fixture-score-id="${p.id}" value="${esc(v)}" placeholder="${isCloudAdmin()?"Puntos / NJ":"—"}" ${isCloudAdmin()?`onfocus="this.select()" onkeydown="handleFixtureScoreKey(event,${p.id},this,'${rk}')" onchange="setFixtureScore(${p.id},this,'${rk}')"`:"disabled"}></div>
   </div>`;
 }
 function renderMatchTeam(team,rk){

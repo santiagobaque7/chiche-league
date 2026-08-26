@@ -172,133 +172,74 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
 .scores-rank-card td,.scores-rank-card th{white-space:nowrap}
 
 
-.transfer-history-card-head{padding:10px 12px;border-bottom:1px solid var(--line)}
-.transfer-history-controls{display:grid;grid-template-columns:170px 170px minmax(180px,1fr) 190px;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);background:rgba(0,0,0,.08)}
-.transfer-history-controls .select,.transfer-history-controls .input{width:100%;min-width:0}
-.transfer-history-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:10px 12px 0}
-.transfer-history-stat{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
-.transfer-history-stat b{display:block;font-size:17px;line-height:1.05}
-.transfer-history-stat span{font-size:10px;color:var(--muted)}
-.transfer-history-stat.robbery b{color:#ff9b9b}
+.transfer-history-card-head{padding:9px 11px;border-bottom:1px solid var(--line)}
+.transfer-history-controls{display:grid;grid-template-columns:155px 155px minmax(180px,1fr) 190px auto;gap:7px;padding:8px 10px;border-bottom:1px solid var(--line);background:rgba(0,0,0,.06)}
+.transfer-history-controls .select,.transfer-history-controls .input{width:100%;min-width:0;height:34px;padding-top:6px;padding-bottom:6px}
+.transfer-history-controls .btn{height:34px;white-space:nowrap}
+.transfer-history-summary{display:flex;gap:7px;align-items:center;flex-wrap:wrap;padding:7px 10px;border-bottom:1px solid var(--line)}
+.transfer-history-stat{display:flex;align-items:baseline;gap:5px;padding:3px 8px;border:1px solid var(--line);border-radius:999px;background:rgba(0,0,0,.08)}
+.transfer-history-stat b{font-size:13px;line-height:1}
+.transfer-history-stat span{font-size:9.5px;color:var(--muted)}
+.transfer-history-stat.robbery b{color:#ff9292}
+.transfer-history-stat.forced b{color:#f4c97a}
 .transfer-history-stat.free b{color:var(--green)}
-.transfer-history-body{padding:10px 12px 12px}
-.transfer-history-list{display:grid;gap:9px}
-.transfer-history-entry{border:1px solid var(--line);border-radius:12px;background:var(--panel2);padding:10px 11px}
-.transfer-history-entry.pass{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px}
-.transfer-history-entry-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
-.transfer-history-manager{font-weight:900;font-size:14px}
-.transfer-history-round{font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 7px;white-space:nowrap}
-.transfer-history-change{display:grid;grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);gap:8px;align-items:stretch}
-.transfer-player-card{display:grid;grid-template-columns:34px minmax(0,1fr);gap:8px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:8px 9px;background:#0f1923}
-.transfer-move-icon{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-weight:1000;font-size:18px;line-height:1}
-.transfer-move-icon.out{background:#71343d;color:#fff}
-.transfer-move-icon.in{background:#173d2d;color:#72e8ad}
-.transfer-player-label{font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:900}
-.transfer-player-name{font-size:13px;font-weight:900;line-height:1.1;margin-top:1px}
-.transfer-player-sub{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.2}
-.transfer-history-middle{display:grid;place-items:center;color:#668099;font-weight:900;font-size:17px}
-.transfer-history-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.transfer-history-tag{font-size:9.5px;border:1px solid var(--line);border-radius:999px;padding:3px 7px;color:var(--muted)}
-.transfer-history-tag.robbery{border-color:#743d45;color:#ff9c9c}
-.transfer-history-tag.free{border-color:#2f6d55;color:#76e8b0}
-.transfer-history-tag.forced{border-color:#7a6740;color:#f4c97a}
-.transfer-history-pass-text{font-size:12.5px;font-weight:800}
-.transfer-history-empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:10px}
-.transfer-history-clear{border:0;background:transparent;color:var(--muted);font-size:11px;padding:5px 7px}
-.transfer-history-clear:hover{color:var(--text)}
-@media(max-width:900px){
+.transfer-history-body{padding:0 10px 9px}
+.transfer-history-list{border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px;overflow:hidden}
+.transfer-ledger-row{display:grid;grid-template-columns:78px minmax(180px,1fr) 20px minmax(180px,1fr) 132px 92px;gap:7px;align-items:center;min-height:48px;padding:5px 8px;border-top:1px solid #1b2b3a;background:rgba(20,32,44,.38)}
+.transfer-ledger-row:first-child{border-top:0}
+.transfer-ledger-row:hover{background:#132231}
+.transfer-ledger-manager{font-size:12.5px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.transfer-ledger-player{display:grid;grid-template-columns:25px minmax(0,1fr);gap:6px;align-items:center;min-width:0}
+.transfer-ledger-icon{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:14px;font-weight:1000}
+.transfer-ledger-icon.out{background:#733640;color:#fff}
+.transfer-ledger-icon.in{background:#173f2e;color:#70e7aa}
+.transfer-ledger-name{font-size:11.5px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.05}
+.transfer-ledger-sub{font-size:9.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.transfer-ledger-arrow{text-align:center;color:#6d87a1;font-weight:900}
+.transfer-ledger-type{display:flex;justify-content:flex-start;min-width:0}
+.transfer-type-badge{display:inline-flex;align-items:center;max-width:100%;font-size:9.5px;font-weight:800;border-radius:999px;padding:3px 7px;border:1px solid var(--line);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.transfer-type-badge.robbery{border-color:#743d45;color:#ff9c9c;background:#25171b}
+.transfer-type-badge.forced{border-color:#766038;color:#f4c97a;background:#251f13}
+.transfer-type-badge.free{border-color:#2f6d55;color:#76e8b0;background:#11251c}
+.transfer-type-badge.pass{border-color:#38516c;color:#a8bdd2;background:#101923}
+.transfer-ledger-round{text-align:right;font-size:9.5px;color:var(--muted);white-space:nowrap}
+.transfer-ledger-row.pass{grid-template-columns:78px minmax(0,1fr) 132px 92px}
+.transfer-pass-text{font-size:11.5px;font-weight:800;color:#d6e1ec}
+.transfer-history-empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:10px;margin-top:9px}
+@media(max-width:1050px){
+  .transfer-history-controls{grid-template-columns:145px 145px minmax(160px,1fr) 175px auto}
+  .transfer-ledger-row{grid-template-columns:72px minmax(150px,1fr) 18px minmax(150px,1fr) 118px 82px}
+  .transfer-ledger-row.pass{grid-template-columns:72px minmax(0,1fr) 118px 82px}
+}
+@media(max-width:760px){
   .transfer-history-controls{grid-template-columns:1fr 1fr}
-  .transfer-history-summary{grid-template-columns:1fr 1fr}
-  #transferArea.grid{grid-template-columns:1fr}
+  #transferHistoryPlayer{grid-column:1/-1}
+  #transferHistoryReset{width:100%}
+  .transfer-history-summary{padding:7px 8px}
+  .transfer-history-body{padding:0 8px 8px}
+  .transfer-history-list{border:0;border-radius:0;display:grid;gap:7px;overflow:visible}
+  .transfer-ledger-row,.transfer-ledger-row.pass{display:grid;grid-template-columns:1fr auto;gap:6px 8px;min-height:0;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}
+  .transfer-ledger-manager{grid-column:1/2;font-size:13px}
+  .transfer-ledger-round{grid-column:2/3;grid-row:1;text-align:right}
+  .transfer-ledger-player{grid-column:1/-1}
+  .transfer-ledger-arrow{display:none}
+  .transfer-ledger-type{grid-column:1/-1}
+  .transfer-ledger-row:not(.pass) .transfer-ledger-player.out-player{margin-top:1px}
+  .transfer-ledger-row:not(.pass) .transfer-ledger-player.in-player{margin-top:-1px}
+  .transfer-ledger-row:not(.pass) .transfer-ledger-player.out-player:after{content:"";display:block;position:absolute}
+  .transfer-pass-text{grid-column:1/-1}
 }
 @media(max-width:620px){
-  .top{padding:7px 8px;gap:7px;flex-wrap:wrap}
-  .brand{font-size:14px;white-space:nowrap}
-  .cloudbar{order:2;margin-left:auto}
-  .nav{order:3;width:100%;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
-  .nav::-webkit-scrollbar{display:none}
-  .nav button{flex:0 0 auto;padding:6px 9px;font-size:12px}
-  .cloud-status{display:none}
-  .page{padding:5px 6px}
-  .transfer-history-controls{grid-template-columns:1fr;padding:9px}
-  .transfer-history-summary{grid-template-columns:1fr 1fr;padding:9px 9px 0}
-  .transfer-history-body{padding:9px}
-  .transfer-history-entry{padding:9px}
-  .transfer-history-entry-head{margin-bottom:7px}
-  .transfer-history-change{grid-template-columns:1fr;gap:6px}
-  .transfer-history-middle{display:none}
-  .transfer-player-card{grid-template-columns:30px minmax(0,1fr);padding:7px 8px}
-  .transfer-move-icon{width:28px;height:28px;font-size:16px}
-  .transfer-player-name{font-size:12.5px}
-  .transfer-history-entry.pass{grid-template-columns:auto 1fr}
-  .transfer-history-entry.pass .transfer-history-round{grid-column:1/-1;width:max-content}
-  #transferHistoryCard{margin-top:10px!important}
-  #transfers>.card:first-child{margin-bottom:10px!important}
+  .transfer-history-card-head{padding:8px 9px}
+  .transfer-history-controls{grid-template-columns:1fr;padding:8px}
+  #transferHistoryPlayer{grid-column:auto}
+  .transfer-history-summary{gap:5px}
+  .transfer-history-stat{padding:3px 7px}
+  .transfer-history-stat span{font-size:9px}
+  .transfer-ledger-row,.transfer-ledger-row.pass{padding:7px}
+  .transfer-ledger-icon{width:23px;height:23px}
+  .transfer-ledger-name{font-size:11.5px}
 }
-
-
-/* Fixture y Resultados */
-.match-scores-head{margin-bottom:10px}
-.match-scores-page{display:grid;gap:12px}
-.match-fixture-card{min-height:0}
-.match-fixture-list{padding:12px 14px 16px;display:grid;gap:16px}
-.match-day-group{display:grid;gap:8px}
-.match-day-group + .match-day-group{margin-top:4px;padding-top:14px;border-top:1px solid rgba(143,169,194,.18)}
-.match-day-title{display:flex;justify-content:center;align-items:center;min-height:28px;margin:0 auto;padding:4px 10px;color:#d9ecff;font-size:13.5px;font-weight:900;letter-spacing:.2px;text-align:center}
-.match-day-games{display:grid;gap:8px}
-.match-game{border:1px solid var(--line);border-radius:11px;background:var(--panel2);overflow:hidden}
-.match-game summary{list-style:none;cursor:pointer;padding:10px 14px;display:grid;grid-template-columns:250px minmax(0,1fr) 250px;gap:12px;align-items:center}
-.match-game summary::-webkit-details-marker{display:none}
-.match-game[open] summary{border-bottom:1px solid var(--line)}
-.match-game-status{font-size:11.5px;font-weight:900;padding-left:3px;white-space:nowrap}
-.match-game-status.final{color:var(--green)}
-.match-game-title{text-align:center;font-weight:900;font-size:13.5px;letter-spacing:.1px}
-.match-game-stats{display:flex;justify-content:flex-end;gap:7px;align-items:center;white-space:nowrap}
-.match-count{font-size:10px;color:var(--muted);padding:3px 7px;border:1px solid var(--line);border-radius:999px}
-.match-count.loaded{color:var(--green)}
-.match-count.pending{color:var(--muted)}
-.match-game-body{padding:10px 12px 12px}
-.match-result-admin{display:flex;justify-content:center;align-items:center;gap:7px;padding:3px 0 10px;border-bottom:1px solid var(--line);margin-bottom:8px}
-.match-result-admin input{width:54px;text-align:center}
-.match-team-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
-.match-team-block{min-width:0;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:rgba(0,0,0,.08)}
-.match-team-block+.match-team-block{margin-top:0}
-.match-team-title{font-size:11px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.35px;margin:0;padding:7px 9px;border-bottom:1px solid var(--line)}
-.match-player-row{display:grid;grid-template-columns:minmax(0,1fr) 86px 42px 92px;gap:7px;align-items:center;padding:5px 7px;border-top:1px solid rgba(255,255,255,.045)}
-.match-player-row:first-child{border-top:0}
-.match-player-name{font-weight:800;font-size:12px;min-width:0}
-.match-player-name small{display:block;color:var(--muted);font-weight:500;font-size:9.5px;margin-top:1px}
-.match-player-manager{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.match-player-empty{padding:9px;color:var(--muted);font-size:11px}
-.match-player-row .scoreinput{height:29px;padding:4px 7px;font-size:12px}
-.match-schedule-admin{display:flex;justify-content:center;align-items:end;gap:8px;padding:4px 0 10px;border-bottom:1px solid var(--line);margin-bottom:8px;flex-wrap:wrap}
-.match-schedule-admin label{display:grid;gap:3px;font-size:10px;color:var(--muted)}
-.match-schedule-admin input{height:30px;min-width:132px}
-.match-schedule-admin input[type="time"]{min-width:100px}
-.match-top-tools{flex-wrap:wrap}
-@media(max-width:1050px){
-  .match-game summary{grid-template-columns:190px minmax(0,1fr) 190px}
-  .match-count{font-size:9.5px;padding:3px 5px}
-  .match-day-title{font-size:13px}
-}
-@media(max-width:850px){
-  .match-fixture-list{padding:10px 11px 14px;gap:14px}
-  .match-day-group + .match-day-group{padding-top:12px}
-  .match-game summary{grid-template-columns:86px minmax(0,1fr);gap:7px 9px}
-  .match-game-stats{grid-column:1/-1;justify-content:center;padding-top:2px}
-  .match-team-grid{grid-template-columns:1fr}
-  .match-team-block+.match-team-block{margin-top:0}
-}
-@media(max-width:560px){
-  .match-fixture-list{padding:8px;gap:12px}
-  .match-day-title{font-size:12.5px;padding:4px 8px}
-  .match-game summary{padding:8px 9px}
-  .match-game-title{font-size:12px}
-  .match-player-row{grid-template-columns:minmax(0,1fr) 70px 38px 84px;gap:5px;padding:5px}
-  .match-player-manager{font-size:10px}
-  .match-count{font-size:9.5px;padding:2px 6px}
-}
-
 
 @media(max-width:620px){
   #transfers .cardhead{align-items:flex-start;gap:8px}
@@ -309,6 +250,32 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
   #transfers .filters{grid-template-columns:1fr!important;padding:9px}
   #transferPlayersBody td,#transferPlayersBody th{padding:7px 6px;font-size:11px}
   #transferRoster.roster{padding:0 8px 8px}
+}
+
+
+/* V68 · pulido general */
+.card{box-shadow:0 1px 0 rgba(255,255,255,.015)}
+.nav button,.btn,.select,.input{transition:border-color .15s ease,background .15s ease,filter .15s ease,box-shadow .15s ease}
+.nav button:hover,.btn:hover{border-color:#35516f}
+.input:focus,.select:focus{outline:none;border-color:#3b76b4;box-shadow:0 0 0 2px rgba(47,118,199,.12)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid rgba(88,151,220,.72);outline-offset:1px}
+.callout{line-height:1.35}
+@media(max-width:620px){
+  #formations>.card:first-child .cardhead,
+  #scores>.card:first-child .cardhead,
+  #matchScores>.card:first-child .cardhead{flex-direction:column;align-items:stretch}
+  #formations>.card:first-child .toolbar,
+  #scores>.card:first-child .toolbar,
+  #matchScores>.card:first-child .toolbar{width:100%;gap:6px}
+  #formations>.card:first-child .toolbar .select{flex:1 1 120px;min-width:0}
+  #scores #scoreSearch{flex:1 1 100%;min-width:100%;order:3}
+  #scores #scoreResultFilter{flex:1 1 100%;min-width:100%;order:4}
+  #matchScores #matchManagerSearch{flex:1 1 100%;width:100%!important}
+  #matchScoresRound{flex:1 1 auto}
+  .scores-rank-card table th,.scores-rank-card table td{padding-left:6px;padding-right:6px}
+  .scores-entry-card table th,.scores-entry-card table td{padding-left:6px;padding-right:6px}
+  .formations-layout{gap:7px}
+  .card{border-radius:11px}
 }
 
 </style>
@@ -565,10 +532,11 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
       <select id="transferHistoryType" class="select" aria-label="Tipo">
         <option value="">Todos los movimientos</option>
         <option value="robbery">Robos</option>
+        <option value="forced">Reposición obligatoria</option>
         <option value="free">Incorporaciones libres</option>
-        <option value="change">Cambios</option>
         <option value="pass">Sin cambios</option>
       </select>
+      <button id="transferHistoryReset" class="btn small" type="button">Restablecer</button>
     </div>
 
     <div id="transferHistorySummary" class="transfer-history-summary"></div>
@@ -2516,9 +2484,9 @@ function transferHistoryEventLabel(ev){
 }
 function transferHistoryEventType(ev){
   if(ev.type==="pass")return "pass";
+  if(ev.type==="forced")return "forced";
   if(ev.stolenFrom||ev.sourceOwner)return "robbery";
-  if(ev.wasFree===true)return "free";
-  return "change";
+  return "free";
 }
 function transferHistoryRows(roundFilter){
   const rounds=transferHistoryRounds();
@@ -2550,7 +2518,9 @@ function populateTransferHistoryFilters(){
     ...rounds.map(r=>`<option value="${r}">${transferTargetRoundLabel(r)}</option>`)
   ].join("");
 
-  if(current==="all"||rounds.includes(current))roundSel.value=current;
+  const userSelected=roundSel.dataset.userSelected==="1";
+  if(!userSelected&&preferred)roundSel.value=preferred;
+  else if(current==="all"||rounds.includes(current))roundSel.value=current;
   else if(preferred)roundSel.value=preferred;
   else roundSel.value="all";
 
@@ -2587,13 +2557,15 @@ function renderTransferHistorySummary(rows){
 
   const actual=rows.filter(x=>x.ev.type!=="pass");
   const robberies=actual.filter(x=>transferHistoryEventType(x.ev)==="robbery").length;
+  const forced=actual.filter(x=>transferHistoryEventType(x.ev)==="forced").length;
   const free=actual.filter(x=>transferHistoryEventType(x.ev)==="free").length;
   const passes=rows.filter(x=>x.ev.type==="pass").length;
 
   box.innerHTML=`
-    <div class="transfer-history-stat"><b>${actual.length}</b><span>Cambios</span></div>
+    <div class="transfer-history-stat"><b>${actual.length}</b><span>Movimientos</span></div>
     <div class="transfer-history-stat robbery"><b>${robberies}</b><span>Robos</span></div>
-    <div class="transfer-history-stat free"><b>${free}</b><span>Libres incorporados</span></div>
+    <div class="transfer-history-stat forced"><b>${forced}</b><span>Obligados</span></div>
+    <div class="transfer-history-stat free"><b>${free}</b><span>Libres</span></div>
     <div class="transfer-history-stat"><b>${passes}</b><span>Sin cambios</span></div>`;
 }
 function transferHistoryTags(ev){
@@ -2604,6 +2576,28 @@ function transferHistoryTags(ev){
   if(ev.formation)tags.push(`<span class="transfer-history-tag">${esc(ev.formation)}</span>`);
   return tags.join("");
 }
+function transferHistoryTypeLabel(ev){
+  const type=transferHistoryEventType(ev);
+  if(type==="robbery")return {text:`Robo${ev.stolenFrom||ev.sourceOwner?` · ${ev.stolenFrom||ev.sourceOwner}`:""}`,cls:"robbery"};
+  if(type==="forced"){
+    const extra=ev.stolenFrom||ev.sourceOwner;
+    return {text:extra?`Reposición obligatoria · robó a ${extra}`:"Reposición obligatoria",cls:"forced"};
+  }
+  if(type==="free")return {text:"Incorporación libre",cls:"free"};
+  return {text:"Sin cambios",cls:"pass"};
+}
+function resetTransferHistoryFilters(){
+  const round=$("transferHistoryRound");
+  if(round){
+    round.dataset.userSelected="";
+    round.value=preferredTransferHistoryRound()||"all";
+  }
+  if($("transferHistoryManager"))$("transferHistoryManager").value="";
+  if($("transferHistoryPlayer"))$("transferHistoryPlayer").value="";
+  if($("transferHistoryType"))$("transferHistoryType").value="";
+  renderTransferHistory();
+}
+
 function renderTransferHistory(){
   const box=$("transferHistoryList");
   if(!box)return;
@@ -2623,14 +2617,16 @@ function renderTransferHistory(){
   }
 
   box.innerHTML=rows.map(({rk,ev})=>{
-    const roundLabel=`Previos a Fecha ${Number(rk)+1}`;
+    const roundLabel=`Previos a F${Number(rk)+1}`;
+    const typeInfo=transferHistoryTypeLabel(ev);
 
     if(ev.type==="pass"){
-      return `<article class="transfer-history-entry pass">
-        <div class="transfer-history-manager">${esc(ev.manager)}</div>
-        <div class="transfer-history-pass-text">No realizó cambios.</div>
-        <div class="transfer-history-round">${esc(roundLabel)}</div>
-      </article>`;
+      return `<div class="transfer-ledger-row pass">
+        <div class="transfer-ledger-manager">${esc(ev.manager)}</div>
+        <div class="transfer-pass-text">No realizó cambios.</div>
+        <div class="transfer-ledger-type"><span class="transfer-type-badge pass">Sin cambios</span></div>
+        <div class="transfer-ledger-round">${esc(roundLabel)}</div>
+      </div>`;
     }
 
     const outName=ev.outPlayerName||"—",inName=ev.inPlayerName||"—";
@@ -2639,36 +2635,33 @@ function renderTransferHistory(){
     const inTeam=ev.inPlayerTeam||inObj?.team||ev.club||"";
     const origin=transferHistoryOrigin(ev);
 
-    return `<article class="transfer-history-entry">
-      <div class="transfer-history-entry-head">
-        <div class="transfer-history-manager">${esc(ev.manager)}</div>
-        <div class="transfer-history-round">${esc(roundLabel)}</div>
-      </div>
+    return `<div class="transfer-ledger-row">
+      <div class="transfer-ledger-manager">${esc(ev.manager)}</div>
 
-      <div class="transfer-history-change">
-        <div class="transfer-player-card">
-          <div class="transfer-move-icon out">↓</div>
-          <div>
-            <div class="transfer-player-label">Sale</div>
-            <div class="transfer-player-name">${esc(outName)}</div>
-            <div class="transfer-player-sub">${esc(outTeam||"")}</div>
-          </div>
-        </div>
-
-        <div class="transfer-history-middle">→</div>
-
-        <div class="transfer-player-card">
-          <div class="transfer-move-icon in">↑</div>
-          <div>
-            <div class="transfer-player-label">Entra</div>
-            <div class="transfer-player-name">${esc(inName)}</div>
-            <div class="transfer-player-sub">${[inTeam,origin].filter(Boolean).map(esc).join(" · ")}</div>
-          </div>
+      <div class="transfer-ledger-player out-player">
+        <div class="transfer-ledger-icon out">↓</div>
+        <div>
+          <div class="transfer-ledger-name">${esc(outName)}</div>
+          <div class="transfer-ledger-sub">${esc(outTeam||"")}</div>
         </div>
       </div>
 
-      <div class="transfer-history-tags">${transferHistoryTags(ev)}</div>
-    </article>`;
+      <div class="transfer-ledger-arrow">→</div>
+
+      <div class="transfer-ledger-player in-player">
+        <div class="transfer-ledger-icon in">↑</div>
+        <div>
+          <div class="transfer-ledger-name">${esc(inName)}</div>
+          <div class="transfer-ledger-sub">${[inTeam,origin].filter(Boolean).map(esc).join(" · ")}</div>
+        </div>
+      </div>
+
+      <div class="transfer-ledger-type">
+        <span class="transfer-type-badge ${typeInfo.cls}">${esc(typeInfo.text)}</span>
+      </div>
+
+      <div class="transfer-ledger-round">${esc(roundLabel)}${ev.formation?` · ${esc(ev.formation)}`:""}</div>
+    </div>`;
   }).join("");
 }
 
@@ -2690,11 +2683,8 @@ function applyTransferReadOnlyMode(){
 function renderTransferPage(){
   applyTransferReadOnlyMode();
 
-  // Primera entrada a Cambios: historial enfocado en la ronda previa a la fecha activa.
-  const historyRound=$("transferHistoryRound");
-  if(historyRound&&!historyRound.dataset.userSelected){
-    historyRound.value=preferredTransferHistoryRound()||"all";
-  }
+  // Primera entrada: historial enfocado automáticamente en los cambios
+  // previos a la fecha activa. La selección manual se conserva.
   renderTransferHistory();
 
   const previous=$("transferRoundSelect").value;
@@ -3044,6 +3034,7 @@ $("transferHistoryRound").onchange=()=>{$("transferHistoryRound").dataset.userSe
 $("transferHistoryManager").onchange=renderTransferHistory;
 $("transferHistoryPlayer").oninput=renderTransferHistory;
 $("transferHistoryType").onchange=renderTransferHistory;
+$("transferHistoryReset").onclick=resetTransferHistoryFilters;
 $("startTransferRound").onclick=startTransferRound;$("drawTransferClub").onclick=drawTransferClub;$("passTransfer").onclick=passTransfer;$("transferSearch").oninput=renderTransferPlayers;$("transferClubFilter").onchange=renderTransferPlayers;$("transferAvailability").onchange=renderTransferPlayers;
 $("backupBtn").onclick=backup;
 $("pullCloudBtn").onclick=async()=>{const ok=await pullCloudState({force:true});alert(ok?"Partida oficial recargada desde Supabase.":"No se pudo obtener una partida válida desde Supabase.")};

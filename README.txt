@@ -1,16 +1,39 @@
-CHICHE LEAGUE CLAUSURA 2026 — V66
+CHICHE LEAGUE CLAUSURA 2026 — V67
 
-FIXTURE ORDENADO AUTOMÁTICAMENTE
+REDISEÑO DE CAMBIOS + MEJORAS MOBILE
 
-- Fixture y Resultados ya no conserva el orden original cuando el Admin modifica programación.
-- Los partidos se ordenan siempre por:
-  1. día;
-  2. horario;
-  3. orden original sólo como desempate.
-- Los partidos sin día confirmado quedan al final.
-- Dentro de un día, los partidos sin horario confirmado quedan al final de ese día.
-- Cada encabezado de fecha aparece una sola vez.
-- Al guardar un cambio de día/horario, el fixture se reorganiza automáticamente.
-- Se preserva toda la V65: base oficial 25/08, Supabase, puntajes, resultados,
-  cambios, landing dinámica y carga continua por partido.
+CAMBIOS
+- La vista histórica abre por defecto en los cambios previos a la fecha activa.
+- Se puede seleccionar "Todas las rondas".
+- Filtros por:
+  * ronda;
+  * DT;
+  * jugador;
+  * tipo de movimiento (robo, libre, cambio, sin cambios).
+- Resumen rápido con:
+  * cantidad de cambios;
+  * robos;
+  * incorporaciones libres;
+  * DT sin cambios.
+- Nueva tarjeta visual:
+  * jugador que sale con flecha de baja;
+  * jugador que entra con flecha verde;
+  * equipo;
+  * Libre / Lo tenía X;
+  * robo;
+  * formación;
+  * ronda correspondiente.
+- Los DT que pasaron aparecen con tarjeta compacta.
+
+MOBILE
+- Navegación superior horizontal desplazable para evitar varias filas.
+- Historial en una sola columna.
+- Filtros apilados.
+- Tarjetas de cambios adaptadas a pantalla angosta.
+- Flujo operativo de la ronda también se apila en celular.
+
+PERSISTENCIA
+- Supabase preservado.
 - STORAGE chicheLeagueDB_v25 preservado.
+- Base oficial 25/08/2026 preservada.
+- Puntajes, fixture, resultados, planteles e historial no se reinician.

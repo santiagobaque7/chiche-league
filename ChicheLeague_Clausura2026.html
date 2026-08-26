@@ -172,14 +172,70 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
 .scores-rank-card td,.scores-rank-card th{white-space:nowrap}
 
 
-.transfer-history-card-head{padding:7px 11px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:7px}
-.transfer-history-body{padding:10px 11px 11px}
-.transfer-history-list{display:grid;gap:7px}
-.transfer-history-row{display:grid;grid-template-columns:96px minmax(0,1fr) 18px minmax(0,1.1fr) 92px;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--card2)}
-.transfer-history-row.pass{grid-template-columns:96px minmax(0,1fr)}
-.transfer-history-manager{font-weight:900;font-size:14px}.transfer-history-arrow{text-align:center;color:var(--muted);font-weight:900;font-size:14px}.transfer-history-meta{font-size:10.5px;color:var(--muted);text-align:right;line-height:1.2}.transfer-history-empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--border);border-radius:10px}
-.transfer-history-block{line-height:1.15}.transfer-history-block b{font-size:12.5px}.transfer-history-sub{font-size:10.5px;color:var(--muted);margin-top:2px}.transfer-history-pass-inline{font-size:12.5px;font-weight:800;line-height:1.15}
-@media(max-width:850px){.transfer-history-card-head{display:block}.transfer-history-row,.transfer-history-row.pass{grid-template-columns:1fr;gap:5px;padding:9px 10px}.transfer-history-arrow{display:none}.transfer-history-meta{text-align:left;margin-top:2px}}
+.transfer-history-card-head{padding:10px 12px;border-bottom:1px solid var(--line)}
+.transfer-history-controls{display:grid;grid-template-columns:170px 170px minmax(180px,1fr) 190px;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);background:rgba(0,0,0,.08)}
+.transfer-history-controls .select,.transfer-history-controls .input{width:100%;min-width:0}
+.transfer-history-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:10px 12px 0}
+.transfer-history-stat{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.transfer-history-stat b{display:block;font-size:17px;line-height:1.05}
+.transfer-history-stat span{font-size:10px;color:var(--muted)}
+.transfer-history-stat.robbery b{color:#ff9b9b}
+.transfer-history-stat.free b{color:var(--green)}
+.transfer-history-body{padding:10px 12px 12px}
+.transfer-history-list{display:grid;gap:9px}
+.transfer-history-entry{border:1px solid var(--line);border-radius:12px;background:var(--panel2);padding:10px 11px}
+.transfer-history-entry.pass{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px}
+.transfer-history-entry-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.transfer-history-manager{font-weight:900;font-size:14px}
+.transfer-history-round{font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 7px;white-space:nowrap}
+.transfer-history-change{display:grid;grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);gap:8px;align-items:stretch}
+.transfer-player-card{display:grid;grid-template-columns:34px minmax(0,1fr);gap:8px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:8px 9px;background:#0f1923}
+.transfer-move-icon{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-weight:1000;font-size:18px;line-height:1}
+.transfer-move-icon.out{background:#71343d;color:#fff}
+.transfer-move-icon.in{background:#173d2d;color:#72e8ad}
+.transfer-player-label{font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:900}
+.transfer-player-name{font-size:13px;font-weight:900;line-height:1.1;margin-top:1px}
+.transfer-player-sub{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.2}
+.transfer-history-middle{display:grid;place-items:center;color:#668099;font-weight:900;font-size:17px}
+.transfer-history-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.transfer-history-tag{font-size:9.5px;border:1px solid var(--line);border-radius:999px;padding:3px 7px;color:var(--muted)}
+.transfer-history-tag.robbery{border-color:#743d45;color:#ff9c9c}
+.transfer-history-tag.free{border-color:#2f6d55;color:#76e8b0}
+.transfer-history-tag.forced{border-color:#7a6740;color:#f4c97a}
+.transfer-history-pass-text{font-size:12.5px;font-weight:800}
+.transfer-history-empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:10px}
+.transfer-history-clear{border:0;background:transparent;color:var(--muted);font-size:11px;padding:5px 7px}
+.transfer-history-clear:hover{color:var(--text)}
+@media(max-width:900px){
+  .transfer-history-controls{grid-template-columns:1fr 1fr}
+  .transfer-history-summary{grid-template-columns:1fr 1fr}
+  #transferArea.grid{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+  .top{padding:7px 8px;gap:7px;flex-wrap:wrap}
+  .brand{font-size:14px;white-space:nowrap}
+  .cloudbar{order:2;margin-left:auto}
+  .nav{order:3;width:100%;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .nav button{flex:0 0 auto;padding:6px 9px;font-size:12px}
+  .cloud-status{display:none}
+  .page{padding:5px 6px}
+  .transfer-history-controls{grid-template-columns:1fr;padding:9px}
+  .transfer-history-summary{grid-template-columns:1fr 1fr;padding:9px 9px 0}
+  .transfer-history-body{padding:9px}
+  .transfer-history-entry{padding:9px}
+  .transfer-history-entry-head{margin-bottom:7px}
+  .transfer-history-change{grid-template-columns:1fr;gap:6px}
+  .transfer-history-middle{display:none}
+  .transfer-player-card{grid-template-columns:30px minmax(0,1fr);padding:7px 8px}
+  .transfer-move-icon{width:28px;height:28px;font-size:16px}
+  .transfer-player-name{font-size:12.5px}
+  .transfer-history-entry.pass{grid-template-columns:auto 1fr}
+  .transfer-history-entry.pass .transfer-history-round{grid-column:1/-1;width:max-content}
+  #transferHistoryCard{margin-top:10px!important}
+  #transfers>.card:first-child{margin-bottom:10px!important}
+}
+
 
 /* Fixture y Resultados */
 .match-scores-head{margin-bottom:10px}
@@ -241,6 +297,18 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
   .match-player-row{grid-template-columns:minmax(0,1fr) 70px 38px 84px;gap:5px;padding:5px}
   .match-player-manager{font-size:10px}
   .match-count{font-size:9.5px;padding:2px 6px}
+}
+
+
+@media(max-width:620px){
+  #transfers .cardhead{align-items:flex-start;gap:8px}
+  #transfers .cardhead>.toolbar{width:100%}
+  #transfers .cardhead>.toolbar .select,
+  #transfers .cardhead>.toolbar .btn{flex:1 1 auto;min-width:0}
+  #transferDraws{padding:9px!important}
+  #transfers .filters{grid-template-columns:1fr!important;padding:9px}
+  #transferPlayersBody td,#transferPlayersBody th{padding:7px 6px;font-size:11px}
+  #transferRoster.roster{padding:0 8px 8px}
 }
 
 </style>
@@ -482,9 +550,28 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
 
   <div id="transferHistoryCard" class="card" style="margin-top:14px">
     <div class="transfer-history-card-head">
-      <div><h3 style="margin:0">Historial de cambios</h3><div class="muted" style="font-size:11px;margin-top:3px">Cambios realizados antes de cada fecha. Incluye también a quienes no realizaron cambios.</div></div>
-      <select id="transferHistoryRound" class="select" style="width:auto;min-width:120px"></select>
+      <div>
+        <h3 style="margin:0">Historial de cambios</h3>
+        <div class="muted" style="font-size:11px;margin-top:3px">Consultá la ronda actual o buscá cualquier cambio del torneo.</div>
+      </div>
     </div>
+
+    <div class="transfer-history-controls">
+      <select id="transferHistoryRound" class="select" aria-label="Ronda"></select>
+      <select id="transferHistoryManager" class="select" aria-label="DT">
+        <option value="">Todos los DT</option>
+      </select>
+      <input id="transferHistoryPlayer" class="input" placeholder="Buscar jugador..." aria-label="Jugador">
+      <select id="transferHistoryType" class="select" aria-label="Tipo">
+        <option value="">Todos los movimientos</option>
+        <option value="robbery">Robos</option>
+        <option value="free">Incorporaciones libres</option>
+        <option value="change">Cambios</option>
+        <option value="pass">Sin cambios</option>
+      </select>
+    </div>
+
+    <div id="transferHistorySummary" class="transfer-history-summary"></div>
     <div class="transfer-history-body"><div id="transferHistoryList"></div></div>
   </div>
 </section>
@@ -2401,6 +2488,14 @@ function transferOrderMarkup(tr){
 function transferHistoryRounds(){
   return roundsDescending(Object.keys(state.transferRounds||{}).filter(r=>Number(r)>=5));
 }
+function preferredTransferHistoryRound(){
+  const rounds=transferHistoryRounds();
+  if(!rounds.length)return "";
+  const active=Number(competitionActiveRound());
+  const prior=String(Math.max(5,active-1));
+  if(rounds.includes(prior))return prior;
+  return rounds[0];
+}
 function historyPlayerByName(name){
   if(!name)return null;
   const retired=state.retiredPlayers?Object.values(state.retiredPlayers):[];
@@ -2419,40 +2514,162 @@ function transferHistoryEventLabel(ev){
   if(ev.stolenFrom)return `Robo a ${ev.stolenFrom}`;
   return "Cambio";
 }
+function transferHistoryEventType(ev){
+  if(ev.type==="pass")return "pass";
+  if(ev.stolenFrom||ev.sourceOwner)return "robbery";
+  if(ev.wasFree===true)return "free";
+  return "change";
+}
+function transferHistoryRows(roundFilter){
+  const rounds=transferHistoryRounds();
+  const useRounds=roundFilter==="all"?rounds:(roundFilter?[roundFilter]:[]);
+  const rows=[];
+  useRounds.forEach(rk=>{
+    const tr=normalizeTransferRound(state.transferRounds[rk]);
+    const events=tr?.history||[];
+    if(events.length){
+      events.forEach((ev,index)=>rows.push({rk,ev,index}));
+    }else if(tr){
+      Object.entries(tr.statuses||{}).forEach(([manager,status],index)=>{
+        if(status==="passed")rows.push({rk,ev:{type:"pass",manager},index});
+      });
+    }
+  });
+  return rows;
+}
+function populateTransferHistoryFilters(){
+  const roundSel=$("transferHistoryRound"),managerSel=$("transferHistoryManager");
+  if(!roundSel||!managerSel)return;
+
+  const rounds=transferHistoryRounds();
+  const current=roundSel.value;
+  const preferred=preferredTransferHistoryRound();
+
+  roundSel.innerHTML=[
+    '<option value="all">Todas las rondas</option>',
+    ...rounds.map(r=>`<option value="${r}">${transferTargetRoundLabel(r)}</option>`)
+  ].join("");
+
+  if(current==="all"||rounds.includes(current))roundSel.value=current;
+  else if(preferred)roundSel.value=preferred;
+  else roundSel.value="all";
+
+  const currentManager=managerSel.value;
+  managerSel.innerHTML='<option value="">Todos los DT</option>'+state.participants.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join("");
+  if(state.participants.includes(currentManager))managerSel.value=currentManager;
+}
+function transferHistoryFilteredRows(){
+  const roundFilter=$("transferHistoryRound")?.value||preferredTransferHistoryRound()||"all";
+  const manager=low($("transferHistoryManager")?.value||"");
+  const playerQ=low($("transferHistoryPlayer")?.value||"").trim();
+  const type=$("transferHistoryType")?.value||"";
+
+  return transferHistoryRows(roundFilter).filter(({ev})=>{
+    if(manager&&low(ev.manager)!==manager)return false;
+
+    const haystack=low([
+      ev.outPlayerName||"",
+      ev.inPlayerName||"",
+      ev.outPlayerTeam||"",
+      ev.inPlayerTeam||"",
+      ev.club||""
+    ].join(" "));
+    if(playerQ&&!haystack.includes(playerQ))return false;
+
+    const evType=transferHistoryEventType(ev);
+    if(type&&evType!==type)return false;
+    return true;
+  });
+}
+function renderTransferHistorySummary(rows){
+  const box=$("transferHistorySummary");
+  if(!box)return;
+
+  const actual=rows.filter(x=>x.ev.type!=="pass");
+  const robberies=actual.filter(x=>transferHistoryEventType(x.ev)==="robbery").length;
+  const free=actual.filter(x=>transferHistoryEventType(x.ev)==="free").length;
+  const passes=rows.filter(x=>x.ev.type==="pass").length;
+
+  box.innerHTML=`
+    <div class="transfer-history-stat"><b>${actual.length}</b><span>Cambios</span></div>
+    <div class="transfer-history-stat robbery"><b>${robberies}</b><span>Robos</span></div>
+    <div class="transfer-history-stat free"><b>${free}</b><span>Libres incorporados</span></div>
+    <div class="transfer-history-stat"><b>${passes}</b><span>Sin cambios</span></div>`;
+}
+function transferHistoryTags(ev){
+  const tags=[];
+  if(ev.stolenFrom||ev.sourceOwner)tags.push(`<span class="transfer-history-tag robbery">${esc(`Robo · ${ev.stolenFrom||ev.sourceOwner}`)}</span>`);
+  else if(ev.wasFree===true)tags.push('<span class="transfer-history-tag free">Libre</span>');
+  if(ev.type==="forced")tags.push('<span class="transfer-history-tag forced">Reposición obligatoria</span>');
+  if(ev.formation)tags.push(`<span class="transfer-history-tag">${esc(ev.formation)}</span>`);
+  return tags.join("");
+}
 function renderTransferHistory(){
-  const sel=$("transferHistoryRound"),box=$("transferHistoryList");
-  if(!sel||!box)return;
-  const rounds=transferHistoryRounds(),current=sel.value;
-  sel.innerHTML=rounds.length?rounds.map(r=>`<option value="${r}">${transferTargetRoundLabel(r)}</option>`).join(""):'<option value="">Sin historial</option>';
-  if(current&&rounds.includes(current))sel.value=current; else if(rounds.length)sel.value=rounds[0];
-  if(!rounds.length){box.innerHTML='<div class="transfer-history-empty">Todavía no hay rondas de cambios registradas.</div>';return;}
-  const rk=sel.value,tr=normalizeTransferRound(state.transferRounds[rk]),events=tr?.history||[];
-  if(!events.length){
-    const passed=Object.entries(tr?.statuses||{}).filter(([,s])=>s==="passed").map(([m])=>m);
-    box.innerHTML=`<div class="transfer-history-empty">${tr?.done?"Esta ronda pertenece a una versión anterior que no guardaba el detalle de cada operación.":"Todavía no hay cambios confirmados registrados en esta ronda."}${passed.length?`<div style="margin-top:8px">Pasaron sin cambiar: <b>${passed.map(esc).join(", ")}</b></div>`:""}</div>`;
+  const box=$("transferHistoryList");
+  if(!box)return;
+
+  populateTransferHistoryFilters();
+  const rows=transferHistoryFilteredRows();
+  renderTransferHistorySummary(rows);
+
+  if(!transferHistoryRounds().length){
+    box.innerHTML='<div class="transfer-history-empty">Todavía no hay rondas de cambios registradas.</div>';
     return;
   }
-  box.innerHTML=`<div class="transfer-history-list">${events.map(ev=>{
+
+  if(!rows.length){
+    box.innerHTML='<div class="transfer-history-empty">No hay movimientos que coincidan con los filtros seleccionados.</div>';
+    return;
+  }
+
+  box.innerHTML=rows.map(({rk,ev})=>{
+    const roundLabel=`Previos a Fecha ${Number(rk)+1}`;
+
     if(ev.type==="pass"){
-      return `<div class="transfer-history-row pass">
+      return `<article class="transfer-history-entry pass">
         <div class="transfer-history-manager">${esc(ev.manager)}</div>
-        <div class="transfer-history-pass-inline">No realizó cambios.</div>
-      </div>`;
+        <div class="transfer-history-pass-text">No realizó cambios.</div>
+        <div class="transfer-history-round">${esc(roundLabel)}</div>
+      </article>`;
     }
+
     const outName=ev.outPlayerName||"—",inName=ev.inPlayerName||"—";
     const outObj=historyPlayerByName(outName),inObj=historyPlayerByName(inName);
     const outTeam=ev.outPlayerTeam||outObj?.team||"";
     const inTeam=ev.inPlayerTeam||inObj?.team||ev.club||"";
     const origin=transferHistoryOrigin(ev);
-    const meta=[transferHistoryEventLabel(ev),ev.formation||""].filter(Boolean).join(" · ");
-    return `<div class="transfer-history-row">
-      <div class="transfer-history-manager">${esc(ev.manager)}</div>
-      <div class="transfer-history-block"><span class="muted">Sale</span> <b>${esc(outName)}</b>${outTeam?`<div class="transfer-history-sub">${esc(outTeam)}</div>`:""}</div>
-      <div class="transfer-history-arrow">→</div>
-      <div class="transfer-history-block"><span class="muted">Entra</span> <b>${esc(inName)}</b><div class="transfer-history-sub">${[inTeam,origin].filter(Boolean).map(esc).join(" · ")}</div></div>
-      <div class="transfer-history-meta">${esc(meta)}</div>
-    </div>`;
-  }).join("")}</div>`;
+
+    return `<article class="transfer-history-entry">
+      <div class="transfer-history-entry-head">
+        <div class="transfer-history-manager">${esc(ev.manager)}</div>
+        <div class="transfer-history-round">${esc(roundLabel)}</div>
+      </div>
+
+      <div class="transfer-history-change">
+        <div class="transfer-player-card">
+          <div class="transfer-move-icon out">↓</div>
+          <div>
+            <div class="transfer-player-label">Sale</div>
+            <div class="transfer-player-name">${esc(outName)}</div>
+            <div class="transfer-player-sub">${esc(outTeam||"")}</div>
+          </div>
+        </div>
+
+        <div class="transfer-history-middle">→</div>
+
+        <div class="transfer-player-card">
+          <div class="transfer-move-icon in">↑</div>
+          <div>
+            <div class="transfer-player-label">Entra</div>
+            <div class="transfer-player-name">${esc(inName)}</div>
+            <div class="transfer-player-sub">${[inTeam,origin].filter(Boolean).map(esc).join(" · ")}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="transfer-history-tags">${transferHistoryTags(ev)}</div>
+    </article>`;
+  }).join("");
 }
 
 
@@ -2472,7 +2689,14 @@ function applyTransferReadOnlyMode(){
 
 function renderTransferPage(){
   applyTransferReadOnlyMode();
+
+  // Primera entrada a Cambios: historial enfocado en la ronda previa a la fecha activa.
+  const historyRound=$("transferHistoryRound");
+  if(historyRound&&!historyRound.dataset.userSelected){
+    historyRound.value=preferredTransferHistoryRound()||"all";
+  }
   renderTransferHistory();
+
   const previous=$("transferRoundSelect").value;
   const rounds=roundsDescending(allRounds().filter(r=>Number(r)>=5));
   $("transferRoundSelect").innerHTML=rounds.map(r=>`<option value="${r}">${transferTargetRoundLabel(r)}</option>`).join("");
@@ -2815,7 +3039,12 @@ $("roundInput").onchange=()=>{renderScores();renderResults()};$("scoreSearch").o
 $("matchScoresRound").onchange=renderMatchScores;
 $("matchManagerSearch").oninput=renderMatchScores;
 $("formationManager").onchange=renderFormations;$("formationRound").onchange=renderFormations;
-$("transferRoundSelect").onchange=renderTransferPage;$("transferHistoryRound").onchange=renderTransferHistory;$("startTransferRound").onclick=startTransferRound;$("drawTransferClub").onclick=drawTransferClub;$("passTransfer").onclick=passTransfer;$("transferSearch").oninput=renderTransferPlayers;$("transferClubFilter").onchange=renderTransferPlayers;$("transferAvailability").onchange=renderTransferPlayers;
+$("transferRoundSelect").onchange=renderTransferPage;
+$("transferHistoryRound").onchange=()=>{$("transferHistoryRound").dataset.userSelected="1";renderTransferHistory()};
+$("transferHistoryManager").onchange=renderTransferHistory;
+$("transferHistoryPlayer").oninput=renderTransferHistory;
+$("transferHistoryType").onchange=renderTransferHistory;
+$("startTransferRound").onclick=startTransferRound;$("drawTransferClub").onclick=drawTransferClub;$("passTransfer").onclick=passTransfer;$("transferSearch").oninput=renderTransferPlayers;$("transferClubFilter").onchange=renderTransferPlayers;$("transferAvailability").onchange=renderTransferPlayers;
 $("backupBtn").onclick=backup;
 $("pullCloudBtn").onclick=async()=>{const ok=await pullCloudState({force:true});alert(ok?"Partida oficial recargada desde Supabase.":"No se pudo obtener una partida válida desde Supabase.")};
 $("adminLoginBtn").onclick=showAdminLogin;

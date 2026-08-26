@@ -185,7 +185,7 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
 .transfer-history-stat.free b{color:var(--green)}
 .transfer-history-body{padding:0 10px 9px}
 .transfer-history-list{border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px;overflow:hidden}
-.transfer-ledger-row{display:grid;grid-template-columns:78px minmax(180px,1fr) 20px minmax(180px,1fr) 132px 92px;gap:7px;align-items:center;min-height:48px;padding:5px 8px;border-top:1px solid #1b2b3a;background:rgba(20,32,44,.38)}
+.transfer-ledger-row{display:grid;grid-template-columns:78px minmax(180px,1fr) minmax(180px,1fr) 165px;gap:8px;align-items:center;min-height:48px;padding:5px 8px;border-top:1px solid #1b2b3a;background:rgba(20,32,44,.38)}
 .transfer-ledger-row:first-child{border-top:0}
 .transfer-ledger-row:hover{background:#132231}
 .transfer-ledger-manager{font-size:12.5px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -195,21 +195,19 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
 .transfer-ledger-icon.in{background:#173f2e;color:#70e7aa}
 .transfer-ledger-name{font-size:11.5px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.05}
 .transfer-ledger-sub{font-size:9.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
-.transfer-ledger-arrow{text-align:center;color:#6d87a1;font-weight:900}
 .transfer-ledger-type{display:flex;justify-content:flex-start;min-width:0}
 .transfer-type-badge{display:inline-flex;align-items:center;max-width:100%;font-size:9.5px;font-weight:800;border-radius:999px;padding:3px 7px;border:1px solid var(--line);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .transfer-type-badge.robbery{border-color:#743d45;color:#ff9c9c;background:#25171b}
 .transfer-type-badge.forced{border-color:#766038;color:#f4c97a;background:#251f13}
 .transfer-type-badge.free{border-color:#2f6d55;color:#76e8b0;background:#11251c}
 .transfer-type-badge.pass{border-color:#38516c;color:#a8bdd2;background:#101923}
-.transfer-ledger-round{text-align:right;font-size:9.5px;color:var(--muted);white-space:nowrap}
-.transfer-ledger-row.pass{grid-template-columns:78px minmax(0,1fr) 132px 92px}
+.transfer-ledger-row.pass{grid-template-columns:78px minmax(0,1fr) 165px}
 .transfer-pass-text{font-size:11.5px;font-weight:800;color:#d6e1ec}
 .transfer-history-empty{padding:18px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:10px;margin-top:9px}
 @media(max-width:1050px){
   .transfer-history-controls{grid-template-columns:145px 145px minmax(160px,1fr) 175px auto}
-  .transfer-ledger-row{grid-template-columns:72px minmax(150px,1fr) 18px minmax(150px,1fr) 118px 82px}
-  .transfer-ledger-row.pass{grid-template-columns:72px minmax(0,1fr) 118px 82px}
+  .transfer-ledger-row{grid-template-columns:72px minmax(150px,1fr) minmax(150px,1fr) 150px}
+  .transfer-ledger-row.pass{grid-template-columns:72px minmax(0,1fr) 150px}
 }
 @media(max-width:760px){
   .transfer-history-controls{grid-template-columns:1fr 1fr}
@@ -218,11 +216,9 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
   .transfer-history-summary{padding:7px 8px}
   .transfer-history-body{padding:0 8px 8px}
   .transfer-history-list{border:0;border-radius:0;display:grid;gap:7px;overflow:visible}
-  .transfer-ledger-row,.transfer-ledger-row.pass{display:grid;grid-template-columns:1fr auto;gap:6px 8px;min-height:0;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}
-  .transfer-ledger-manager{grid-column:1/2;font-size:13px}
-  .transfer-ledger-round{grid-column:2/3;grid-row:1;text-align:right}
+  .transfer-ledger-row,.transfer-ledger-row.pass{display:grid;grid-template-columns:1fr;gap:6px;min-height:0;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}
+  .transfer-ledger-manager{grid-column:1/-1;font-size:13px}
   .transfer-ledger-player{grid-column:1/-1}
-  .transfer-ledger-arrow{display:none}
   .transfer-ledger-type{grid-column:1/-1}
   .transfer-ledger-row:not(.pass) .transfer-ledger-player.out-player{margin-top:1px}
   .transfer-ledger-row:not(.pass) .transfer-ledger-player.in-player{margin-top:-1px}
@@ -253,6 +249,68 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
 }
 
 
+/* Fixture y Resultados */
+.match-scores-head{margin-bottom:10px}
+.match-scores-page{display:grid;gap:12px}
+.match-fixture-card{min-height:0}
+.match-fixture-list{padding:12px 14px 16px;display:grid;gap:16px}
+.match-day-group{display:grid;gap:8px}
+.match-day-group + .match-day-group{margin-top:4px;padding-top:14px;border-top:1px solid rgba(143,169,194,.18)}
+.match-day-title{display:flex;justify-content:center;align-items:center;min-height:28px;margin:0 auto;padding:4px 10px;color:#d9ecff;font-size:13.5px;font-weight:900;letter-spacing:.2px;text-align:center}
+.match-day-games{display:grid;gap:8px}
+.match-game{border:1px solid var(--line);border-radius:11px;background:var(--panel2);overflow:hidden}
+.match-game summary{list-style:none;cursor:pointer;padding:10px 14px;display:grid;grid-template-columns:250px minmax(0,1fr) 250px;gap:12px;align-items:center}
+.match-game summary::-webkit-details-marker{display:none}
+.match-game[open] summary{border-bottom:1px solid var(--line)}
+.match-game-status{font-size:11.5px;font-weight:900;padding-left:3px;white-space:nowrap}
+.match-game-status.final{color:var(--green)}
+.match-game-title{text-align:center;font-weight:900;font-size:13.5px;letter-spacing:.1px}
+.match-game-stats{display:flex;justify-content:flex-end;gap:7px;align-items:center;white-space:nowrap}
+.match-count{font-size:10px;color:var(--muted);padding:3px 7px;border:1px solid var(--line);border-radius:999px}
+.match-count.loaded{color:var(--green)}
+.match-count.pending{color:var(--muted)}
+.match-game-body{padding:10px 12px 12px}
+.match-result-admin{display:flex;justify-content:center;align-items:center;gap:7px;padding:3px 0 10px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.match-result-admin input{width:54px;text-align:center}
+.match-team-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.match-team-block{min-width:0;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:rgba(0,0,0,.08)}
+.match-team-block+.match-team-block{margin-top:0}
+.match-team-title{font-size:11px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.35px;margin:0;padding:7px 9px;border-bottom:1px solid var(--line)}
+.match-player-row{display:grid;grid-template-columns:minmax(0,1fr) 86px 42px 92px;gap:7px;align-items:center;padding:5px 7px;border-top:1px solid rgba(255,255,255,.045)}
+.match-player-row:first-child{border-top:0}
+.match-player-name{font-weight:800;font-size:12px;min-width:0}
+.match-player-name small{display:block;color:var(--muted);font-weight:500;font-size:9.5px;margin-top:1px}
+.match-player-manager{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.match-player-empty{padding:9px;color:var(--muted);font-size:11px}
+.match-player-row .scoreinput{height:29px;padding:4px 7px;font-size:12px}
+.match-schedule-admin{display:flex;justify-content:center;align-items:end;gap:8px;padding:4px 0 10px;border-bottom:1px solid var(--line);margin-bottom:8px;flex-wrap:wrap}
+.match-schedule-admin label{display:grid;gap:3px;font-size:10px;color:var(--muted)}
+.match-schedule-admin input{height:30px;min-width:132px}
+.match-schedule-admin input[type="time"]{min-width:100px}
+.match-top-tools{flex-wrap:wrap}
+@media(max-width:1050px){
+  .match-game summary{grid-template-columns:190px minmax(0,1fr) 190px}
+  .match-count{font-size:9.5px;padding:3px 5px}
+  .match-day-title{font-size:13px}
+}
+@media(max-width:850px){
+  .match-fixture-list{padding:10px 11px 14px;gap:14px}
+  .match-day-group + .match-day-group{padding-top:12px}
+  .match-game summary{grid-template-columns:86px minmax(0,1fr);gap:7px 9px}
+  .match-game-stats{grid-column:1/-1;justify-content:center;padding-top:2px}
+  .match-team-grid{grid-template-columns:1fr}
+  .match-team-block+.match-team-block{margin-top:0}
+}
+@media(max-width:560px){
+  .match-fixture-list{padding:8px;gap:12px}
+  .match-day-title{font-size:12.5px;padding:4px 8px}
+  .match-game summary{padding:8px 9px}
+  .match-game-title{font-size:12px}
+  .match-player-row{grid-template-columns:minmax(0,1fr) 70px 38px 84px;gap:5px;padding:5px}
+  .match-player-manager{font-size:10px}
+  .match-count{font-size:9.5px;padding:2px 6px}
+}
+
 /* V68 · pulido general */
 .card{box-shadow:0 1px 0 rgba(255,255,255,.015)}
 .nav button,.btn,.select,.input{transition:border-color .15s ease,background .15s ease,filter .15s ease,box-shadow .15s ease}
@@ -262,20 +320,35 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 .callout{line-height:1.35}
 @media(max-width:620px){
   #formations>.card:first-child .cardhead,
-  #scores>.card:first-child .cardhead,
-  #matchScores>.card:first-child .cardhead{flex-direction:column;align-items:stretch}
+  #scores>.card:first-child .cardhead{flex-direction:column;align-items:stretch}
   #formations>.card:first-child .toolbar,
-  #scores>.card:first-child .toolbar,
-  #matchScores>.card:first-child .toolbar{width:100%;gap:6px}
+  #scores>.card:first-child .toolbar{width:100%;gap:6px}
   #formations>.card:first-child .toolbar .select{flex:1 1 120px;min-width:0}
   #scores #scoreSearch{flex:1 1 100%;min-width:100%;order:3}
   #scores #scoreResultFilter{flex:1 1 100%;min-width:100%;order:4}
-  #matchScores #matchManagerSearch{flex:1 1 100%;width:100%!important}
   #matchScoresRound{flex:1 1 auto}
   .scores-rank-card table th,.scores-rank-card table td{padding-left:6px;padding-right:6px}
   .scores-entry-card table th,.scores-entry-card table td{padding-left:6px;padding-right:6px}
   .formations-layout{gap:7px}
   .card{border-radius:11px}
+}
+
+
+.transfer-round-section + .transfer-round-section{margin-top:10px}
+.transfer-round-title{padding:7px 9px;background:#101923;border-bottom:1px solid var(--line);font-size:12.5px;font-weight:900;color:#dbeaff;text-align:left}
+.transfer-round-rows{overflow:hidden}
+@media(max-width:760px){
+  .transfer-round-section + .transfer-round-section{margin-top:8px}
+  .transfer-round-title{border:1px solid var(--line);border-radius:9px;padding:6px 8px;margin-bottom:5px}
+  .transfer-round-rows{display:grid;gap:7px}
+}
+
+
+@media(max-width:620px){
+  #matchScores .match-top-tools{display:grid;grid-template-columns:1fr 1fr;width:100%;gap:6px}
+  #matchScores .match-top-tools>span.muted{display:none}
+  #matchManagerFilter,#matchTeamFilter{min-width:0!important;width:100%}
+  #matchScoresRound{grid-column:1/-1;width:100%}
 }
 
 </style>
@@ -457,8 +530,12 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         <div id="matchScoresModeText" class="muted" style="font-size:11px">Fixture de la fecha y carga de resultados/puntajes por partido.</div>
       </div>
       <div class="toolbar match-top-tools">
-        <input id="matchManagerSearch" class="input" placeholder="Buscar DT..." style="width:150px" list="matchManagerOptions">
-        <datalist id="matchManagerOptions"></datalist>
+        <select id="matchManagerFilter" class="select" style="min-width:135px" aria-label="Filtrar por DT">
+          <option value="">Todos los DT</option>
+        </select>
+        <select id="matchTeamFilter" class="select" style="min-width:160px" aria-label="Filtrar por equipo">
+          <option value="">Todos los equipos</option>
+        </select>
         <span class="muted">Fecha</span>
         <select id="matchScoresRound" class="select" style="min-width:110px"></select>
       </div>
@@ -1889,10 +1966,27 @@ function matchScheduleAdminHtml(rk,index,g){
     <button class="btn small" onclick="setMatchSchedule('${rk}',${index},$('matchDate_${rk}_${index}').value,$('matchTime_${rk}_${index}').value)">Guardar programación</button>
   </div>`;
 }
-function matchHasManager(rk,g,query){
-  const q=low(query||"").trim();
-  if(!q)return true;
-  return [...matchAssignedPlayers(rk,g.home),...matchAssignedPlayers(rk,g.away)].some(x=>low(x.m).includes(q));
+function matchHasManager(rk,g,manager){
+  if(!manager)return true;
+  return [...matchAssignedPlayers(rk,g.home),...matchAssignedPlayers(rk,g.away)].some(x=>x.m===manager);
+}
+function matchHasTeam(g,team){
+  if(!team)return true;
+  return g.home===team||g.away===team;
+}
+function populateMatchFilters(rk,games){
+  const managerSel=$("matchManagerFilter"),teamSel=$("matchTeamFilter");
+  if(managerSel){
+    const current=managerSel.value;
+    managerSel.innerHTML='<option value="">Todos los DT</option>'+state.participants.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join("");
+    if(state.participants.includes(current))managerSel.value=current;
+  }
+  if(teamSel){
+    const current=teamSel.value;
+    const teams=[...new Set(games.flatMap(g=>[g.home,g.away]))].sort((a,b)=>a.localeCompare(b,"es",{sensitivity:"base"}));
+    teamSel.innerHTML='<option value="">Todos los equipos</option>'+teams.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");
+    if(teams.includes(current))teamSel.value=current;
+  }
 }
 
 function staticMatchResult(g){
@@ -1955,9 +2049,14 @@ function renderMatchScores(){
 
   updateMatchScoresRoundOptions();
   const rk=matchScoresRoundKey(),games=FIXTURE_2026[rk]||[];
-  const managerQuery=$("matchManagerSearch")?.value||"";
-  if($("matchManagerOptions"))$("matchManagerOptions").innerHTML=state.participants.map(m=>`<option value="${esc(m)}"></option>`).join("");
-  if($("matchScoresModeText"))$("matchScoresModeText").textContent=(isCloudAdmin()?"Administrador · ":"Vista pública · ")+`Fecha ${rk} · `+(managerQuery?`filtrado por DT: ${managerQuery}.`:(isCloudAdmin()?"resultados y puntajes sincronizados con Supabase.":"solo lectura."));
+  populateMatchFilters(rk,games);
+  const managerFilter=$("matchManagerFilter")?.value||"";
+  const teamFilter=$("matchTeamFilter")?.value||"";
+  const activeFilters=[
+    managerFilter?`DT: ${managerFilter}`:"",
+    teamFilter?`Equipo: ${teamFilter}`:""
+  ].filter(Boolean);
+  if($("matchScoresModeText"))$("matchScoresModeText").textContent=(isCloudAdmin()?"Administrador · ":"Vista pública · ")+`Fecha ${rk} · `+(activeFilters.length?`filtrado por ${activeFilters.join(" · ")}.`:(isCloudAdmin()?"resultados y puntajes sincronizados con Supabase.":"solo lectura."));
 
   const list=$("matchFixtureList");
   if(!list)return;
@@ -1965,10 +2064,10 @@ function renderMatchScores(){
 
   const visibleGames=games
     .map((g,i)=>({g,i}))
-    .filter(({g})=>matchHasManager(rk,g,managerQuery))
+    .filter(({g})=>matchHasManager(rk,g,managerFilter)&&matchHasTeam(g,teamFilter))
     .sort((a,b)=>compareScheduledMatches(rk,a,b));
   if(!visibleGames.length){
-    list.innerHTML=`<div class="emptybox">No hay partidos con jugadores asignados al DT <b>${esc(managerQuery)}</b> en la Fecha ${rk}.</div>`;
+    list.innerHTML='<div class="emptybox">No hay partidos que coincidan con los filtros seleccionados.</div>';
     return;
   }
 
@@ -2616,52 +2715,65 @@ function renderTransferHistory(){
     return;
   }
 
-  box.innerHTML=rows.map(({rk,ev})=>{
-    const roundLabel=`Previos a F${Number(rk)+1}`;
-    const typeInfo=transferHistoryTypeLabel(ev);
-
-    if(ev.type==="pass"){
-      return `<div class="transfer-ledger-row pass">
-        <div class="transfer-ledger-manager">${esc(ev.manager)}</div>
-        <div class="transfer-pass-text">No realizó cambios.</div>
-        <div class="transfer-ledger-type"><span class="transfer-type-badge pass">Sin cambios</span></div>
-        <div class="transfer-ledger-round">${esc(roundLabel)}</div>
-      </div>`;
+  const grouped=[];
+  rows.forEach(row=>{
+    let group=grouped.find(g=>g.rk===row.rk);
+    if(!group){
+      group={rk:row.rk,rows:[]};
+      grouped.push(group);
     }
+    group.rows.push(row);
+  });
 
-    const outName=ev.outPlayerName||"—",inName=ev.inPlayerName||"—";
-    const outObj=historyPlayerByName(outName),inObj=historyPlayerByName(inName);
-    const outTeam=ev.outPlayerTeam||outObj?.team||"";
-    const inTeam=ev.inPlayerTeam||inObj?.team||ev.club||"";
-    const origin=transferHistoryOrigin(ev);
+  box.innerHTML=grouped.map(group=>{
+    const dateTitle=`Fecha ${Number(group.rk)+1}`;
+    const body=group.rows.map(({ev})=>{
+      const typeInfo=transferHistoryTypeLabel(ev);
 
-    return `<div class="transfer-ledger-row">
-      <div class="transfer-ledger-manager">${esc(ev.manager)}</div>
+      if(ev.type==="pass"){
+        return `<div class="transfer-ledger-row pass">
+          <div class="transfer-ledger-manager">${esc(ev.manager)}</div>
+          <div class="transfer-pass-text">No realizó cambios.</div>
+          <div class="transfer-ledger-type"><span class="transfer-type-badge pass">Sin cambios</span></div>
+        </div>`;
+      }
 
-      <div class="transfer-ledger-player out-player">
-        <div class="transfer-ledger-icon out">↓</div>
-        <div>
-          <div class="transfer-ledger-name">${esc(outName)}</div>
-          <div class="transfer-ledger-sub">${esc(outTeam||"")}</div>
+      const outName=ev.outPlayerName||"—",inName=ev.inPlayerName||"—";
+      const outObj=historyPlayerByName(outName),inObj=historyPlayerByName(inName);
+      const outTeam=ev.outPlayerTeam||outObj?.team||"";
+      const inTeam=ev.inPlayerTeam||inObj?.team||ev.club||"";
+      const origin=transferHistoryOrigin(ev);
+
+      return `<div class="transfer-ledger-row">
+        <div class="transfer-ledger-manager">${esc(ev.manager)}</div>
+
+        <div class="transfer-ledger-player out-player">
+          <div class="transfer-ledger-icon out">↓</div>
+          <div>
+            <div class="transfer-ledger-name">${esc(outName)}</div>
+            <div class="transfer-ledger-sub">${esc(outTeam||"")}</div>
+          </div>
         </div>
-      </div>
 
-      <div class="transfer-ledger-arrow">→</div>
-
-      <div class="transfer-ledger-player in-player">
-        <div class="transfer-ledger-icon in">↑</div>
-        <div>
-          <div class="transfer-ledger-name">${esc(inName)}</div>
-          <div class="transfer-ledger-sub">${[inTeam,origin].filter(Boolean).map(esc).join(" · ")}</div>
+        <div class="transfer-ledger-player in-player">
+          <div class="transfer-ledger-icon in">↑</div>
+          <div>
+            <div class="transfer-ledger-name">${esc(inName)}</div>
+            <div class="transfer-ledger-sub">${[inTeam,origin].filter(Boolean).map(esc).join(" · ")}</div>
+          </div>
         </div>
-      </div>
 
-      <div class="transfer-ledger-type">
-        <span class="transfer-type-badge ${typeInfo.cls}">${esc(typeInfo.text)}</span>
-      </div>
+        <div class="transfer-ledger-type">
+          <span class="transfer-type-badge ${typeInfo.cls}">${esc(typeInfo.text)}</span>
+          ${ev.formation?`<span class="transfer-type-badge" style="margin-left:5px">${esc(ev.formation)}</span>`:""}
+        </div>
+      </div>`;
+    }).join("");
 
-      <div class="transfer-ledger-round">${esc(roundLabel)}${ev.formation?` · ${esc(ev.formation)}`:""}</div>
-    </div>`;
+    return `<section class="transfer-round-section">
+      <div class="transfer-round-title">${esc(dateTitle)}</div>
+      <div class="transfer-round-rows">${body}</div>
+    </section>`;
   }).join("");
 }
 
@@ -3027,7 +3139,8 @@ $("manager").onchange=()=>{
 ["search","posFilter","availFilter"].forEach(id=>$(id).addEventListener(id==="search"?"input":"change",renderPlayers));
 $("roundInput").onchange=()=>{renderScores();renderResults()};$("scoreSearch").oninput=()=>renderScores(false);$("scoreResultFilter").onchange=()=>renderScores(false);
 $("matchScoresRound").onchange=renderMatchScores;
-$("matchManagerSearch").oninput=renderMatchScores;
+$("matchManagerFilter").onchange=renderMatchScores;
+$("matchTeamFilter").onchange=renderMatchScores;
 $("formationManager").onchange=renderFormations;$("formationRound").onchange=renderFormations;
 $("transferRoundSelect").onchange=renderTransferPage;
 $("transferHistoryRound").onchange=()=>{$("transferHistoryRound").dataset.userSelected="1";renderTransferHistory()};

@@ -1,38 +1,29 @@
-CHICHE LEAGUE CLAUSURA 2026 — V68
+CHICHE LEAGUE CLAUSURA 2026 — V69
 
-CAMBIOS · REDISEÑO COMPACTO
+CORRECCIONES FIXTURE Y CAMBIOS
 
-NOMENCLATURA
-- Se elimina "Cambios" como tipo de operación.
-- Tipos reales:
-  * Robo.
-  * Reposición obligatoria.
-  * Incorporación libre.
-  * Sin cambios.
-- "Movimientos" se usa únicamente como total estadístico.
+FIXTURE Y RESULTADOS
+- Restaurado el formato visual validado de V66.
+- Se elimina búsqueda libre por DT.
+- Nuevo dropdown por DT.
+- Nuevo dropdown por Equipo.
+- Ambos filtros pueden combinarse.
+- Se mantiene orden automático por día/horario.
+- No se modificó el diseño de partidos, fechas ni detalle de jugadores.
 
-HISTORIAL
-- Vista desktop tipo registro compacto: una operación por fila.
-- Mucho menor altura por movimiento para poder ver una ronda completa.
-- Sale: flecha roja hacia abajo.
-- Entra: flecha verde hacia arriba.
-- Se mantiene DT, equipos, origen del entrante, formación y ronda.
-- Resumen compacto en chips.
-- Filtros por ronda, DT, jugador y tipo.
-- Botón Restablecer filtros.
-- La primera apertura de Cambios selecciona correctamente la ronda previa
-  a la fecha activa, salvo que el usuario haya elegido otra manualmente.
+CAMBIOS
+- Eliminada la flecha gris entre jugador saliente y entrante.
+- Las filas quedan más limpias: DT / Sale / Entra / Tipo.
+- La fecha aparece una sola vez como título del bloque: "Fecha X".
+- Se elimina por completo la nomenclatura "Previos a FX".
+- En "Todas las rondas", los movimientos quedan agrupados por Fecha.
+- En una ronda individual, también se muestra el título de Fecha correspondiente.
+- Formación se conserva como etiqueta secundaria del movimiento.
 
 MOBILE
-- En celular cada movimiento se adapta a tarjeta compacta.
-- Navegación horizontal preservada.
-- Controles de Formaciones, Puntajes y Fixture mejor acomodados.
-- Inputs y filtros ocupan mejor el ancho disponible.
-
-PULIDO GENERAL
-- Estados hover/focus más claros.
-- Mejor consistencia de inputs, botones y tarjetas.
-- Ajustes de espaciado en pantallas pequeñas.
+- Dropdowns de DT y Equipo se acomodan en dos columnas.
+- Selector de Fecha queda debajo a ancho completo.
+- Se mantiene el formato responsive validado del fixture.
 
 PERSISTENCIA
 - Supabase preservado.

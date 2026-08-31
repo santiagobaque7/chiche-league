@@ -1192,6 +1192,120 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   }
 }
 
+
+/* V77 · Reglamento */
+.rules-head{margin-bottom:10px}
+.rules-head .cardhead{align-items:center}
+.rules-search-wrap{width:min(360px,42vw)}
+.rules-search-wrap .input{width:100%}
+.rules-minutes-note{
+  margin:0 10px 10px;
+  padding:8px 10px;
+  border:1px solid #2f5d8a;
+  border-radius:10px;
+  background:#10243a;
+  color:#cfe5fb;
+  font-size:11px;
+  line-height:1.3;
+}
+.rules-minutes-note b{color:#fff}
+.rules-list{display:grid;gap:10px}
+.rules-category{overflow:hidden}
+.rules-category-head{
+  padding:8px 11px;
+  border-bottom:1px solid var(--line);
+  background:#101a25;
+}
+.rules-category-head h3{margin:0;font-size:14px}
+.rules-category-body{display:grid}
+.rule-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 115px;
+  gap:12px;
+  align-items:center;
+  min-height:48px;
+  padding:8px 11px;
+  border-top:1px solid #1b2b3a;
+}
+.rule-row:first-child{border-top:0}
+.rule-row:hover{background:#122130}
+.rule-main{min-width:0}
+.rule-main b{
+  display:block;
+  font-size:12.5px;
+  line-height:1.15;
+}
+.rule-main span{
+  display:block;
+  margin-top:3px;
+  color:var(--muted);
+  font-size:10.5px;
+  line-height:1.3;
+}
+.rule-points{
+  justify-self:end;
+  min-width:82px;
+  text-align:center;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:5px 8px;
+  font-size:11px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.rule-points.positive{color:#78e8ae;border-color:#286348;background:#10271c}
+.rule-points.positive.strong{color:#9ff0c4;border-color:#36795b;background:#123122}
+.rule-points.negative{color:#ff9b9b;border-color:#713b43;background:#25161a}
+.rule-points.bonus{color:#8fc6ff;border-color:#355f88;background:#102338}
+.rule-points.neutral{color:#dce8f4}
+.rule-row-note{min-height:65px}
+
+@media(max-width:700px){
+  #rules{padding-top:5px}
+  .rules-head .cardhead{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:7px;
+    align-items:stretch;
+  }
+  .rules-search-wrap{
+    width:100%;
+  }
+  #rulesSearch{
+    width:100%;
+    min-height:38px;
+    font-size:16px; /* evita zoom automático de iOS */
+  }
+  .rules-minutes-note{
+    margin:0 8px 8px;
+    padding:8px 9px;
+    font-size:10.5px;
+  }
+  .rules-list{gap:8px}
+  .rules-category-head{padding:7px 9px}
+  .rules-category-head h3{font-size:13px}
+  .rule-row{
+    grid-template-columns:minmax(0,1fr) 78px;
+    gap:7px;
+    min-height:44px;
+    padding:7px 9px;
+  }
+  .rule-main b{font-size:12px}
+  .rule-main span{font-size:9.5px;line-height:1.25}
+  .rule-points{
+    min-width:70px;
+    padding:4px 5px;
+    font-size:10px;
+  }
+  .rule-row-note{
+    grid-template-columns:1fr;
+    gap:6px;
+  }
+  .rule-row-note .rule-points{
+    justify-self:start;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1210,6 +1324,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <button data-page="scores">Puntajes</button>
     <button data-page="matchScores">Fixture y Resultados</button>
     <button data-page="transfers">Cambios</button>
+    <button data-page="rules">Reglamento</button>
     <button data-page="database">Base</button>
   </nav>
 </header>
@@ -1456,6 +1571,148 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     </div>
 
     <div class="transfer-history-body"><div id="transferHistoryList"></div></div>
+  </div>
+</section>
+
+
+<section id="rules" class="page">
+  <div class="card rules-head">
+    <div class="cardhead">
+      <div>
+        <h2>Reglamento de puntajes</h2>
+        <div class="muted" style="font-size:11px">Detalle completo de los puntos que puede recibir cada futbolista.</div>
+      </div>
+      <div class="rules-search-wrap">
+        <input id="rulesSearch" class="input" placeholder="Buscar regla... Ej: Gol de Oro" autocomplete="off">
+      </div>
+    </div>
+    <div class="rules-minutes-note">
+      <b>Condición general:</b> el futbolista sólo suma si jugó al menos <b>20 minutos</b>.
+    </div>
+  </div>
+
+  <div id="rulesNoResults" class="card emptybox" style="display:none">
+    No se encontraron reglas que coincidan con la búsqueda.
+  </div>
+
+  <div id="rulesList" class="rules-list">
+    <section class="card rules-category" data-rules-category="calificacion">
+      <div class="rules-category-head">
+        <h3>Calificación y distinciones</h3>
+      </div>
+      <div class="rules-category-body">
+        <div class="rule-row" data-rule="calificación clarín nota clarin puntos 1 10">
+          <div class="rule-main"><b>Calificación Clarín</b><span>Según la nota recibida.</span></div>
+          <div class="rule-points neutral">1 a 10 pts</div>
+        </div>
+        <div class="rule-row" data-rule="capitán capitan duplica calificación clarín nota">
+          <div class="rule-main"><b>Capitán</b><span>Duplica la Calificación Clarín.</span></div>
+          <div class="rule-points bonus">x2 Clarín</div>
+        </div>
+        <div class="rule-row" data-rule="figura de la cancha mejor jugador">
+          <div class="rule-main"><b>Figura de la cancha</b></div>
+          <div class="rule-points positive">+4 pts</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card rules-category" data-rules-category="goles">
+      <div class="rules-category-head">
+        <h3>Goles</h3>
+      </div>
+      <div class="rules-category-body">
+        <div class="rule-row" data-rule="gol de visitante visitante">
+          <div class="rule-main"><b>Gol de visitante</b><span>Independientemente de la posición del goleador.</span></div>
+          <div class="rule-points positive">+2 pts</div>
+        </div>
+        <div class="rule-row" data-rule="gol de penal penal convertido">
+          <div class="rule-main"><b>Gol de penal</b><span>Independientemente de la posición del goleador.</span></div>
+          <div class="rule-points positive">+3 pts</div>
+        </div>
+        <div class="rule-row" data-rule="gol de oro oro después minuto 75 min 75">
+          <div class="rule-main"><b>Gol de Oro</b><span>Gol convertido después del minuto 75, sin importar la posición.</span></div>
+          <div class="rule-points positive strong">+5 pts</div>
+        </div>
+        <div class="rule-row" data-rule="gol delantero jugada gol convertido por delantero">
+          <div class="rule-main"><b>Gol de jugada · Delantero</b><span>Por cada gol.</span></div>
+          <div class="rule-points positive">+4 pts</div>
+        </div>
+        <div class="rule-row" data-rule="gol volante jugada gol convertido por volante mediocampista">
+          <div class="rule-main"><b>Gol de jugada · Volante</b><span>Por cada gol.</span></div>
+          <div class="rule-points positive">+6 pts</div>
+        </div>
+        <div class="rule-row" data-rule="gol defensor jugada gol convertido por defensor">
+          <div class="rule-main"><b>Gol de jugada · Defensor</b><span>Por cada gol.</span></div>
+          <div class="rule-points positive">+9 pts</div>
+        </div>
+        <div class="rule-row" data-rule="gol arquero jugada gol convertido por arquero">
+          <div class="rule-main"><b>Gol de jugada · Arquero</b><span>Por cada gol.</span></div>
+          <div class="rule-points positive">+12 pts</div>
+        </div>
+        <div class="rule-row" data-rule="gol en contra autogol propia puerta">
+          <div class="rule-main"><b>Gol en contra</b><span>Por cada gol en contra.</span></div>
+          <div class="rule-points negative">−2 pts</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card rules-category" data-rules-category="defensa">
+      <div class="rules-category-head">
+        <h3>Arquero y defensa</h3>
+      </div>
+      <div class="rules-category-body">
+        <div class="rule-row rule-row-note" data-rule="valla invicta arquero arco en cero clean sheet">
+          <div class="rule-main">
+            <b>Valla invicta · Arquero</b>
+            <span>Cuenta si durante los minutos que estuvo en cancha no recibió goles. Si salió con el arco en cero y el equipo recibió después, conserva la bonificación; también aplica si ingresó luego de goles previos y no recibió durante su participación.</span>
+          </div>
+          <div class="rule-points positive">+3 pts</div>
+        </div>
+        <div class="rule-row rule-row-note" data-rule="valla invicta defensor defensa arco en cero clean sheet">
+          <div class="rule-main">
+            <b>Valla invicta · Defensor</b>
+            <span>Mismo criterio: se considera únicamente el período en que el jugador estuvo en cancha.</span>
+          </div>
+          <div class="rule-points positive">+2 pts</div>
+        </div>
+        <div class="rule-row" data-rule="gol recibido arquero goles recibidos de jugada penal">
+          <div class="rule-main"><b>Gol recibido · Arquero</b><span>De jugada o penal, por cada gol.</span></div>
+          <div class="rule-points negative">−1 pt</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card rules-category" data-rules-category="disciplina">
+      <div class="rules-category-head">
+        <h3>Disciplina</h3>
+      </div>
+      <div class="rules-category-body">
+        <div class="rule-row" data-rule="tarjeta amarilla amarilla">
+          <div class="rule-main"><b>Tarjeta amarilla</b><span>Por tarjeta.</span></div>
+          <div class="rule-points negative">−2 pts</div>
+        </div>
+        <div class="rule-row" data-rule="tarjeta roja expulsión expulsion roja">
+          <div class="rule-main"><b>Tarjeta roja</b><span>Por tarjeta.</span></div>
+          <div class="rule-points negative">−4 pts</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card rules-category" data-rules-category="penales">
+      <div class="rules-category-head">
+        <h3>Penales</h3>
+      </div>
+      <div class="rules-category-body">
+        <div class="rule-row" data-rule="penal errado fallado penal fallado">
+          <div class="rule-main"><b>Penal errado</b><span>Por cada penal.</span></div>
+          <div class="rule-points negative">−4 pts</div>
+        </div>
+        <div class="rule-row" data-rule="penal atajado arquero penal detenido">
+          <div class="rule-main"><b>Penal atajado</b><span>Por cada penal.</span></div>
+          <div class="rule-points positive">+4 pts</div>
+        </div>
+      </div>
+    </section>
   </div>
 </section>
 
@@ -2054,6 +2311,33 @@ function fillStatic(){
   $("formation").innerHTML=Object.keys(FORMATIONS).map(f=>`<option>${f}</option>`).join("");
 
 }
+
+function normalizeRuleText(text){
+  return String(text||"")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .toLowerCase()
+    .trim();
+}
+function filterRules(){
+  const q=normalizeRuleText($("rulesSearch")?.value||"");
+  const categories=[...document.querySelectorAll("#rulesList .rules-category")];
+  let visibleRows=0;
+
+  categories.forEach(category=>{
+    let categoryVisible=0;
+    category.querySelectorAll(".rule-row").forEach(row=>{
+      const haystack=normalizeRuleText((row.dataset.rule||"")+" "+row.textContent);
+      const show=!q||haystack.includes(q);
+      row.style.display=show?"grid":"none";
+      if(show){categoryVisible++;visibleRows++;}
+    });
+    category.style.display=categoryVisible?"block":"none";
+  });
+
+  if($("rulesNoResults"))$("rulesNoResults").style.display=visibleRows?"none":"block";
+}
+
 function setPage(id){
   if(!isCloudAdmin()&&["draft","database","setup","welcome"].includes(id))id="scores";
   if(isCloudAdmin()&&state.phase==="welcome"&&id!=="welcome")id="welcome";
@@ -4076,6 +4360,7 @@ $("transferHistoryRound").onchange=()=>{$("transferHistoryRound").dataset.userSe
 $("transferHistoryManager").onchange=renderTransferHistory;
 $("transferHistoryPlayer").oninput=renderTransferHistory;
 $("transferHistoryReset").onclick=resetTransferHistoryFilters;
+if($("rulesSearch"))$("rulesSearch").oninput=filterRules;
 $("startTransferRound").onclick=startTransferRound;$("drawTransferClub").onclick=drawTransferClub;$("passTransfer").onclick=passTransfer;$("transferSearch").oninput=renderTransferPlayers;$("transferClubFilter").onchange=renderTransferPlayers;$("transferAvailability").onchange=renderTransferPlayers;
 $("backupBtn").onclick=backup;
 $("pullCloudBtn").onclick=async()=>{const ok=await pullCloudState({force:true});alert(ok?"Partida oficial recargada desde Supabase.":"No se pudo obtener una partida válida desde Supabase.")};

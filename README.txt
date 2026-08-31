@@ -1,27 +1,40 @@
-CHICHE LEAGUE CLAUSURA 2026 — V77
+CHICHE LEAGUE CLAUSURA 2026 — V78
 
-NUEVA SOLAPA REGLAMENTO
-- Nueva pestaña "Reglamento".
-- Detalle completo de los puntos entregados por:
-  * Calificación Clarín.
-  * Capitán.
-  * Figura de la cancha.
-  * Goles.
-  * Valla invicta.
-  * Goles recibidos.
-  * Tarjetas.
-  * Penales.
-- Condición general destacada: sólo suma si jugó al menos 20 minutos.
-- Buscador instantáneo por texto.
-- Ejemplo: escribir "Gol de Oro" deja visible esa regla y su puntaje.
-- Búsqueda tolerante a mayúsculas y acentos.
-- Reglas agrupadas por categorías.
-- Aclaración resumida del criterio temporal de valla invicta.
-- Diseño responsive específico para celular.
-- Input de búsqueda a 16px en mobile para evitar zoom de iOS.
+BASE DE JUGADORES · ACTUALIZACIÓN 30/08/2026
+
+TRASPASOS APLICADOS
+- Rodríguez, Diego: ARGENTINOS JRS. -> BANFIELD.
+- Sanguinetti, Facundo: BANFIELD -> VÉLEZ.
+
+NUEVOS JUGADORES
+- Herrera, Facundo — BOCA JUNIORS — DEF — $500.000.
+- Satas, Matías — BOCA JUNIORS — DEF — $400.000.
+- Barinaga, Juan Ignacio — RACING — DEF — $300.000.
+- Campo, Alberto — RACING — DEL — $300.000.
+- Fraga, Francisco — RACING — DEL — $300.000.
+
+JUGADORES QUE YA NO APARECEN EN LA PUBLICACIÓN
+NO se eliminan de la app:
+- Caballero, Tiago.
+- Gelini, Gonzalo.
+- García, Matías.
+- Forclaz, Ezequiel.
+- Martínez, Alejandro.
+- Barros Ayala, Luciano.
+- Martirena, Gastón.
+- Gill, Orlando.
+
+ANOMALÍA POR TRASPASO OFICIAL
+- Si un jugador cambia oficialmente de club y eso deja a un DT con dos jugadores
+  del mismo equipo, se permite conservar ambos.
+- La anomalía aparece señalada en Formaciones.
+- Esa excepción sólo cubre la pareja exacta generada por el traspaso.
+- No permite incorporar un tercer jugador del mismo club.
+
+REGLAMENTO
+- El buscador ahora muestra únicamente el placeholder: "Buscar regla".
 
 PERSISTENCIA
-- Se parte de V76.
 - Supabase preservado.
 - STORAGE chicheLeagueDB_v25 preservado.
-- El Reglamento es informativo y no modifica la lógica de puntajes.
+- No se eliminan puntajes, planteles, cambios, fixture ni historial.

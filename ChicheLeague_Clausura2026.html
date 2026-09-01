@@ -3400,7 +3400,7 @@ function renderScores(resetFocus=true){
     const v=vals[x.p.id]??"";
     if(resultFilter==="played")return typeof v==="number";
     if(resultFilter==="no_play")return v==="NO JUEGA";
-    if(resultFilter==="pending")return v==="";
+    if(resultFilter==="pending")return v===""||v==="JUEGA";
     return true;
   });
   const allRows=getConfirmedPlayerRows(rk);

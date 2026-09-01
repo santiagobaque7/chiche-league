@@ -1764,8 +1764,7 @@ const FIXTURE_2026={"5":[{"dateLabel":"Viernes 14 de agosto","time":"20:30","hom
 
 const FORMATIONS={"4-4-2":{ARQ:1,DEF:4,VOL:4,DEL:2},"4-3-3":{ARQ:1,DEF:4,VOL:3,DEL:3},"3-4-3":{ARQ:1,DEF:3,VOL:4,DEL:3},"4-5-1":{ARQ:1,DEF:4,VOL:5,DEL:1},"3-5-2":{ARQ:1,DEF:3,VOL:5,DEL:2},"5-3-2":{ARQ:1,DEF:5,VOL:3,DEL:2},"3-3-4":{ARQ:1,DEF:3,VOL:3,DEL:4},"4-2-4":{ARQ:1,DEF:4,VOL:2,DEL:4},"5-2-3":{ARQ:1,DEF:5,VOL:2,DEL:3}};
 const STORAGE="chicheLeagueDB_v25";
-const SUPABASE_URL="https://nhncljaqxhlapfsjqrql.supabase.co";
-const SUPABASE_KEY="sb_publishable_GaMB23nh1tEtytzPS2c3gA_S_4YwYr3";
+const CLOUD_API="/api/chiche-cloud";
 const CLOUD_LEAGUE_ID="clausura-2026";
 const CLOUD_OWNER_UID="b9a49f4d-5e26-4f0e-8892-b6b958e4a59b";
 const CLOUD_SESSION_KEY="chicheLeagueCloudSession_v1";
@@ -1988,12 +1987,28 @@ function setCloudStatus(text,kind=""){
   const el=$("cloudStatus");if(!el)return;
   el.textContent=text;el.className="cloud-status"+(kind?` ${kind}`:"");
 }
-function cloudHeaders(token=null){
-  return {
-    "apikey":SUPABASE_KEY,
-    "Authorization":`Bearer ${token||SUPABASE_KEY}`,
-    "Content-Type":"application/json"
-  };
+async function cloudApi(action,{method="GET",body=null,token=null}={}){
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),12000);
+  try{
+    const headers={"Content-Type":"application/json"};
+    if(token)headers["Authorization"]=`Bearer ${token}`;
+    const r=await fetch(`${CLOUD_API}?action=${encodeURIComponent(action)}`,{
+      method,headers,cache:"no-store",signal:controller.signal,
+      body:body===null?undefined:JSON.stringify(body)
+    });
+    let payload=null;
+    const text=await r.text();
+    if(text){try{payload=JSON.parse(text)}catch{payload={message:text}}}
+    if(!r.ok){
+      const msg=payload?.error_description||payload?.msg||payload?.message||`Error ${r.status}`;
+      throw new Error(msg);
+    }
+    return payload;
+  }catch(e){
+    if(e?.name==="AbortError")throw new Error("La conexión con el servidor tardó demasiado.");
+    throw e;
+  }finally{clearTimeout(timeout)}
 }
 function getCloudSession(){
   try{
@@ -2012,11 +2027,7 @@ function isCloudAdmin(){return !!(cloudSession&&cloudSession.access_token&&cloud
 async function refreshCloudSession(){
   if(!cloudSession?.refresh_token)return false;
   try{
-    const r=await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`,{
-      method:"POST",headers:cloudHeaders(),body:JSON.stringify({refresh_token:cloudSession.refresh_token})
-    });
-    if(!r.ok)throw new Error(await r.text());
-    const s=await r.json();
+    const s=await cloudApi("refresh",{method:"POST",body:{refresh_token:cloudSession.refresh_token}});
     s.expires_at=Date.now()+Number(s.expires_in||3600)*1000;
     saveCloudSession(s);
     return true;
@@ -2034,15 +2045,9 @@ async function validAdminToken(){
 }
 async function cloudLogin(email,password){
   setCloudStatus("Iniciando sesión…");
-  const r=await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`,{
-    method:"POST",headers:cloudHeaders(),body:JSON.stringify({email,password})
-  });
-  if(!r.ok){
-    let msg="No se pudo iniciar sesión.";
-    try{const j=await r.json();msg=j.error_description||j.msg||j.message||msg}catch{}
-    throw new Error(msg);
-  }
-  const s=await r.json();
+  let s;
+  try{s=await cloudApi("login",{method:"POST",body:{email,password}})}
+  catch(e){throw new Error(e.message||"No se pudo iniciar sesión.")}
   if(s.user?.id!==CLOUD_OWNER_UID)throw new Error("Este usuario no es el administrador de la Chiche League.");
   s.expires_at=Date.now()+Number(s.expires_in||3600)*1000;
   saveCloudSession(s);
@@ -2052,7 +2057,7 @@ async function cloudLogin(email,password){
 async function cloudLogout(){
   try{
     if(cloudSession?.access_token){
-      await fetch(`${SUPABASE_URL}/auth/v1/logout`,{method:"POST",headers:cloudHeaders(cloudSession.access_token)});
+      await cloudApi("logout",{method:"POST",token:cloudSession.access_token});
     }
   }catch{}
   saveCloudSession(null);
@@ -2064,7 +2069,7 @@ async function cloudLogout(){
 function showAdminLogin(){
   modal("Acceso administrador",`
     <div class="cloud-login-grid">
-      <div class="callout" style="margin:0">Ingresá con el usuario administrador que creaste en Supabase.</div>
+      <div class="callout" style="margin:0">Ingresá con tu usuario administrador.</div>
       <label>Email<input id="cloudEmail" class="input" type="email" autocomplete="username" placeholder="tu@email.com"></label>
       <label>Contraseña<input id="cloudPassword" class="input" type="password" autocomplete="current-password" placeholder="Contraseña"></label>
       <div id="cloudLoginError" class="err" style="min-height:18px"></div>
@@ -2079,7 +2084,7 @@ function showAdminLogin(){
         const loaded=await pullCloudState({force:true});
         renderAllCloudAware();
         applyLandingLifecycle({force:true,allowSwitch:true});
-        alert(loaded?"Sesión iniciada. Se cargó la partida oficial desde Supabase.":"Sesión iniciada, pero no se encontró una partida válida en Supabase.");
+        alert(loaded?"Sesión iniciada. Se cargó la partida oficial.":"Sesión iniciada, pero no se encontró una partida válida publicada.");
       }catch(e){$("cloudLoginError").textContent=e.message}
     }
   );
@@ -2100,20 +2105,18 @@ async function pushCloudState({manual=false}={}){
   try{
     setCloudStatus("Guardando…","admin");
     const now=new Date().toISOString();
-    const r=await fetch(`${SUPABASE_URL}/rest/v1/chiche_league_state?id=eq.${encodeURIComponent(CLOUD_LEAGUE_ID)}`,{
-      method:"PATCH",
-      headers:{...cloudHeaders(token),"Prefer":"return=minimal"},
-      body:JSON.stringify({state:cloudSafeState(),updated_at:now})
+    await cloudApi("state",{
+      method:"PATCH",token,
+      body:{league_id:CLOUD_LEAGUE_ID,state:cloudSafeState(),updated_at:now}
     });
-    if(!r.ok)throw new Error(await r.text());
     cloudLastUpdatedAt=now;
     setCloudStatus("Admin · sincronizado","admin");
-    if(manual)alert("Partida subida a Supabase correctamente.");
+    if(manual)alert("Partida publicada correctamente.");
     return true;
   }catch(e){
-    console.error("Error guardando en Supabase:",e);
+    console.error("Error guardando la partida:",e);
     setCloudStatus("Error de sincronización","error");
-    if(manual)alert("No se pudo subir la partida a Supabase.\n\n"+e.message);
+    if(manual)alert("No se pudo publicar la partida.\n\n"+e.message);
     return false;
   }
 }
@@ -2123,12 +2126,8 @@ function scheduleCloudSave(){
   cloudSaveTimer=setTimeout(()=>pushCloudState(),350);
 }
 async function fetchCloudRow(){
-  const r=await fetch(`${SUPABASE_URL}/rest/v1/chiche_league_state?id=eq.${encodeURIComponent(CLOUD_LEAGUE_ID)}&select=state,updated_at`,{
-    headers:cloudHeaders(),cache:"no-store"
-  });
-  if(!r.ok)throw new Error(await r.text());
-  const rows=await r.json();
-  return rows?.[0]||null;
+  const payload=await cloudApi(`state&league_id=${encodeURIComponent(CLOUD_LEAGUE_ID)}`);
+  return payload?.row||null;
 }
 function cloudStateUsable(s){
   return !!(s&&typeof s==="object"&&Array.isArray(s.participants)&&s.participants.length>=2&&s.confirmedTeams);
@@ -2150,7 +2149,7 @@ async function pullCloudState({force=false,quiet=false}={}){
     renderAllCloudAware();
     return true;
   }catch(e){
-    console.warn("No se pudo leer Supabase:",e);
+    console.warn("No se pudo leer la partida publicada:",e);
     if(!quiet)setCloudStatus("Sin conexión · datos locales","error");
     return false;
   }
@@ -2209,8 +2208,14 @@ async function initCloud(){
   cloudBooting=false;
   clearInterval(cloudPollingTimer);
   cloudPollingTimer=setInterval(async()=>{
-    if(!isCloudAdmin())await pullCloudState({quiet:true});
-  },3000);
+    if(!isCloudAdmin()&&!document.hidden)await pullCloudState({quiet:true});
+  },10000);
+  if(!window.__chicheVisibilitySyncBound){
+    window.__chicheVisibilitySyncBound=true;
+    document.addEventListener("visibilitychange",()=>{
+      if(!document.hidden&&!isCloudAdmin())pullCloudState({force:true,quiet:true});
+    });
+  }
 }
 
 function loadState(){
@@ -4444,7 +4449,7 @@ $("transferHistoryReset").onclick=resetTransferHistoryFilters;
 if($("rulesSearch"))$("rulesSearch").oninput=filterRules;
 $("startTransferRound").onclick=startTransferRound;$("drawTransferClub").onclick=drawTransferClub;$("passTransfer").onclick=passTransfer;$("transferSearch").oninput=renderTransferPlayers;$("transferClubFilter").onchange=renderTransferPlayers;$("transferAvailability").onchange=renderTransferPlayers;
 $("backupBtn").onclick=backup;
-$("pullCloudBtn").onclick=async()=>{const ok=await pullCloudState({force:true});alert(ok?"Partida oficial recargada desde Supabase.":"No se pudo obtener una partida válida desde Supabase.")};
+$("pullCloudBtn").onclick=async()=>{const ok=await pullCloudState({force:true});alert(ok?"Partida oficial recargada.":"No se pudo obtener una partida válida publicada.")};
 $("adminLoginBtn").onclick=showAdminLogin;
 $("adminLogoutBtn").onclick=cloudLogout;$("restoreBtn").onclick=()=>$("restoreFile").click();$("addLateParticipantBtn").onclick=openLateParticipant;$("resetTournamentBtn").onclick=resetTournament;$("restoreFile").onchange=e=>e.target.files[0]&&restore(e.target.files[0]);$("csvBtn").onclick=exportCsv;
 

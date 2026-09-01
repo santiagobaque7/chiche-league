@@ -1,14 +1,13 @@
-CHICHE LEAGUE CLAUSURA 2026 — V79
+CHICHE LEAGUE CLAUSURA 2026 — V80
 
-CORRECCIÓN FILTRO PENDIENTE
-- En Puntajes, el filtro Pendiente ahora incluye:
-  * resultado vacío;
-  * JUEGA.
-- JUEGA se considera pendiente hasta que se cargue un puntaje numérico definitivo.
-- Jugó sigue mostrando únicamente jugadores con puntaje numérico.
-- No juega sigue mostrando NO JUEGA.
+PROGRAMACIÓN ACTUALIZADA
+- Fecha 9: días y horarios cargados.
+- Fecha 10: días y horarios cargados.
+- Fecha 11: días y horarios cargados.
+- Se respetan los nombres internos de equipos de la app.
+- No se modifican puntajes, resultados, planteles ni cambios.
+- El fixture sigue ordenándose automáticamente por día y horario.
 
 PERSISTENCIA
-- Se parte de V78.
 - Supabase preservado.
 - STORAGE chicheLeagueDB_v25 preservado.

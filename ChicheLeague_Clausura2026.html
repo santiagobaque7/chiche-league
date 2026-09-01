@@ -1987,13 +1987,17 @@ function setCloudStatus(text,kind=""){
   const el=$("cloudStatus");if(!el)return;
   el.textContent=text;el.className="cloud-status"+(kind?` ${kind}`:"");
 }
-async function cloudApi(action,{method="GET",body=null,token=null}={}){
+async function cloudApi(action,{method="GET",body=null,token=null,params=null}={}){
   const controller=new AbortController();
   const timeout=setTimeout(()=>controller.abort(),12000);
   try{
+    const qs=new URLSearchParams({action});
+    Object.entries(params||{}).forEach(([k,v])=>{
+      if(v!==null&&v!==undefined&&v!=="")qs.set(k,String(v));
+    });
     const headers={"Content-Type":"application/json"};
     if(token)headers["Authorization"]=`Bearer ${token}`;
-    const r=await fetch(`${CLOUD_API}?action=${encodeURIComponent(action)}`,{
+    const r=await fetch(`${CLOUD_API}?${qs.toString()}`,{
       method,headers,cache:"no-store",signal:controller.signal,
       body:body===null?undefined:JSON.stringify(body)
     });
@@ -2126,9 +2130,14 @@ function scheduleCloudSave(){
   cloudSaveTimer=setTimeout(()=>pushCloudState(),350);
 }
 async function fetchCloudRow(){
-  const payload=await cloudApi(`state&league_id=${encodeURIComponent(CLOUD_LEAGUE_ID)}`);
+  const payload=await cloudApi("state",{params:{league_id:CLOUD_LEAGUE_ID}});
   return payload?.row||null;
 }
+async function cloudHealth(){
+  try{return await cloudApi("health")}
+  catch(e){return {ok:false,message:e.message||"No se pudo contactar la API de Vercel."}}
+}
+
 function cloudStateUsable(s){
   return !!(s&&typeof s==="object"&&Array.isArray(s.participants)&&s.participants.length>=2&&s.confirmedTeams);
 }
@@ -2150,7 +2159,10 @@ async function pullCloudState({force=false,quiet=false}={}){
     return true;
   }catch(e){
     console.warn("No se pudo leer la partida publicada:",e);
-    if(!quiet)setCloudStatus("Sin conexión · datos locales","error");
+    if(!quiet){
+      const hasLocal=!!(state&&state.phase&&state.phase!=="welcome");
+      setCloudStatus(hasLocal?"Sin conexión · datos locales":"No se pudo conectar a la partida","error");
+    }
     return false;
   }
 }

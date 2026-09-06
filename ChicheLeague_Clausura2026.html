@@ -1321,10 +1321,50 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   .club-anomaly-note{margin:6px 5px 7px;font-size:9.5px;padding:7px 8px}
 }
 
+
+.home-return-btn{display:none;align-items:center;gap:5px;border:1px solid #29445e;border-radius:8px;background:#12202d;color:#dce8f4;min-height:32px;padding:6px 9px;font-weight:800;font-size:11px}
+body:not(.home-active) .home-return-btn{display:inline-flex}
+body.home-active .nav{display:none!important}
+#home{padding:18px}.home-shell{max-width:1120px;margin:0 auto}.home-hero{text-align:center;padding:34px 18px 26px;margin-bottom:14px}
+.home-kicker{font-size:14px;font-weight:1000;letter-spacing:2px}.home-hero h1{margin:5px 0 8px;font-size:42px;line-height:1;color:#63a2e6}
+.home-hero p{margin:8px 0 0;color:var(--muted);font-size:12px}.home-status{display:inline-flex;border:1px solid #31577d;border-radius:999px;padding:5px 10px;color:#add3fb;background:#10243a;font-size:10.5px;font-weight:800}
+.home-modules{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+.home-module-card{min-height:138px;border:1px solid #263e55;border-radius:14px;background:linear-gradient(145deg,#111e2a,#0d1721);color:var(--text);text-align:left;padding:14px;display:grid;grid-template-columns:40px minmax(0,1fr) auto;align-items:start;gap:10px;cursor:pointer}
+.home-module-card:hover{border-color:#4679aa;background:linear-gradient(145deg,#142638,#0f1c28)}.home-module-card.featured{border-color:#335f8b}
+.home-module-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:11px;background:#172a3b;border:1px solid #294660;font-size:21px}
+.home-module-copy b{display:block;font-size:14px}.home-module-copy small{display:block;margin-top:6px;color:var(--muted);font-size:10.5px;line-height:1.35}.home-module-arrow{color:#5797d8;font-size:17px;font-weight:900;align-self:center}
+
+.best-head{margin-bottom:10px}.best-filters{display:grid;grid-template-columns:minmax(180px,1fr) 145px 185px 155px 145px 155px;gap:7px;padding:9px 10px 10px;border-top:1px solid var(--line)}
+.best-leaders{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:10px}
+.best-leader{border:1px solid #29435f;border-radius:12px;background:#111d29;padding:10px 12px;display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:center}
+.best-medal{width:33px;height:33px;border-radius:50%;display:grid;place-items:center;background:#192b3c;border:1px solid #345572;font-size:16px}
+.best-leader b{font-size:12.5px;display:block}.best-leader small{font-size:9.5px;color:var(--muted);display:block;margin-top:2px}.best-leader-points{text-align:right;font-weight:1000;font-size:16px;color:#75b9ff}
+.best-table-wrap{max-height:calc(100vh - 235px)}.best-table th,.best-table td{padding:7px 8px;white-space:nowrap}.best-table tbody tr.best-main-row{cursor:pointer}.best-table tbody tr.best-main-row:hover{background:#142333}
+.best-table .ranknum{font-weight:900;color:#4e9af0}.best-player-name{font-weight:900}.best-average{font-weight:900}.best-detail-row{display:none}.best-detail-row.open{display:table-row}.best-detail-cell{padding:0!important;background:#0d1721}
+.best-match-list{padding:8px 10px 10px;display:grid;gap:5px}.best-match-row{display:grid;grid-template-columns:76px 100px minmax(140px,1fr) 80px 80px 110px;gap:7px;align-items:center;padding:6px 8px;border:1px solid #20374c;border-radius:8px;background:#111d29;font-size:10.5px}
+.best-match-row.header{background:transparent;border:0;padding:2px 8px;color:var(--muted);font-size:9px;text-transform:uppercase}.best-cap-yes{color:#73b4ff;font-weight:900}.best-score-positive{color:#76e8b0;font-weight:900}.best-score-negative{color:#ff9b9b;font-weight:900}.best-empty{padding:22px;text-align:center;color:var(--muted)}
+
+@media(max-width:1000px){.home-modules{grid-template-columns:repeat(2,minmax(0,1fr))}.best-filters{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){
+  .home-return-btn{grid-area:home;display:inline-flex!important;padding:5px 7px;min-height:28px;font-size:10px}body.home-active .home-return-btn{display:none!important}
+  .top{grid-template-columns:auto minmax(0,1fr) auto!important;grid-template-areas:"home brand cloud" "nav nav nav"!important}.brand{grid-area:brand!important}.cloudbar{grid-area:cloud!important}.nav{grid-area:nav!important}
+  body.home-active .top{grid-template-areas:"brand cloud"!important;grid-template-columns:minmax(0,1fr) auto!important}
+  #home{padding:8px}.home-hero{padding:22px 8px 18px;margin-bottom:6px}.home-kicker{font-size:11px}.home-hero h1{font-size:30px}.home-hero p{font-size:10.5px}.home-status{font-size:9.5px;padding:4px 8px}
+  .home-modules{grid-template-columns:1fr 1fr;gap:7px}.home-module-card{min-height:112px;padding:10px;grid-template-columns:32px minmax(0,1fr);gap:7px}.home-module-icon{width:31px;height:31px;font-size:17px}.home-module-copy b{font-size:12px}.home-module-copy small{font-size:9px;margin-top:4px}.home-module-arrow{display:none}
+  .best-filters{grid-template-columns:1fr 1fr;padding:8px;gap:5px}#bestPlayerSearch{grid-column:1/-1;font-size:16px}.best-filters .select{min-width:0;width:100%;font-size:11px}
+  .best-leaders{grid-template-columns:1fr;gap:5px;margin-bottom:7px}.best-leader{padding:7px 9px;grid-template-columns:29px 1fr auto}.best-medal{width:28px;height:28px;font-size:14px}
+  .best-table-wrap{max-height:none;overflow-x:hidden}.best-table{table-layout:fixed;width:100%;min-width:0}.best-table th,.best-table td{padding:6px 4px;overflow:hidden;text-overflow:ellipsis}
+  .best-table th:nth-child(1),.best-table td:nth-child(1){width:7%}.best-table th:nth-child(2),.best-table td:nth-child(2){width:31%}.best-table th:nth-child(3),.best-table td:nth-child(3){display:none}
+  .best-table th:nth-child(4),.best-table td:nth-child(4){width:10%;text-align:center}.best-table th:nth-child(5),.best-table td:nth-child(5){width:18%}.best-table th:nth-child(6),.best-table td:nth-child(6){width:12%;text-align:center}.best-table th:nth-child(7),.best-table td:nth-child(7){width:8%;text-align:center}.best-table th:nth-child(8),.best-table td:nth-child(8){width:7%;text-align:center}.best-table th:nth-child(9),.best-table td:nth-child(9){width:7%;text-align:center}
+  .best-table th{font-size:8.5px}.best-table td{font-size:10px}.best-player-name{font-size:10.5px}.best-player-name small{display:block;color:var(--muted);font-weight:500;font-size:8px;margin-top:2px}
+  .best-match-row,.best-match-row.header{grid-template-columns:58px 78px minmax(100px,1fr) 48px 42px}.best-match-row{font-size:9.5px;padding:5px 6px}.best-match-row>:last-child{display:none}.best-match-list{padding:6px;gap:4px}
+}
+
 </style>
 </head>
 <body>
 <header class="top">
+  <button id="homeReturnBtn" class="home-return-btn" type="button" title="Volver a Home">⌂ <span>Home</span></button>
   <div class="brand">CHICHE LEAGUE <span>· CLAUSURA 2026</span></div>
   <div class="cloudbar">
     <span id="cloudStatus" class="cloud-status">Conectando…</span>
@@ -1339,6 +1379,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <button data-page="scores">Puntajes</button>
     <button data-page="matchScores">Fixture y Resultados</button>
     <button data-page="transfers">Cambios</button>
+    <button data-page="bestPlayers">Mejores Jugadores</button>
     <button data-page="rules">Reglamento</button>
     <button data-page="database">Base</button>
   </nav>
@@ -1351,6 +1392,29 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
       <div class="welcome-mark"></div>
       <h1>CHICHE LEAGUE <span>- CLAUSURA 2026</span></h1>
       <button id="beginTournament" class="welcome-button" type="button">Iniciar torneo</button>
+    </div>
+  </div>
+</section>
+
+
+<section id="home" class="page">
+  <div class="home-shell">
+    <div class="home-hero">
+      <div class="home-kicker">CHICHE LEAGUE</div>
+      <h1>CLAUSURA 2026</h1>
+      <div id="homeTournamentStatus" class="home-status">Torneo en curso</div>
+      <p>Todo el torneo, en un solo lugar.</p>
+    </div>
+
+    <div class="home-modules">
+      <button class="home-module-card admin-only" data-home-page="draft" type="button"><span class="home-module-icon">🎯</span><span class="home-module-copy"><b>Draft</b><small>Armado inicial y gestión de planteles.</small></span><span class="home-module-arrow">→</span></button>
+      <button class="home-module-card" data-home-page="formations" type="button"><span class="home-module-icon">⚽</span><span class="home-module-copy"><b>Formaciones</b><small>Planteles, esquema, titulares y suplentes.</small></span><span class="home-module-arrow">→</span></button>
+      <button class="home-module-card" data-home-page="scores" type="button"><span class="home-module-icon">📊</span><span class="home-module-copy"><b>Puntajes</b><small>Tabla de la fecha, general y carga individual.</small></span><span class="home-module-arrow">→</span></button>
+      <button class="home-module-card" data-home-page="matchScores" type="button"><span class="home-module-icon">🗓️</span><span class="home-module-copy"><b>Fixture y Resultados</b><small>Partidos, resultados y puntajes por encuentro.</small></span><span class="home-module-arrow">→</span></button>
+      <button class="home-module-card" data-home-page="transfers" type="button"><span class="home-module-icon">🔄</span><span class="home-module-copy"><b>Cambios</b><small>Rondas, robos e historial de movimientos.</small></span><span class="home-module-arrow">→</span></button>
+      <button class="home-module-card featured" data-home-page="bestPlayers" type="button"><span class="home-module-icon">⭐</span><span class="home-module-copy"><b>Mejores Jugadores</b><small>Ranking individual y rendimiento por partido.</small></span><span class="home-module-arrow">→</span></button>
+      <button class="home-module-card" data-home-page="rules" type="button"><span class="home-module-icon">📖</span><span class="home-module-copy"><b>Reglamento</b><small>Cómo suma y resta puntos cada futbolista.</small></span><span class="home-module-arrow">→</span></button>
+      <button class="home-module-card admin-only" data-home-page="database" type="button"><span class="home-module-icon">🗂️</span><span class="home-module-copy"><b>Base</b><small>Jugadores, backups y administración.</small></span><span class="home-module-arrow">→</span></button>
     </div>
   </div>
 </section>
@@ -1589,6 +1653,47 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   </div>
 </section>
 
+
+
+<section id="bestPlayers" class="page">
+  <div class="card best-head">
+    <div class="cardhead"><div><h2>Mejores Jugadores</h2><div class="muted" style="font-size:11px">Ranking individual según los puntajes cargados en el torneo.</div></div></div>
+    <div class="best-filters">
+      <input id="bestPlayerSearch" class="input" placeholder="Buscar jugador...">
+      <select id="bestPositionFilter" class="select"><option value="">Todas las posiciones</option><option>ARQ</option><option>DEF</option><option>VOL</option><option>DEL</option></select>
+      <select id="bestTeamFilter" class="select"><option value="">Todos los clubes</option></select>
+      <select id="bestManagerFilter" class="select"><option value="">Todos los DT</option></select>
+      <select id="bestRoundFilter" class="select"><option value="">Todas las fechas</option></select>
+      <select id="bestSortMobile" class="select">
+        <option value="points-desc">Más puntos</option>
+        <option value="games-desc">Más partidos</option>
+        <option value="average-desc">Mejor promedio</option>
+        <option value="captain-desc">Más veces capitán</option>
+        <option value="name-asc">Jugador A-Z</option>
+        <option value="team-asc">Club A-Z</option>
+        <option value="position-asc">Posición</option>
+        <option value="manager-asc">DT</option>
+      </select>
+    </div>
+  </div>
+  <div id="bestLeaders" class="best-leaders"></div>
+  <div class="card best-table-card"><div class="tablewrap best-table-wrap">
+    <table class="best-table">
+      <thead><tr>
+        <th>#</th>
+        <th><button class="sorthead" data-best-sort="name">Jugador ↕</button></th>
+        <th><button class="sorthead" data-best-sort="team">Club ↕</button></th>
+        <th><button class="sorthead" data-best-sort="position">Pos ↕</button></th>
+        <th><button class="sorthead" data-best-sort="manager">DT ↕</button></th>
+        <th><button class="sorthead active" data-best-sort="points">Puntos ↓</button></th>
+        <th><button class="sorthead" data-best-sort="games">PJ ↕</button></th>
+        <th><button class="sorthead" data-best-sort="captain">Cap. ↕</button></th>
+        <th><button class="sorthead" data-best-sort="average">Prom. ↕</button></th>
+      </tr></thead>
+      <tbody id="bestPlayersBody"></tbody>
+    </table>
+  </div></div>
+</section>
 
 <section id="rules" class="page">
   <div class="card rules-head">
@@ -2026,6 +2131,7 @@ function saveCloudSession(s){
   if(s)localStorage.setItem(CLOUD_SESSION_KEY,JSON.stringify(s));
   else localStorage.removeItem(CLOUD_SESSION_KEY);
   applyCloudAccessMode();
+  renderHome();
 }
 function isCloudAdmin(){return !!(cloudSession&&cloudSession.access_token&&cloudSession.user?.id===CLOUD_OWNER_UID)}
 async function refreshCloudSession(){
@@ -2068,7 +2174,7 @@ async function cloudLogout(){
   setCloudStatus("Vista pública","online");
   lastLandingLifecycleKey=null;
   await pullCloudState({force:true,quiet:true});
-  applyLandingLifecycle({force:true,allowSwitch:true});
+  setPage("home");
 }
 function showAdminLogin(){
   modal("Acceso administrador",`
@@ -2087,7 +2193,7 @@ function showAdminLogin(){
         $("modalBack").classList.remove("show");
         const loaded=await pullCloudState({force:true});
         renderAllCloudAware();
-        applyLandingLifecycle({force:true,allowSwitch:true});
+        if(state.phase==="confirmed"||state.phase==="draft")setPage("home");
         alert(loaded?"Sesión iniciada. Se cargó la partida oficial.":"Sesión iniciada, pero no se encontró una partida válida publicada.");
       }catch(e){$("cloudLoginError").textContent=e.message}
     }
@@ -2171,7 +2277,8 @@ function applyCloudAccessMode(){
   if($("adminLoginBtn"))$("adminLoginBtn").style.display=admin?"none":"";
   if($("adminLogoutBtn"))$("adminLogoutBtn").style.display=admin?"":"none";
   document.querySelectorAll('.nav button[data-page="draft"],.nav button[data-page="database"]').forEach(b=>b.style.display=admin?"":"none");
-  document.querySelectorAll('.nav button[data-page="transfers"]').forEach(b=>b.style.display="");
+  document.querySelectorAll('.nav button[data-page="transfers"],.nav button[data-page="bestPlayers"],.nav button[data-page="rules"]').forEach(b=>b.style.display="");
+  document.querySelectorAll(".home-module-card.admin-only").forEach(card=>card.style.display=admin?"grid":"none");
   if(!admin){
     document.querySelectorAll('.nav button[data-page="welcome"],.nav button[data-page="setup"]').forEach(b=>b.style.display="none");
   }
@@ -2186,6 +2293,8 @@ function renderAllCloudAware(){
   renderFormations();
   renderScores();
   renderMatchScores();
+  renderBestPlayers();
+  renderHome();
   renderDb();
   if(document.querySelector("#transfers.active"))renderTransferPage();
 
@@ -2211,10 +2320,10 @@ async function initCloud(){
     setCloudStatus(loaded?"Admin · sincronizado":"Admin · sin datos en nube",loaded?"admin":"error");
     if(state.phase==="welcome")setPage("welcome");
     else if(state.phase==="setup")setPage("setup");
-    else if(state.phase==="draft")setPage("draft");
-    else applyLandingLifecycle({force:true,allowSwitch:true});
+    else if(state.phase==="draft")setPage("home");
+    else setPage("home");
   }else{
-    applyLandingLifecycle({force:true,allowSwitch:true});
+    setPage("home");
   }
 
   cloudBooting=false;
@@ -2355,6 +2464,23 @@ function removeParticipantAt(index){
   localStorage.setItem(STORAGE,JSON.stringify(state));
   renderParticipantInputs(names);
 }
+
+function renderHome(){
+  const el=$("homeTournamentStatus");if(!el)return;
+  if(state.phase==="confirmed"){
+    const life=landingLifecycle(),round=life.round||competitionActiveRound();
+    const label=life.mode==="live"?"En curso":life.mode==="closed"?"Finalizada":"Próxima";
+    el.textContent=`Fecha ${round} · ${label}`;
+  }else if(state.phase==="draft")el.textContent="Draft en curso";
+  else el.textContent="Configuración del torneo";
+  document.querySelectorAll(".home-module-card.admin-only").forEach(card=>card.style.display=isCloudAdmin()?"grid":"none");
+}
+function openHome(){
+  if(state.phase==="welcome"&&isCloudAdmin())return setPage("welcome");
+  if(state.phase==="setup"&&isCloudAdmin())return setPage("setup");
+  setPage("home");
+}
+
 function syncNavAvailability(){
   const phase=state.phase;
   document.querySelectorAll(".nav button").forEach(btn=>{
@@ -2400,6 +2526,72 @@ function fillStatic(){
 
 }
 
+
+let bestPlayersSort={key:"points",dir:"desc"};
+const bestPlayersOpen=new Set();
+function bestPlayerTeamForRound(p,rk){
+  const round=Number(rk);
+  if(p?.name==="Martínez, Ronaldo")return round<=7?"TALLERES":"VÉLEZ";
+  if(p?.name==="Rodríguez, Diego")return round<=7?"ARGENTINOS JRS.":"BANFIELD";
+  if(p?.name==="Sanguinetti, Facundo")return round<=7?"BANFIELD":"VÉLEZ";
+  return p?.team||"";
+}
+function bestPlayerOwnerForRound(id,rk){
+  for(const m of state.participants||[]){const r=rosterForRound(m,rk);if(r?.picks?.includes(Number(id)))return m}
+  return "";
+}
+function bestPlayerFixtureInfo(p,rk){
+  const team=bestPlayerTeamForRound(p,rk),games=FIXTURE_2026[String(rk)]||[],index=games.findIndex(g=>g.home===team||g.away===team);
+  if(index<0)return {team,opponent:"—",date:""};
+  const g=games[index],s=getMatchSchedule(String(rk),index,g),opponent=g.home===team?g.away:g.home;
+  let date="";if(s.date){const [y,m,d]=String(s.date).split("-");if(y&&m&&d)date=`${d}/${m}`}
+  return {team,opponent,date};
+}
+function bestPlayerStats(roundFilter=""){
+  const rounds=(roundFilter?[String(roundFilter)]:allRounds()).filter(r=>state.rounds?.[r]),stats=new Map();
+  for(const rk of rounds){
+    const vals=state.rounds[rk]||{};
+    Object.entries(vals).forEach(([idRaw,value])=>{
+      if(typeof value!=="number")return;
+      const id=Number(idRaw),p=player(id);if(!p)return;
+      if(!stats.has(id))stats.set(id,{id,player:p,total:0,games:0,captainGames:0,matches:[],owners:new Set()});
+      const s=stats.get(id),owner=bestPlayerOwnerForRound(id,rk),roster=owner?rosterForRound(owner,rk):null,captain=!!(roster&&Number(roster.captain)===id),fixture=bestPlayerFixtureInfo(p,rk);
+      s.total+=value;s.games++;if(captain)s.captainGames++;if(owner)s.owners.add(owner);s.matches.push({round:Number(rk),score:value,captain,owner,...fixture});
+    });
+  }
+  return [...stats.values()].map(s=>{s.average=s.games?s.total/s.games:0;s.currentManager=reservedOwner(s.id)||[...s.owners][s.owners.size-1]||"";s.matches.sort((a,b)=>a.round-b.round);return s});
+}
+function populateBestFilters(){
+  const teams=[...new Set((state.players||[]).map(p=>p.team).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"es")),ts=$("bestTeamFilter");
+  if(ts){const old=ts.value;ts.innerHTML='<option value="">Todos los clubes</option>'+teams.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("");if(teams.includes(old))ts.value=old}
+  const ms=$("bestManagerFilter");if(ms){const old=ms.value;ms.innerHTML='<option value="">Todos los DT</option>'+participantsAlphabetical(state.participants).map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join("");if(state.participants.includes(old))ms.value=old}
+  const rs=$("bestRoundFilter");if(rs){const old=rs.value,rounds=allRounds();rs.innerHTML='<option value="">Todas las fechas</option>'+rounds.map(r=>`<option value="${r}">Fecha ${r}</option>`).join("");if(rounds.includes(old))rs.value=old}
+}
+function bestPositionOrder(pos){return ({ARQ:0,DEF:1,VOL:2,DEL:3})[pos]??99}
+function bestPlayersFiltered(){
+  const q=normalizeRuleText($("bestPlayerSearch")?.value||""),pos=$("bestPositionFilter")?.value||"",team=$("bestTeamFilter")?.value||"",manager=$("bestManagerFilter")?.value||"",round=$("bestRoundFilter")?.value||"";
+  return bestPlayerStats(round).filter(s=>(!q||normalizeRuleText(`${s.player.name} ${s.player.team} ${s.currentManager}`).includes(q))&&(!pos||s.player.position===pos)&&(!team||s.player.team===team)&&(!manager||s.currentManager===manager));
+}
+function sortBestPlayers(rows){
+  const {key,dir}=bestPlayersSort,m=dir==="asc"?1:-1;
+  return rows.sort((a,b)=>{let av,bv;if(key==="name"){av=a.player.name;bv=b.player.name}else if(key==="team"){av=a.player.team;bv=b.player.team}else if(key==="position"){av=bestPositionOrder(a.player.position);bv=bestPositionOrder(b.player.position)}else if(key==="manager"){av=a.currentManager;bv=b.currentManager}else if(key==="games"){av=a.games;bv=b.games}else if(key==="captain"){av=a.captainGames;bv=b.captainGames}else if(key==="average"){av=a.average;bv=b.average}else{av=a.total;bv=b.total}
+    if(typeof av==="string"){const c=String(av).localeCompare(String(bv),"es",{sensitivity:"base"});if(c)return c*m}else if(av!==bv)return(av-bv)*m;return b.total-a.total||a.player.name.localeCompare(b.player.name,"es")});
+}
+function setBestSort(key){if(bestPlayersSort.key===key)bestPlayersSort.dir=bestPlayersSort.dir==="asc"?"desc":"asc";else bestPlayersSort={key,dir:["name","team","position","manager"].includes(key)?"asc":"desc"};renderBestPlayers(false)}
+function applyBestMobileSort(){const [key,dir]=($("bestSortMobile")?.value||"points-desc").split("-");bestPlayersSort={key,dir};renderBestPlayers(false)}
+function renderBestLeaders(rows){
+  const box=$("bestLeaders");if(!box)return;const top=[...rows].sort((a,b)=>b.total-a.total||b.average-a.average).slice(0,3),medals=["🥇","🥈","🥉"];
+  box.innerHTML=top.map((s,i)=>`<div class="best-leader"><div class="best-medal">${medals[i]}</div><div><b>${esc(s.player.name)}</b><small>${esc(s.player.team)} · ${s.games} PJ · ${s.average.toFixed(1)} prom.</small></div><div class="best-leader-points">${s.total}<small> pts</small></div></div>`).join("");
+}
+function toggleBestPlayerDetail(id){id=Number(id);if(bestPlayersOpen.has(id))bestPlayersOpen.delete(id);else bestPlayersOpen.add(id);renderBestPlayers(false)}
+function renderBestPlayers(repopulate=true){
+  if(!$("bestPlayersBody"))return;if(repopulate)populateBestFilters();const round=$("bestRoundFilter")?.value||"",all=bestPlayerStats(round);renderBestLeaders(all);const rows=sortBestPlayers(bestPlayersFiltered());
+  document.querySelectorAll("[data-best-sort]").forEach(btn=>{const active=btn.dataset.bestSort===bestPlayersSort.key;btn.classList.toggle("active",active);const base=btn.textContent.replace(/[↕↑↓]/g,"").trim();btn.textContent=`${base} ${active?(bestPlayersSort.dir==="asc"?"↑":"↓"):"↕"}`});
+  if(!rows.length){$("bestPlayersBody").innerHTML='<tr><td colspan="9" class="best-empty">No hay jugadores que coincidan con los filtros.</td></tr>';return}
+  $("bestPlayersBody").innerHTML=rows.map((s,i)=>{const open=bestPlayersOpen.has(s.id),details=s.matches.map(m=>`<div class="best-match-row"><div><b>Fecha ${m.round}</b></div><div>${esc(m.date||"—")}</div><div>${esc(m.opponent||"—")}</div><div class="${m.score<0?"best-score-negative":"best-score-positive"}">${m.score}</div><div class="${m.captain?"best-cap-yes":""}">${m.captain?"Sí":"—"}</div><div>${esc(m.owner||"—")}</div></div>`).join("");
+    return `<tr class="best-main-row" onclick="toggleBestPlayerDetail(${s.id})"><td class="ranknum">${i+1}</td><td class="best-player-name">${esc(s.player.name)}<small>${esc(s.player.team)}</small></td><td>${esc(s.player.team)}</td><td><span class="pos pos-${s.player.position}">${s.player.position}</span></td><td>${esc(s.currentManager||"Libre")}</td><td><b>${s.total}</b></td><td>${s.games}</td><td>${s.captainGames}</td><td class="best-average">${s.average.toFixed(1)}</td></tr><tr class="best-detail-row ${open?"open":""}"><td colspan="9" class="best-detail-cell"><div class="best-match-list"><div class="best-match-row header"><div>Fecha</div><div>Día</div><div>Rival</div><div>Puntos</div><div>Cap.</div><div>DT</div></div>${details}</div></td></tr>`}).join("");
+}
+
 function normalizeRuleText(text){
   return String(text||"")
     .normalize("NFD")
@@ -2427,19 +2619,24 @@ function filterRules(){
 }
 
 function setPage(id){
-  if(!isCloudAdmin()&&["draft","database","setup","welcome"].includes(id))id="scores";
+  if(!isCloudAdmin()&&["draft","database","setup","welcome"].includes(id))id="home";
   if(isCloudAdmin()&&state.phase==="welcome"&&id!=="welcome")id="welcome";
   if(isCloudAdmin()&&state.phase==="setup"&&id!=="setup")id="setup";
   document.querySelector(".top").style.display=id==="welcome"?"none":"flex";
+  document.body.classList.toggle("home-active",id==="home");
   document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===id));
   document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===id));
+  if(id==="home")renderHome();
   if(id==="formations")renderFormations();
   if(id==="scores")renderScores();
   if(id==="matchScores")renderMatchScores();
   if(id==="transfers")renderTransferPage();
+  if(id==="bestPlayers")renderBestPlayers();
   if(id==="database")renderDb();
 }
 document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>setPage(b.dataset.page));
+$("homeReturnBtn").onclick=openHome;
+document.querySelectorAll(".home-module-card").forEach(b=>b.onclick=()=>setPage(b.dataset.homePage));
 
 function status(msg,ok=false){$("draftStatus").textContent=msg;$("draftStatus").className="status "+(ok?"ok":"err")}
 function rosterBudget(r){return r.picks.reduce((s,id)=>s+(player(id)?.price||0),0)}
@@ -3096,34 +3293,10 @@ function landingLifecycle(){
 }
 function applyLandingLifecycle({force=false,allowSwitch=true}={}){
   const life=landingLifecycle();
-
-  if(state.phase==="draft"){
-    if(force&&isCloudAdmin())setPage("draft");
-    lastLandingLifecycleKey=life.key;
-    return life;
-  }
-  if(state.phase!=="confirmed"){
-    lastLandingLifecycleKey=life.key;
-    return life;
-  }
-
-  const changed=lastLandingLifecycleKey!==life.key;
-
-  if(life.mode==="live"){
+  if(life.round){
     if($("matchScoresRound"))$("matchScoresRound").value=life.round;
     if($("roundInput"))$("roundInput").value=life.round;
-    if(allowSwitch&&(force||changed))setPage("matchScores");
-  }else if(life.mode==="closed"){
-    // Mientras no haya empezado la siguiente fecha, Puntajes debe seguir
-    // mostrando la última fecha que efectivamente terminó.
-    if($("roundInput"))$("roundInput").value=life.round;
-    if(allowSwitch&&(force||changed))setPage("scores");
-  }else{
-    // Antes de la primera fecha: no aterrizamos en Formaciones.
-    if($("roundInput"))$("roundInput").value=life.round;
-    if(allowSwitch&&force)setPage("scores");
   }
-
   lastLandingLifecycleKey=life.key;
   return life;
 }
@@ -4459,6 +4632,13 @@ $("transferHistoryManager").onchange=renderTransferHistory;
 $("transferHistoryPlayer").oninput=renderTransferHistory;
 $("transferHistoryReset").onclick=resetTransferHistoryFilters;
 if($("rulesSearch"))$("rulesSearch").oninput=filterRules;
+if($("bestPlayerSearch"))$("bestPlayerSearch").oninput=()=>renderBestPlayers(false);
+if($("bestPositionFilter"))$("bestPositionFilter").onchange=()=>renderBestPlayers(false);
+if($("bestTeamFilter"))$("bestTeamFilter").onchange=()=>renderBestPlayers(false);
+if($("bestManagerFilter"))$("bestManagerFilter").onchange=()=>renderBestPlayers(false);
+if($("bestRoundFilter"))$("bestRoundFilter").onchange=()=>renderBestPlayers(true);
+if($("bestSortMobile"))$("bestSortMobile").onchange=applyBestMobileSort;
+document.querySelectorAll("[data-best-sort]").forEach(b=>b.onclick=()=>setBestSort(b.dataset.bestSort));
 $("startTransferRound").onclick=startTransferRound;$("drawTransferClub").onclick=drawTransferClub;$("passTransfer").onclick=passTransfer;$("transferSearch").oninput=renderTransferPlayers;$("transferClubFilter").onchange=renderTransferPlayers;$("transferAvailability").onchange=renderTransferPlayers;
 $("backupBtn").onclick=backup;
 $("pullCloudBtn").onclick=async()=>{const ok=await pullCloudState({force:true});alert(ok?"Partida oficial recargada.":"No se pudo obtener una partida válida publicada.")};

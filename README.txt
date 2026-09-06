@@ -1,27 +1,27 @@
-CHICHE LEAGUE CLAUSURA 2026 — V82
+CHICHE LEAGUE CLAUSURA 2026 — V84
 
-CORRECCIÓN DEL PROXY VERCEL
+HOME
+- Nueva landing profesional con accesos visuales a todos los módulos.
+- Home muestra el estado de la fecha activa.
+- En cada módulo queda disponible el botón ⌂ Home.
+- La navegación tradicional permanece visible fuera de Home.
+- Usuarios públicos ven módulos públicos; Admin suma Draft y Base.
+- Se elimina la navegación automática entre Fixture/Puntajes al cambiar el estado de una fecha.
 
-Problema de V81 corregido:
-- La lectura pública armaba incorrectamente el parámetro league_id.
-- Se rehizo el cliente cloud para construir query params correctamente.
-- Se rehizo api/chiche-cloud.js con headers separados para Auth y REST.
-- Login, refresh, logout, lectura y guardado pasan exclusivamente por Vercel.
-- El navegador NO contiene ni consulta el dominio de Supabase.
+MEJORES JUGADORES
+- Ranking individual por puntos acumulados.
+- PJ = partidos con puntaje numérico.
+- Cap. = partidos disputados siendo capitán.
+- Prom. = promedio de puntos por partido.
+- Filtros: jugador, posición, club, DT y fecha.
+- Orden por jugador, club, posición, DT, puntos, PJ, capitán y promedio.
+- Top 3 destacado.
+- Cada jugador se puede desplegar para ver Fecha, día, rival, puntos, capitán y DT de ese partido.
+- Diseño responsive mobile.
 
-NUEVO DIAGNÓSTICO
-- /api/chiche-cloud?action=health
-  debe responder JSON con ok=true si la función está desplegada.
+NOTA
+- Promedio es promedio del puntaje cargado; la app no guarda la nota Clarín por separado.
 
-PRUEBA RECOMENDADA DESPUÉS DEL DEPLOY
-1. Abrir:
-   https://chiche-league-clausura-2026.vercel.app/api/chiche-cloud?action=health
-2. Debe mostrar {"ok":true,...}
-3. Abrir la app en incógnito.
-4. Debe cargar la partida oficial sin mostrar "Iniciar torneo".
-5. Login Admin debe habilitar módulos de edición.
-
-IMPORTANTE
-- Subir también la carpeta api con chiche-cloud.js.
-- Reemplazar index.html y ChicheLeague_Clausura2026.html.
-- Mantener el mismo proyecto Vercel/GitHub.
+PERSISTENCIA
+- STORAGE chicheLeagueDB_v25 preservado.
+- Proxy Vercel/Supabase preservado.

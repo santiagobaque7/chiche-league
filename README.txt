@@ -1,26 +1,19 @@
-CHICHE LEAGUE CLAUSURA 2026 — V84
+CHICHE LEAGUE CLAUSURA 2026 — V85
 
 HOME
-- Nueva landing profesional con accesos visuales a todos los módulos.
-- Home muestra el estado de la fecha activa.
-- En cada módulo queda disponible el botón ⌂ Home.
-- La navegación tradicional permanece visible fuera de Home.
-- Usuarios públicos ven módulos públicos; Admin suma Draft y Base.
-- Se elimina la navegación automática entre Fixture/Puntajes al cambiar el estado de una fecha.
+- Tarjetas más grandes.
+- Emojis reemplazados por íconos SVG propios.
+- Paleta azul / celeste / blanco.
 
 MEJORES JUGADORES
-- Ranking individual por puntos acumulados.
-- PJ = partidos con puntaje numérico.
-- Cap. = partidos disputados siendo capitán.
-- Prom. = promedio de puntos por partido.
-- Filtros: jugador, posición, club, DT y fecha.
-- Orden por jugador, club, posición, DT, puntos, PJ, capitán y promedio.
-- Top 3 destacado.
-- Cada jugador se puede desplegar para ver Fecha, día, rival, puntos, capitán y DT de ese partido.
-- Diseño responsive mobile.
+- Corrección del club concatenado al nombre en desktop.
+- El club secundario bajo el jugador queda sólo en mobile.
 
-NOTA
-- Promedio es promedio del puntaje cargado; la app no guarda la nota Clarín por separado.
+FECHA 8
+- Capitán de Alva: Lencioni, Facundo.
+- Se corrige plantel actual y snapshot de Fecha 8 si ya existe.
+- No se modifican puntajes ni resultados cargados.
+- Al entrar como Admin, la corrección se publica automáticamente por Vercel/Supabase.
 
 PERSISTENCIA
 - STORAGE chicheLeagueDB_v25 preservado.

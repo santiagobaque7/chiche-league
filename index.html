@@ -1360,6 +1360,30 @@ body.home-active .nav{display:none!important}
   .best-match-row,.best-match-row.header{grid-template-columns:58px 78px minmax(100px,1fr) 48px 42px}.best-match-row{font-size:9.5px;padding:5px 6px}.best-match-row>:last-child{display:none}.best-match-list{padding:6px;gap:4px}
 }
 
+
+.home-shell{max-width:1320px!important}
+.home-hero{padding-top:38px!important;padding-bottom:30px!important}
+.home-modules{gap:14px!important}
+.home-module-card{min-height:168px!important;padding:18px!important;grid-template-columns:52px minmax(0,1fr) auto!important;gap:13px!important}
+.home-module-icon{width:50px!important;height:50px!important;border-radius:13px!important;font-size:0!important;background:#132334!important}
+.home-module-icon svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.home-module-icon svg .accent{stroke:#f4f8fc}
+.home-module-card.tone-blue .home-module-icon{color:#4b96e6;border-color:#315b85!important}
+.home-module-card.tone-cyan .home-module-icon{color:#78c7e8;border-color:#35657a!important}
+.home-module-card.tone-white .home-module-icon{color:#eaf3fb;border-color:#496072!important}
+.home-module-copy b{font-size:15.5px!important}
+.home-module-copy small{font-size:11.5px!important;line-height:1.4!important}
+.home-module-arrow{font-size:20px!important}
+.best-player-name small{display:none}
+@media(max-width:700px){
+  .home-module-card{min-height:124px!important;padding:11px!important;grid-template-columns:36px minmax(0,1fr)!important;gap:8px!important}
+  .home-module-icon{width:34px!important;height:34px!important;border-radius:9px!important}
+  .home-module-icon svg{width:20px;height:20px}
+  .home-module-copy b{font-size:12.5px!important}
+  .home-module-copy small{font-size:9.2px!important}
+  .best-player-name small{display:block}
+}
+
 </style>
 </head>
 <body>
@@ -1407,14 +1431,14 @@ body.home-active .nav{display:none!important}
     </div>
 
     <div class="home-modules">
-      <button class="home-module-card admin-only" data-home-page="draft" type="button"><span class="home-module-icon">🎯</span><span class="home-module-copy"><b>Draft</b><small>Armado inicial y gestión de planteles.</small></span><span class="home-module-arrow">→</span></button>
-      <button class="home-module-card" data-home-page="formations" type="button"><span class="home-module-icon">⚽</span><span class="home-module-copy"><b>Formaciones</b><small>Planteles, esquema, titulares y suplentes.</small></span><span class="home-module-arrow">→</span></button>
-      <button class="home-module-card" data-home-page="scores" type="button"><span class="home-module-icon">📊</span><span class="home-module-copy"><b>Puntajes</b><small>Tabla de la fecha, general y carga individual.</small></span><span class="home-module-arrow">→</span></button>
-      <button class="home-module-card" data-home-page="matchScores" type="button"><span class="home-module-icon">🗓️</span><span class="home-module-copy"><b>Fixture y Resultados</b><small>Partidos, resultados y puntajes por encuentro.</small></span><span class="home-module-arrow">→</span></button>
-      <button class="home-module-card" data-home-page="transfers" type="button"><span class="home-module-icon">🔄</span><span class="home-module-copy"><b>Cambios</b><small>Rondas, robos e historial de movimientos.</small></span><span class="home-module-arrow">→</span></button>
-      <button class="home-module-card featured" data-home-page="bestPlayers" type="button"><span class="home-module-icon">⭐</span><span class="home-module-copy"><b>Mejores Jugadores</b><small>Ranking individual y rendimiento por partido.</small></span><span class="home-module-arrow">→</span></button>
-      <button class="home-module-card" data-home-page="rules" type="button"><span class="home-module-icon">📖</span><span class="home-module-copy"><b>Reglamento</b><small>Cómo suma y resta puntos cada futbolista.</small></span><span class="home-module-arrow">→</span></button>
-      <button class="home-module-card admin-only" data-home-page="database" type="button"><span class="home-module-icon">🗂️</span><span class="home-module-copy"><b>Base</b><small>Jugadores, backups y administración.</small></span><span class="home-module-arrow">→</span></button>
+      <button class="home-module-card admin-only tone-blue" data-home-page="draft" type="button"><span class="home-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path class="accent" d="M16.5 7.5 12 12"/></svg></span><span class="home-module-copy"><b>Draft</b><small>Armado inicial y gestión de planteles.</small></span><span class="home-module-arrow">→</span></button>
+      <button class="home-module-card tone-cyan" data-home-page="formations" type="button"><span class="home-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m12 7 3 2.2-1.1 3.5h-3.8L9 9.2 12 7Z"/><path d="m9 9.2-3-.6M15 9.2l3-.6M10.1 12.7 8 16M13.9 12.7 16 16M8 16l-2 1M16 16l2 1"/><path class="accent" d="M10.1 12.7h3.8"/></svg></span><span class="home-module-copy"><b>Formaciones</b><small>Planteles, esquema, titulares y suplentes.</small></span><span class="home-module-arrow">→</span></button>
+      <button class="home-module-card tone-white" data-home-page="scores" type="button"><span class="home-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V11h3v9M10.5 20V7h3v13M16 20V4h3v16"/><path class="accent" d="M4 20h16"/></svg></span><span class="home-module-copy"><b>Puntajes</b><small>Tabla de la fecha, general y carga individual.</small></span><span class="home-module-arrow">→</span></button>
+      <button class="home-module-card tone-blue" data-home-page="matchScores" type="button"><span class="home-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="2"/><path d="M8 3v5M16 3v5M4 9h16"/><path class="accent" d="M8 13h3M13 13h3M8 16h3"/></svg></span><span class="home-module-copy"><b>Fixture y Resultados</b><small>Partidos, resultados y puntajes por encuentro.</small></span><span class="home-module-arrow">→</span></button>
+      <button class="home-module-card tone-cyan" data-home-page="transfers" type="button"><span class="home-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h11l-3-3M18 16H7l3 3"/><path class="accent" d="M17 5l3 3-3 3M7 13l-3 3 3 3"/></svg></span><span class="home-module-copy"><b>Cambios</b><small>Rondas, robos e historial de movimientos.</small></span><span class="home-module-arrow">→</span></button>
+      <button class="home-module-card featured tone-blue" data-home-page="bestPlayers" type="button"><span class="home-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z"/><path class="accent" d="m12 7 1.4 2.9 3.2.5-2.3 2.2.5 3.2-2.8-1.5-2.8 1.5.5-3.2-2.3-2.2 3.2-.5L12 7Z"/></svg></span><span class="home-module-copy"><b>Mejores Jugadores</b><small>Ranking individual y rendimiento por partido.</small></span><span class="home-module-arrow">→</span></button>
+      <button class="home-module-card tone-white" data-home-page="rules" type="button"><span class="home-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5c2.5-1 4.7-.7 7 .8v13c-2.3-1.5-4.5-1.8-7-.8v-14ZM19 5.5c-2.5-1-4.7-.7-7 .8v13c2.3-1.5 4.5-1.8 7-.8v-14Z"/><path class="accent" d="M8 9h2M8 12h2M14 9h2M14 12h2"/></svg></span><span class="home-module-copy"><b>Reglamento</b><small>Cómo suma y resta puntos cada futbolista.</small></span><span class="home-module-arrow">→</span></button>
+      <button class="home-module-card admin-only tone-cyan" data-home-page="database" type="button"><span class="home-module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/><path class="accent" d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg></span><span class="home-module-copy"><b>Base</b><small>Jugadores, backups y administración.</small></span><span class="home-module-arrow">→</span></button>
     </div>
   </div>
 </section>
@@ -1873,7 +1897,7 @@ const CLOUD_API="/api/chiche-cloud";
 const CLOUD_LEAGUE_ID="clausura-2026";
 const CLOUD_OWNER_UID="b9a49f4d-5e26-4f0e-8892-b6b958e4a59b";
 const CLOUD_SESSION_KEY="chicheLeagueCloudSession_v1";
-let cloudSession=null,cloudSaveTimer=null,cloudPollingTimer=null,cloudLastUpdatedAt=null,cloudBooting=true;
+let cloudSession=null,cloudSaveTimer=null,cloudPollingTimer=null,cloudLastUpdatedAt=null,cloudBooting=true,cloudStateNeedsMigrationSave=false;
 
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
@@ -2062,6 +2086,32 @@ function patchHistoricalTransferFacts(){
   state.historyCorrections.fecha6ForcedVictims=true;
 }
 
+
+function patchAlvaFecha8Captain(){
+  if(state?.alvaFecha8LencioniCaptainPatch==="2026-09-06")return false;
+  const lencioni=(state.players||[]).find(p=>p.name==="Lencioni, Facundo");
+  if(!lencioni)return false;
+
+  let changed=false;
+  const applyToRoster=(r)=>{
+    if(!r||!Array.isArray(r.picks)||!r.picks.includes(Number(lencioni.id)))return false;
+    if(r.roles?.[lencioni.id]!=="Titular")return false;
+    if(Number(r.captain)!==Number(lencioni.id)){
+      r.captain=Number(lencioni.id);
+      return true;
+    }
+    return false;
+  };
+
+  if(applyToRoster(state.confirmedTeams?.Alva))changed=true;
+  if(applyToRoster(state.draftRosters?.Alva))changed=true;
+  if(applyToRoster(state.rosterHistory?.["8"]?.Alva))changed=true;
+
+  state.alvaFecha8LencioniCaptainPatch="2026-09-06";
+  if(changed)cloudStateNeedsMigrationSave=true;
+  return changed;
+}
+
 function normalizeCloudState(){
   if(!state||typeof state!=="object")state=initialState();
   state.version=25;
@@ -2086,6 +2136,7 @@ function normalizeCloudState(){
   sanitizeLegacyState();
   syncOfficialPlayerBase();
   patchHistoricalTransferFacts();
+  patchAlvaFecha8Captain();
 }
 
 function setCloudStatus(text,kind=""){
@@ -2327,6 +2378,10 @@ async function initCloud(){
   }
 
   cloudBooting=false;
+  if(isCloudAdmin()&&cloudStateNeedsMigrationSave){
+    cloudStateNeedsMigrationSave=false;
+    await pushCloudState();
+  }
   clearInterval(cloudPollingTimer);
   cloudPollingTimer=setInterval(async()=>{
     if(!isCloudAdmin()&&!document.hidden)await pullCloudState({quiet:true});
@@ -2365,6 +2420,7 @@ function loadState(){
     }
   });
   if(state.lateJoin===undefined)state.lateJoin=null;
+  patchAlvaFecha8Captain();
     if(state.lateJoin){
       if(!Array.isArray(state.lateJoin.names)){
         const oldNames=[state.lateJoin.manager,...(state.lateJoin.queue||[]),...(state.lateJoin.completed||[])].filter(Boolean);

@@ -1384,9 +1384,188 @@ body.home-active .nav{display:none!important}
   .best-player-name small{display:block}
 }
 
+
+/* V86 · arranque limpio */
+.app-boot-screen{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:#0a1119;
+  color:#f3f7fb;
+}
+body.app-booting .app-boot-screen{display:flex}
+body.app-booting > header,
+body.app-booting > section.page,
+body.app-booting > .modal{visibility:hidden!important}
+.app-boot-inner{text-align:center}
+.app-boot-brand{
+  font-size:13px;
+  font-weight:1000;
+  letter-spacing:2.2px;
+  color:#dce8f4;
+}
+.app-boot-title{
+  margin-top:5px;
+  font-size:38px;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:-1px;
+}
+.app-boot-title span{color:#5fa5ec}
+.app-boot-loader{
+  display:flex;
+  justify-content:center;
+  gap:6px;
+  margin-top:22px;
+}
+.app-boot-loader i{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#5fa5ec;
+  animation:chicheBoot 1s infinite ease-in-out;
+}
+.app-boot-loader i:nth-child(2){animation-delay:.15s}
+.app-boot-loader i:nth-child(3){animation-delay:.3s}
+.app-boot-copy{
+  margin-top:10px;
+  color:#8298ad;
+  font-size:10px;
+}
+@keyframes chicheBoot{
+  0%,100%{opacity:.28;transform:translateY(0)}
+  50%{opacity:1;transform:translateY(-3px)}
+}
+
+/* V86 · Home */
+.home-hero{
+  padding-top:34px!important;
+  padding-bottom:28px!important;
+}
+.home-kicker{
+  font-size:13px!important;
+  letter-spacing:2.6px!important;
+  color:#dbe6f1!important;
+}
+.home-main-title{
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:12px;
+  margin-top:7px;
+  line-height:.95;
+  white-space:nowrap;
+}
+.home-main-title span{
+  color:#f4f7fb;
+  font-size:48px;
+  font-weight:1000;
+  letter-spacing:-1.8px;
+}
+.home-main-title strong{
+  color:#5b9fe7;
+  font-size:48px;
+  font-weight:1000;
+  letter-spacing:-1.8px;
+}
+.home-title-line{
+  width:68px;
+  height:4px;
+  margin:15px auto 11px;
+  border-radius:999px;
+  background:#327cc7;
+}
+.home-modules{
+  gap:14px!important;
+}
+.home-module-card{
+  min-height:178px!important;
+  padding:18px 19px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  gap:0!important;
+  position:relative;
+}
+.home-module-icon{
+  flex:0 0 auto;
+  margin-bottom:13px;
+}
+.home-module-copy{
+  display:block;
+  width:100%;
+  padding-right:4px;
+}
+.home-module-copy b{
+  display:block;
+  width:100%;
+  font-size:16px!important;
+  line-height:1.15!important;
+  margin:0!important;
+}
+.home-module-copy small{
+  display:block;
+  width:100%;
+  max-width:none!important;
+  margin-top:7px!important;
+  font-size:11.7px!important;
+  line-height:1.42!important;
+}
+.home-module-arrow{
+  position:absolute;
+  right:17px;
+  bottom:14px;
+  font-size:20px!important;
+}
+.home-module-card:hover .home-module-arrow{
+  transform:translateX(2px);
+}
+.home-module-card{
+  transition:transform .15s ease,border-color .15s ease,background .15s ease;
+}
+.home-module-arrow{transition:transform .15s ease}
+
+@media(max-width:700px){
+  .app-boot-title{font-size:30px}
+  .home-main-title{gap:8px}
+  .home-main-title span,.home-main-title strong{
+    font-size:31px!important;
+    letter-spacing:-1px!important;
+  }
+  .home-title-line{
+    width:52px;
+    height:3px;
+    margin:11px auto 9px;
+  }
+  .home-module-card{
+    min-height:136px!important;
+    padding:12px!important;
+  }
+  .home-module-icon{margin-bottom:8px}
+  .home-module-copy b{font-size:13px!important}
+  .home-module-copy small{
+    font-size:9.5px!important;
+    line-height:1.34!important;
+    margin-top:5px!important;
+  }
+}
+
 </style>
 </head>
-<body>
+<body class="app-booting">
+
+<div id="appBootScreen" class="app-boot-screen" aria-live="polite">
+  <div class="app-boot-inner">
+    <div class="app-boot-brand">CHICHE LEAGUE</div>
+    <div class="app-boot-title">CLAUSURA <span>2026</span></div>
+    <div class="app-boot-loader"><i></i><i></i><i></i></div>
+    <div class="app-boot-copy">Cargando partida...</div>
+  </div>
+</div>
+
 <header class="top">
   <button id="homeReturnBtn" class="home-return-btn" type="button" title="Volver a Home">⌂ <span>Home</span></button>
   <div class="brand">CHICHE LEAGUE <span>· CLAUSURA 2026</span></div>
@@ -1410,7 +1589,7 @@ body.home-active .nav{display:none!important}
 </header>
 
 
-<section id="welcome" class="page active">
+<section id="welcome" class="page">
   <div class="welcome-screen">
     <div class="welcome-card">
       <div class="welcome-mark"></div>
@@ -1425,7 +1604,8 @@ body.home-active .nav{display:none!important}
   <div class="home-shell">
     <div class="home-hero">
       <div class="home-kicker">CHICHE LEAGUE</div>
-      <h1>CLAUSURA 2026</h1>
+      <div class="home-main-title"><span>CLAUSURA</span><strong>2026</strong></div>
+      <div class="home-title-line"></div>
       <div id="homeTournamentStatus" class="home-status">Torneo en curso</div>
       <p>Todo el torneo, en un solo lugar.</p>
     </div>
@@ -2353,6 +2533,11 @@ function renderAllCloudAware(){
   // Sí cambia automáticamente cuando una fecha comienza o termina.
   if(!cloudBooting)applyLandingLifecycle({force:false,allowSwitch:true});
 }
+
+function finishAppBoot(){
+  document.body.classList.remove("app-booting");
+}
+
 async function initCloud(){
   cloudSession=getCloudSession();
   if(cloudSession&&cloudSession.expires_at&&cloudSession.expires_at-Date.now()<60000)await refreshCloudSession();
@@ -2377,6 +2562,7 @@ async function initCloud(){
     setPage("home");
   }
 
+  finishAppBoot();
   cloudBooting=false;
   if(isCloudAdmin()&&cloudStateNeedsMigrationSave){
     cloudStateNeedsMigrationSave=false;
@@ -4735,6 +4921,13 @@ else{
   else applyLandingLifecycle({force:true,allowSwitch:true});
 }
 setTimeout(showOfficialBaseMigrationWarning,120);
+setTimeout(()=>{
+  if(document.body.classList.contains("app-booting")){
+    console.warn("El arranque cloud excedió el tiempo esperado.");
+    finishAppBoot();
+    if(!document.querySelector(".page.active"))setPage("home");
+  }
+},9000);
 setTimeout(initCloud,80);
 </script>
 </body></html>

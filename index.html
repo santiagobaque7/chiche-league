@@ -1553,6 +1553,11 @@ body.app-booting > .modal{visibility:hidden!important}
   }
 }
 
+
+/* V87 · permisos visuales Home */
+.home-module-card.admin-only.public-hidden{
+  display:none!important;
+}
 </style>
 </head>
 <body class="app-booting">
@@ -2509,7 +2514,11 @@ function applyCloudAccessMode(){
   if($("adminLogoutBtn"))$("adminLogoutBtn").style.display=admin?"":"none";
   document.querySelectorAll('.nav button[data-page="draft"],.nav button[data-page="database"]').forEach(b=>b.style.display=admin?"":"none");
   document.querySelectorAll('.nav button[data-page="transfers"],.nav button[data-page="bestPlayers"],.nav button[data-page="rules"]').forEach(b=>b.style.display="");
-  document.querySelectorAll(".home-module-card.admin-only").forEach(card=>card.style.display=admin?"grid":"none");
+  document.querySelectorAll(".home-module-card.admin-only").forEach(card=>{
+    card.classList.toggle("public-hidden",!admin);
+    card.setAttribute("aria-hidden",admin?"false":"true");
+    card.tabIndex=admin?0:-1;
+  });
   if(!admin){
     document.querySelectorAll('.nav button[data-page="welcome"],.nav button[data-page="setup"]').forEach(b=>b.style.display="none");
   }
@@ -2715,7 +2724,14 @@ function renderHome(){
     el.textContent=`Fecha ${round} · ${label}`;
   }else if(state.phase==="draft")el.textContent="Draft en curso";
   else el.textContent="Configuración del torneo";
-  document.querySelectorAll(".home-module-card.admin-only").forEach(card=>card.style.display=isCloudAdmin()?"grid":"none");
+  {
+    const admin=isCloudAdmin();
+    document.querySelectorAll(".home-module-card.admin-only").forEach(card=>{
+      card.classList.toggle("public-hidden",!admin);
+      card.setAttribute("aria-hidden",admin?"false":"true");
+      card.tabIndex=admin?0:-1;
+    });
+  }
 }
 function openHome(){
   if(state.phase==="welcome"&&isCloudAdmin())return setPage("welcome");

@@ -2363,6 +2363,109 @@ function patchHistoricalTransferFacts(){
 }
 
 
+
+function patchDomanMaroniFecha8(){
+  if(state?.domanMaroniFecha8Patch==="2026-09-08")return false;
+
+  const maroni=(state.players||[]).find(p=>p.name==="Maroni, Gonzalo");
+  const briasco=(state.players||[]).find(p=>p.name==="Briasco, Norberto");
+  if(!maroni||!briasco)return false;
+
+  let changed=false;
+  const maroniId=Number(maroni.id),briascoId=Number(briasco.id);
+
+  const historical=state.rosterHistory?.["7"]?.Doman||null;
+  const historicalRole=historical?.roles?.[maroniId]||"Titular";
+  const historicalFormation=historical?.formation||null;
+
+  const fixRoster=(r,{restoreFormation=false}={})=>{
+    if(!r||!Array.isArray(r.picks))return false;
+    let local=false;
+
+    const hasBriasco=r.picks.includes(briascoId);
+    const hasMaroni=r.picks.includes(maroniId);
+
+    if(hasBriasco&&!hasMaroni){
+      r.picks=r.picks.map(id=>Number(id)===briascoId?maroniId:Number(id));
+      local=true;
+    }else if(hasBriasco&&hasMaroni){
+      r.picks=r.picks.filter(id=>Number(id)!==briascoId);
+      local=true;
+    }
+
+    if(r.roles){
+      if(r.roles[briascoId]!==undefined){
+        delete r.roles[briascoId];
+        local=true;
+      }
+      if(r.picks.includes(maroniId)&&r.roles[maroniId]!==historicalRole){
+        r.roles[maroniId]=historicalRole;
+        local=true;
+      }
+    }
+
+    if(Number(r.captain)===briascoId){
+      r.captain=Number(historical?.captain)||null;
+      local=true;
+    }
+
+    if(restoreFormation&&historicalFormation&&r.formation!==historicalFormation){
+      r.formation=historicalFormation;
+      local=true;
+    }
+
+    return local;
+  };
+
+  if(fixRoster(state.confirmedTeams?.Doman,{restoreFormation:true}))changed=true;
+  if(fixRoster(state.draftRosters?.Doman,{restoreFormation:true}))changed=true;
+  if(fixRoster(state.rosterHistory?.["8"]?.Doman,{restoreFormation:true}))changed=true;
+
+  if(state.rounds?.["8"]&&state.rounds["8"][briascoId]!==undefined){
+    state.rounds["8"][maroniId]=state.rounds["8"][briascoId];
+    delete state.rounds["8"][briascoId];
+    changed=true;
+  }
+
+  if(state.captainBonuses?.["8"]?.[briascoId]!==undefined){
+    delete state.captainBonuses["8"][briascoId];
+    changed=true;
+  }
+
+  const tr=state.transferRounds?.["7"];
+  if(tr){
+    if(Array.isArray(tr.history)){
+      const before=tr.history.length;
+      tr.history=tr.history.filter(e=>!(e&&e.manager==="Doman"));
+      if(tr.history.length!==before)changed=true;
+    }
+
+    for(const key of ["completed","done","changed","protected","forcedDone","passed","skipped"]){
+      if(Array.isArray(tr[key])){
+        const before=tr[key].length;
+        tr[key]=tr[key].filter(x=>x!=="Doman");
+        if(tr[key].length!==before)changed=true;
+      }else if(tr[key]&&typeof tr[key]==="object"&&!Array.isArray(tr[key])){
+        if(Object.prototype.hasOwnProperty.call(tr[key],"Doman")){
+          delete tr[key].Doman;
+          changed=true;
+        }
+      }
+    }
+
+    if(!Array.isArray(tr.passed))tr.passed=[];
+    if(!tr.passed.includes("Doman")){
+      tr.passed.push("Doman");
+      changed=true;
+    }
+  }
+
+  state.domanMaroniFecha8Patch="2026-09-08";
+  if(changed)cloudStateNeedsMigrationSave=true;
+  return changed;
+}
+
+
 function patchAlvaFecha8Captain(){
   if(state?.alvaFecha8LencioniCaptainPatch==="2026-09-06")return false;
   const lencioni=(state.players||[]).find(p=>p.name==="Lencioni, Facundo");
@@ -2506,6 +2609,7 @@ function normalizeCloudState(){
   sanitizeLegacyState();
   syncOfficialPlayerBase();
   patchHistoricalTransferFacts();
+  patchDomanMaroniFecha8();
   patchAlvaFecha8Captain();
 }
 
@@ -2800,6 +2904,7 @@ function loadState(){
     }
   });
   if(state.lateJoin===undefined)state.lateJoin=null;
+  patchDomanMaroniFecha8();
   patchAlvaFecha8Captain();
     if(state.lateJoin){
       if(!Array.isArray(state.lateJoin.names)){

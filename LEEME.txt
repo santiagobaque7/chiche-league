@@ -1,8 +1,11 @@
-V88 · ARCHIVOS A SUBIR A GITHUB
+V89 · SUBIR A GITHUB
 
 Reemplazar únicamente:
-1. index.html
-2. ChicheLeague_Clausura2026.html
+- index.html
+- ChicheLeague_Clausura2026.html
 
-Hacer commit sobre main.
-No modificar Supabase, api/chiche-cloud.js ni vercel.json.
+No tocar Supabase manualmente.
+No hace falta modificar api/chiche-cloud.js ni vercel.json.
+
+Después del deploy, ingresá una vez como Admin para que la corrección
+se publique automáticamente en la partida oficial.

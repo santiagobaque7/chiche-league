@@ -1,11 +1,13 @@
-V90 · SUBIR A GITHUB
+V92 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
 - ChicheLeague_Clausura2026.html
 
-No tocar Supabase manualmente.
-No hace falta modificar api/chiche-cloud.js ni vercel.json.
+Cambios incluidos:
+1. Sepúlveda, Bruno: BANFIELD -> PLATENSE.
+2. Tanguita: Fernández, Tomás -> Fernández, Augusto (ALDOSIVI).
 
-Después del deploy, ingresar una vez como Admin para sincronizar
-la corrección de Doman en Fecha 8.
+No tocar Supabase manualmente.
+Después del deploy, ingresar una vez como Admin para publicar la corrección
+de la partida oficial.

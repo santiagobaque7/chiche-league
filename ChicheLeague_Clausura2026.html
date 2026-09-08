@@ -1341,7 +1341,7 @@ body.home-active .nav{display:none!important}
 .best-leader b{font-size:12.5px;display:block}.best-leader small{font-size:9.5px;color:var(--muted);display:block;margin-top:2px}.best-leader-points{text-align:right;font-weight:1000;font-size:16px;color:#75b9ff}
 .best-table-wrap{max-height:calc(100vh - 235px)}.best-table th,.best-table td{padding:7px 8px;white-space:nowrap}.best-table tbody tr.best-main-row{cursor:pointer}.best-table tbody tr.best-main-row:hover{background:#142333}
 .best-table .ranknum{font-weight:900;color:#4e9af0}.best-player-name{font-weight:900}.best-average{font-weight:900}.best-detail-row{display:none}.best-detail-row.open{display:table-row}.best-detail-cell{padding:0!important;background:#0d1721}
-.best-match-list{padding:8px 10px 10px;display:grid;gap:5px}.best-match-row{display:grid;grid-template-columns:76px 100px minmax(140px,1fr) 80px 80px 110px;gap:7px;align-items:center;padding:6px 8px;border:1px solid #20374c;border-radius:8px;background:#111d29;font-size:10.5px}
+.best-match-list{padding:8px 10px 10px;display:grid;gap:5px}.best-match-row{display:grid;grid-template-columns:76px 100px minmax(140px,1fr) 80px 110px;gap:7px;align-items:center;padding:6px 8px;border:1px solid #20374c;border-radius:8px;background:#111d29;font-size:10.5px}
 .best-match-row.header{background:transparent;border:0;padding:2px 8px;color:var(--muted);font-size:9px;text-transform:uppercase}.best-cap-yes{color:#73b4ff;font-weight:900}.best-score-positive{color:#76e8b0;font-weight:900}.best-score-negative{color:#ff9b9b;font-weight:900}.best-empty{padding:22px;text-align:center;color:var(--muted)}
 
 @media(max-width:1000px){.home-modules{grid-template-columns:repeat(2,minmax(0,1fr))}.best-filters{grid-template-columns:repeat(3,minmax(0,1fr))}}
@@ -1558,6 +1558,98 @@ body.app-booting > .modal{visibility:hidden!important}
 .home-module-card.admin-only.public-hidden{
   display:none!important;
 }
+
+/* V88 · Bonus capitán separado */
+.score-col-bonus{width:12%;text-align:center}
+.captain-bonus-input{
+  width:72px;
+  min-width:0;
+  height:30px;
+  padding:4px 6px;
+  border:1px solid #42688d;
+  border-radius:7px;
+  background:#102338;
+  color:#9fcaff;
+  font-size:11px;
+  font-weight:900;
+  text-align:center;
+}
+.captain-bonus-input:focus{outline:none;border-color:#5b9fe7;box-shadow:0 0 0 2px rgba(91,159,231,.13)}
+.match-score-stack{display:grid;gap:4px}
+.match-captain-bonus{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  align-items:center;
+  gap:5px;
+}
+.match-captain-bonus span{
+  color:#6eaeea;
+  font-size:8px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.match-captain-bonus .captain-bonus-input{
+  width:100%;
+  height:27px;
+  font-size:10px;
+}
+.match-player-row.is-captain{background:rgba(46,105,166,.07)}
+.best-legacy-notice{
+  margin:0 10px 10px;
+  padding:7px 9px;
+  border:1px solid #755f31;
+  border-radius:8px;
+  background:#241f13;
+  color:#dec991;
+  font-size:9.5px;
+  line-height:1.35;
+}
+.best-legacy-notice b{color:#f2d47c}
+
+/* Mejores Jugadores queda en 8 columnas, sin atributo Cap. */
+@media(min-width:701px){
+  .best-table th:nth-child(8),.best-table td:nth-child(8){text-align:center}
+}
+@media(max-width:700px){
+  #scores .score-col-player{width:30%!important}
+  #scores .score-col-club{display:none!important}
+  #scores .score-col-pos{width:9%!important}
+  #scores .score-col-dt{width:15%!important}
+  #scores .score-col-role{width:10%!important}
+  #scores .score-col-result{width:19%!important}
+  #scores .score-col-bonus{width:17%!important}
+  #scores .captain-bonus-input{
+    width:100%!important;
+    height:30px!important;
+    padding:4px 2px!important;
+    font-size:16px!important;
+  }
+
+  #matchScores .match-player-row{
+    grid-template-columns:minmax(0,1fr) 64px 36px 112px!important;
+  }
+  #matchScores .captain-bonus-input{font-size:16px!important}
+  #matchScores .match-captain-bonus{
+    grid-template-columns:1fr!important;
+    gap:2px!important;
+  }
+  #matchScores .match-captain-bonus span{font-size:7.5px}
+
+  .best-table th:nth-child(1),.best-table td:nth-child(1){width:7%!important}
+  .best-table th:nth-child(2),.best-table td:nth-child(2){width:34%!important}
+  .best-table th:nth-child(3),.best-table td:nth-child(3){display:none!important}
+  .best-table th:nth-child(4),.best-table td:nth-child(4){width:11%!important}
+  .best-table th:nth-child(5),.best-table td:nth-child(5){width:19%!important}
+  .best-table th:nth-child(6),.best-table td:nth-child(6){width:12%!important}
+  .best-table th:nth-child(7),.best-table td:nth-child(7){width:8%!important}
+  .best-table th:nth-child(8),.best-table td:nth-child(8){width:9%!important;text-align:center}
+
+  .best-match-row,.best-match-row.header{
+    grid-template-columns:58px 74px minmax(110px,1fr) 48px 70px!important;
+  }
+  .best-match-row>:last-child{display:block!important}
+}
+
 </style>
 </head>
 <body class="app-booting">
@@ -1759,7 +1851,7 @@ body.app-booting > .modal{visibility:hidden!important}
     <div class="card scores-entry-card">
       <div class="callout">Ingresá puntos o <b>NO JUEGA</b>. Si un titular no juega, entra el suplente de su posición.</div>
       <div class="tablewrap"><table>
-        <thead><tr><th class="score-col-player">Jugador</th><th class="score-col-club">Club</th><th class="score-col-pos">Pos</th><th class="score-col-dt">DT</th><th class="score-col-role">Rol</th><th class="score-col-result">Resultado</th></tr></thead>
+        <thead><tr><th class="score-col-player">Jugador</th><th class="score-col-club">Club</th><th class="score-col-pos">Pos</th><th class="score-col-dt">DT</th><th class="score-col-role">Rol</th><th class="score-col-result">Puntaje</th><th class="score-col-bonus">Bonus cap.</th></tr></thead>
         <tbody id="scoresBody"></tbody>
       </table></div>
     </div>
@@ -1877,13 +1969,13 @@ body.app-booting > .modal{visibility:hidden!important}
         <option value="points-desc">Más puntos</option>
         <option value="games-desc">Más partidos</option>
         <option value="average-desc">Mejor promedio</option>
-        <option value="captain-desc">Más veces capitán</option>
         <option value="name-asc">Jugador A-Z</option>
         <option value="team-asc">Club A-Z</option>
         <option value="position-asc">Posición</option>
         <option value="manager-asc">DT</option>
       </select>
     </div>
+    <div id="bestLegacyCaptainNotice" class="best-legacy-notice" style="display:none"></div>
   </div>
   <div id="bestLeaders" class="best-leaders"></div>
   <div class="card best-table-card"><div class="tablewrap best-table-wrap">
@@ -1896,7 +1988,6 @@ body.app-booting > .modal{visibility:hidden!important}
         <th><button class="sorthead" data-best-sort="manager">DT ↕</button></th>
         <th><button class="sorthead active" data-best-sort="points">Puntos ↓</button></th>
         <th><button class="sorthead" data-best-sort="games">PJ ↕</button></th>
-        <th><button class="sorthead" data-best-sort="captain">Cap. ↕</button></th>
         <th><button class="sorthead" data-best-sort="average">Prom. ↕</button></th>
       </tr></thead>
       <tbody id="bestPlayersBody"></tbody>
@@ -1934,9 +2025,9 @@ body.app-booting > .modal{visibility:hidden!important}
           <div class="rule-main"><b>Calificación Clarín</b><span>Según la nota recibida.</span></div>
           <div class="rule-points neutral">1 a 10 pts</div>
         </div>
-        <div class="rule-row" data-rule="capitán capitan duplica calificación clarín nota">
-          <div class="rule-main"><b>Capitán</b><span>Duplica la Calificación Clarín.</span></div>
-          <div class="rule-points bonus">x2 Clarín</div>
+        <div class="rule-row" data-rule="capitán capitan bonus calificación clarín nota">
+          <div class="rule-main"><b>Bonus capitán</b><span>Se vuelve a sumar únicamente la Calificación Clarín. No duplica el puntaje total del jugador.</span></div>
+          <div class="rule-points bonus">+ Clarín</div>
         </div>
         <div class="rule-row" data-rule="figura de la cancha mejor jugador">
           <div class="rule-main"><b>Figura de la cancha</b></div>
@@ -2113,7 +2204,7 @@ let state=null;let playerSort={key:"name",dir:1};let pendingRoleSwap=null;
 
 function emptyRoster(){return {picks:[],formation:"4-4-2",roles:{},captain:null}}
 function initialState(){
-  return {version:25,phase:"welcome",players:clone(ORIGINAL_DATA.players),participants:[],draftOrder:[],draftRosters:{},confirmedTeams:{},rounds:{},draftTurn:{manager:null,club:null},transferRounds:{},setupDraftNames:["",""],participantStartRounds:{},rosterHistory:{},lateJoin:null,updatedAt:new Date().toISOString()};
+  return {version:25,phase:"welcome",players:clone(ORIGINAL_DATA.players),participants:[],draftOrder:[],draftRosters:{},confirmedTeams:{},rounds:{},captainBonuses:{},captainBonusLegacyRounds:{},captainBonusMigrated:{},draftTurn:{manager:null,club:null},transferRounds:{},setupDraftNames:["",""],participantStartRounds:{},rosterHistory:{},lateJoin:null,updatedAt:new Date().toISOString()};
 }
 
 const OFFICIAL_REMOVED_IDS=[280,345,333,687,672,923,562,573,719,505,838,910,591,836];
@@ -2297,6 +2388,99 @@ function patchAlvaFecha8Captain(){
   return changed;
 }
 
+
+function ensureCaptainBonusState(){
+  if(!state.captainBonuses||typeof state.captainBonuses!=="object")state.captainBonuses={};
+
+  // Si esta estructura no existía, los rounds ya cargados pertenecen al modelo viejo:
+  // el puntaje numérico del capitán podía incluir su bonus Clarín.
+  if(!state.captainBonusLegacyRounds||typeof state.captainBonusLegacyRounds!=="object"){
+    state.captainBonusLegacyRounds={};
+    Object.keys(state.rounds||{}).forEach(rk=>{
+      const vals=Object.values(state.rounds[rk]||{});
+      if(vals.length)state.captainBonusLegacyRounds[String(rk)]=true;
+    });
+  }
+
+  if(!state.captainBonusMigrated||typeof state.captainBonusMigrated!=="object")state.captainBonusMigrated={};
+}
+function captainBonusKey(rk,id){return `${String(rk)}:${Number(id)}`}
+function captainBonusRaw(rk,id){
+  ensureCaptainBonusState();
+  return state.captainBonuses?.[String(rk)]?.[Number(id)];
+}
+function captainBonusValue(rk,id){
+  const v=captainBonusRaw(rk,id);
+  return typeof v==="number"?v:0;
+}
+function isCaptainForRound(manager,id,rk){
+  const r=rosterForRound(manager,String(rk));
+  return !!(r&&Number(r.captain)===Number(id));
+}
+function unresolvedLegacyCaptainBonuses(roundFilter=""){
+  ensureCaptainBonusState();
+  const rounds=(roundFilter?[String(roundFilter)]:Object.keys(state.captainBonusLegacyRounds||{}))
+    .filter(rk=>state.captainBonusLegacyRounds?.[rk]);
+  const pending=[];
+  rounds.forEach(rk=>{
+    (state.participants||[]).forEach(m=>{
+      if(!participantActiveInRound(m,rk))return;
+      const r=rosterForRound(m,rk);
+      const id=Number(r?.captain);
+      if(!id)return;
+      if(typeof state.rounds?.[rk]?.[id]!=="number")return;
+      const key=captainBonusKey(rk,id);
+      if(state.captainBonusMigrated?.[key])return;
+      const p=player(id);
+      if(p)pending.push({rk,m,p});
+    });
+  });
+  return pending;
+}
+function setCaptainBonus(id,input,rk){
+  if(!isCloudAdmin())return;
+  ensureCaptainBonusState();
+  rk=String(rk); id=Number(id);
+  const raw=String(input.value??"").trim().replace(",",".");
+
+  if(raw===""){
+    if(state.captainBonuses?.[rk])delete state.captainBonuses[rk][id];
+    persist();
+    renderScores(false);
+    renderMatchScores();
+    renderResults();
+    return;
+  }
+
+  const bonus=Number(raw);
+  if(!Number.isFinite(bonus)){
+    alert("Ingresá un Bonus capitán numérico.");
+    renderScores(false);
+    renderMatchScores();
+    return;
+  }
+
+  if(!state.captainBonuses[rk])state.captainBonuses[rk]={};
+
+  const key=captainBonusKey(rk,id);
+  const legacy=!!state.captainBonusLegacyRounds?.[rk];
+  const alreadyMigrated=!!state.captainBonusMigrated?.[key];
+
+  // Primera carga histórica: separamos el bonus que estaba incluido
+  // dentro del puntaje viejo. El aporte total del DT queda idéntico.
+  if(legacy&&!alreadyMigrated&&typeof state.rounds?.[rk]?.[id]==="number"){
+    state.rounds[rk][id]=Number(state.rounds[rk][id])-bonus;
+    state.captainBonusMigrated[key]=true;
+  }
+
+  state.captainBonuses[rk][id]=bonus;
+  persist();
+  renderScores(false);
+  renderMatchScores();
+  renderResults();
+  renderFormations();
+}
+
 function normalizeCloudState(){
   if(!state||typeof state!=="object")state=initialState();
   state.version=25;
@@ -2314,6 +2498,7 @@ function normalizeCloudState(){
   if(state.lateJoin===undefined)state.lateJoin=null;
   if(!state.matchResults)state.matchResults={};
   if(!state.matchSchedules)state.matchSchedules={};
+  ensureCaptainBonusState();
   state.participants.forEach(m=>{
     if(state.participantStartRounds[m]===undefined)state.participantStartRounds[m]=5;
     if(!state.draftRosters[m])state.draftRosters[m]=emptyRoster();
@@ -2812,9 +2997,9 @@ function bestPlayerStats(roundFilter=""){
     Object.entries(vals).forEach(([idRaw,value])=>{
       if(typeof value!=="number")return;
       const id=Number(idRaw),p=player(id);if(!p)return;
-      if(!stats.has(id))stats.set(id,{id,player:p,total:0,games:0,captainGames:0,matches:[],owners:new Set()});
-      const s=stats.get(id),owner=bestPlayerOwnerForRound(id,rk),roster=owner?rosterForRound(owner,rk):null,captain=!!(roster&&Number(roster.captain)===id),fixture=bestPlayerFixtureInfo(p,rk);
-      s.total+=value;s.games++;if(captain)s.captainGames++;if(owner)s.owners.add(owner);s.matches.push({round:Number(rk),score:value,captain,owner,...fixture});
+      if(!stats.has(id))stats.set(id,{id,player:p,total:0,games:0,matches:[],owners:new Set()});
+      const s=stats.get(id),owner=bestPlayerOwnerForRound(id,rk),fixture=bestPlayerFixtureInfo(p,rk);
+      s.total+=value;s.games++;if(owner)s.owners.add(owner);s.matches.push({round:Number(rk),score:value,owner,...fixture});
     });
   }
   return [...stats.values()].map(s=>{s.average=s.games?s.total/s.games:0;s.currentManager=reservedOwner(s.id)||[...s.owners][s.owners.size-1]||"";s.matches.sort((a,b)=>a.round-b.round);return s});
@@ -2832,7 +3017,7 @@ function bestPlayersFiltered(){
 }
 function sortBestPlayers(rows){
   const {key,dir}=bestPlayersSort,m=dir==="asc"?1:-1;
-  return rows.sort((a,b)=>{let av,bv;if(key==="name"){av=a.player.name;bv=b.player.name}else if(key==="team"){av=a.player.team;bv=b.player.team}else if(key==="position"){av=bestPositionOrder(a.player.position);bv=bestPositionOrder(b.player.position)}else if(key==="manager"){av=a.currentManager;bv=b.currentManager}else if(key==="games"){av=a.games;bv=b.games}else if(key==="captain"){av=a.captainGames;bv=b.captainGames}else if(key==="average"){av=a.average;bv=b.average}else{av=a.total;bv=b.total}
+  return rows.sort((a,b)=>{let av,bv;if(key==="name"){av=a.player.name;bv=b.player.name}else if(key==="team"){av=a.player.team;bv=b.player.team}else if(key==="position"){av=bestPositionOrder(a.player.position);bv=bestPositionOrder(b.player.position)}else if(key==="manager"){av=a.currentManager;bv=b.currentManager}else if(key==="games"){av=a.games;bv=b.games}else if(key==="average"){av=a.average;bv=b.average}else{av=a.total;bv=b.total}
     if(typeof av==="string"){const c=String(av).localeCompare(String(bv),"es",{sensitivity:"base"});if(c)return c*m}else if(av!==bv)return(av-bv)*m;return b.total-a.total||a.player.name.localeCompare(b.player.name,"es")});
 }
 function setBestSort(key){if(bestPlayersSort.key===key)bestPlayersSort.dir=bestPlayersSort.dir==="asc"?"desc":"asc";else bestPlayersSort={key,dir:["name","team","position","manager"].includes(key)?"asc":"desc"};renderBestPlayers(false)}
@@ -2843,11 +3028,19 @@ function renderBestLeaders(rows){
 }
 function toggleBestPlayerDetail(id){id=Number(id);if(bestPlayersOpen.has(id))bestPlayersOpen.delete(id);else bestPlayersOpen.add(id);renderBestPlayers(false)}
 function renderBestPlayers(repopulate=true){
-  if(!$("bestPlayersBody"))return;if(repopulate)populateBestFilters();const round=$("bestRoundFilter")?.value||"",all=bestPlayerStats(round);renderBestLeaders(all);const rows=sortBestPlayers(bestPlayersFiltered());
+  if(!$("bestPlayersBody"))return;
+  if(repopulate)populateBestFilters();
+  const round=$("bestRoundFilter")?.value||"";
+  const legacyPending=unresolvedLegacyCaptainBonuses(round);
+  if($("bestLegacyCaptainNotice")){
+    $("bestLegacyCaptainNotice").style.display=legacyPending.length?"block":"none";
+    $("bestLegacyCaptainNotice").innerHTML=legacyPending.length?`<b>Ranking provisional.</b> Falta separar el Bonus capitán de ${legacyPending.length} actuación${legacyPending.length===1?"":"es"} histórica${legacyPending.length===1?"":"s"}. Al cargar esos bonus, los puntos del jugador se corrigen sin alterar las tablas de DT.`:"";
+  }
+  const all=bestPlayerStats(round);renderBestLeaders(all);const rows=sortBestPlayers(bestPlayersFiltered());
   document.querySelectorAll("[data-best-sort]").forEach(btn=>{const active=btn.dataset.bestSort===bestPlayersSort.key;btn.classList.toggle("active",active);const base=btn.textContent.replace(/[↕↑↓]/g,"").trim();btn.textContent=`${base} ${active?(bestPlayersSort.dir==="asc"?"↑":"↓"):"↕"}`});
-  if(!rows.length){$("bestPlayersBody").innerHTML='<tr><td colspan="9" class="best-empty">No hay jugadores que coincidan con los filtros.</td></tr>';return}
-  $("bestPlayersBody").innerHTML=rows.map((s,i)=>{const open=bestPlayersOpen.has(s.id),details=s.matches.map(m=>`<div class="best-match-row"><div><b>Fecha ${m.round}</b></div><div>${esc(m.date||"—")}</div><div>${esc(m.opponent||"—")}</div><div class="${m.score<0?"best-score-negative":"best-score-positive"}">${m.score}</div><div class="${m.captain?"best-cap-yes":""}">${m.captain?"Sí":"—"}</div><div>${esc(m.owner||"—")}</div></div>`).join("");
-    return `<tr class="best-main-row" onclick="toggleBestPlayerDetail(${s.id})"><td class="ranknum">${i+1}</td><td class="best-player-name">${esc(s.player.name)}<small>${esc(s.player.team)}</small></td><td>${esc(s.player.team)}</td><td><span class="pos pos-${s.player.position}">${s.player.position}</span></td><td>${esc(s.currentManager||"Libre")}</td><td><b>${s.total}</b></td><td>${s.games}</td><td>${s.captainGames}</td><td class="best-average">${s.average.toFixed(1)}</td></tr><tr class="best-detail-row ${open?"open":""}"><td colspan="9" class="best-detail-cell"><div class="best-match-list"><div class="best-match-row header"><div>Fecha</div><div>Día</div><div>Rival</div><div>Puntos</div><div>Cap.</div><div>DT</div></div>${details}</div></td></tr>`}).join("");
+  if(!rows.length){$("bestPlayersBody").innerHTML='<tr><td colspan="8" class="best-empty">No hay jugadores que coincidan con los filtros.</td></tr>';return}
+  $("bestPlayersBody").innerHTML=rows.map((s,i)=>{const open=bestPlayersOpen.has(s.id),details=s.matches.map(m=>`<div class="best-match-row"><div><b>Fecha ${m.round}</b></div><div>${esc(m.date||"—")}</div><div>${esc(m.opponent||"—")}</div><div class="${m.score<0?"best-score-negative":"best-score-positive"}">${m.score}</div><div>${esc(m.owner||"—")}</div></div>`).join("");
+    return `<tr class="best-main-row" onclick="toggleBestPlayerDetail(${s.id})"><td class="ranknum">${i+1}</td><td class="best-player-name">${esc(s.player.name)}<small>${esc(s.player.team)}</small></td><td>${esc(s.player.team)}</td><td><span class="pos pos-${s.player.position}">${s.player.position}</span></td><td>${esc(s.currentManager||"Libre")}</td><td><b>${s.total}</b></td><td>${s.games}</td><td class="best-average">${s.average.toFixed(1)}</td></tr><tr class="best-detail-row ${open?"open":""}"><td colspan="8" class="best-detail-cell"><div class="best-match-list"><div class="best-match-row header"><div>Fecha</div><div>Día</div><div>Rival</div><div>Puntos</div><div>DT</div></div>${details}</div></td></tr>`}).join("");
 }
 
 function normalizeRuleText(text){
@@ -3625,11 +3818,15 @@ function matchPlayerRowHtml(row,rk){
   const {m,r,p}=row,vals=state.rounds[rk]||{},v=vals[p.id]??"";
   const cls=v==="NO JUEGA"?"no-play":typeof v==="number"?"scored":"";
   const role=r.roles[p.id]||"";
-  return `<div class="match-player-row">
-    <div class="match-player-name">${esc(p.name)}<small>${esc(role)}${r.captain===p.id?" · C":""}</small></div>
+  const captain=r.captain===p.id;
+  return `<div class="match-player-row ${captain?"is-captain":""}">
+    <div class="match-player-name">${esc(p.name)}<small>${esc(role)}${captain?" · C":""}</small></div>
     <div class="match-player-manager">${esc(m)}</div>
     <div><span class="pos pos-${p.position}">${p.position}</span></div>
-    <div><input class="scoreinput ${cls} ${isCloudAdmin()?"":"public-readonly"}" data-fixture-score-id="${p.id}" value="${esc(v)}" placeholder="${isCloudAdmin()?"Puntos / NJ":"—"}" ${isCloudAdmin()?`onfocus="this.select()" onkeydown="handleFixtureScoreKey(event,${p.id},this,'${rk}')" onchange="setFixtureScore(${p.id},this,'${rk}')"`:"disabled"}></div>
+    <div class="match-score-stack">
+      <input class="scoreinput ${cls} ${isCloudAdmin()?"":"public-readonly"}" data-fixture-score-id="${p.id}" value="${esc(v)}" placeholder="${isCloudAdmin()?"Puntos / NJ":"—"}" ${isCloudAdmin()?`onfocus="this.select()" onkeydown="handleFixtureScoreKey(event,${p.id},this,'${rk}')" onchange="setFixtureScore(${p.id},this,'${rk}')"`:"disabled"}>
+      ${captain?`<label class="match-captain-bonus"><span>Bonus cap.</span><input class="captain-bonus-input ${isCloudAdmin()?"":"public-readonly"}" value="${esc(captainBonusRaw(rk,p.id)??"")}" placeholder="${isCloudAdmin()?"Clarín":"—"}" title="Bonus capitán = Calificación Clarín" ${isCloudAdmin()?`onfocus="this.select()" onchange="setCaptainBonus(${p.id},this,'${rk}')"`:"disabled"}></label>`:""}
+    </div>
   </div>`;
 }
 function renderMatchTeam(team,rk){
@@ -3865,6 +4062,7 @@ function renderScores(resetFocus=true){
       <td class="score-col-dt">${esc(m)}</td>
       <td class="score-col-role"><span class="score-role-full">${esc(role)}</span><span class="score-role-short">${role==="Titular"?"T":"S"}</span>${r.captain===p.id?' <span class="badge score-captain">C</span>':""}</td>
       <td class="score-col-result"><input class="scoreinput ${cls} ${isCloudAdmin()?"":"public-readonly"}" data-score-id="${p.id}" value="${esc(v)}" placeholder="${isCloudAdmin()?"Pts/NJ":"—"}" ${isCloudAdmin()?`onfocus="this.select()" onkeydown="handleScoreInputKey(event,${p.id},this)" onchange="setScore(${p.id},this.value)"`:"disabled"}></td>
+      <td class="score-col-bonus">${r.captain===p.id?`<input class="captain-bonus-input ${isCloudAdmin()?"":"public-readonly"}" value="${esc(captainBonusRaw(rk,p.id)??"")}" placeholder="${isCloudAdmin()?"Bonus":"—"}" title="Bonus capitán = Calificación Clarín" ${isCloudAdmin()?`onfocus="this.select()" onchange="setCaptainBonus(${p.id},this,'${rk}')"`:"disabled"}>`:'<span class="muted">—</span>'}</td>
     </tr>`
   }).join("");
   updateRoundOptions();
@@ -3891,6 +4089,12 @@ function calcTeamRound(m,rk){
       else if(sv===undefined||sv===""||sv==="JUEGA")pending++;
     }
   }
+
+  // El bonus no multiplica el puntaje total: suma únicamente la
+  // Calificación Clarín cargada aparte para el capitán.
+  const capId=Number(r.captain);
+  if(capId&&typeof vals[capId]==="number")total+=captainBonusValue(rk,capId);
+
   return {total,subs,pending};
 }
 function allRounds(){return Object.keys(state.rounds).filter(k=>Object.keys(state.rounds[k]||{}).length).sort((a,b)=>Number(a)-Number(b))}

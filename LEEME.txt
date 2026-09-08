@@ -1,0 +1,8 @@
+V88 · ARCHIVOS A SUBIR A GITHUB
+
+Reemplazar únicamente:
+1. index.html
+2. ChicheLeague_Clausura2026.html
+
+Hacer commit sobre main.
+No modificar Supabase, api/chiche-cloud.js ni vercel.json.

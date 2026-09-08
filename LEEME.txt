@@ -1,4 +1,4 @@
-V89 · SUBIR A GITHUB
+V90 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
@@ -7,5 +7,5 @@ Reemplazar únicamente:
 No tocar Supabase manualmente.
 No hace falta modificar api/chiche-cloud.js ni vercel.json.
 
-Después del deploy, ingresá una vez como Admin para que la corrección
-se publique automáticamente en la partida oficial.
+Después del deploy, ingresar una vez como Admin para sincronizar
+la corrección de Doman en Fecha 8.

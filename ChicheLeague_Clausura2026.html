@@ -2466,6 +2466,39 @@ function patchDomanMaroniFecha8(){
 }
 
 
+
+function patchDomanFecha8Roles(){
+  if(state?.domanFecha8RolesPatch==="2026-09-08")return false;
+
+  const sanchez=(state.players||[]).find(p=>p.name==="Sánchez, Ulises");
+  const maroni=(state.players||[]).find(p=>p.name==="Maroni, Gonzalo");
+  if(!sanchez||!maroni)return false;
+
+  const sid=Number(sanchez.id),mid=Number(maroni.id);
+  let changed=false;
+
+  const fix=(r)=>{
+    if(!r||!Array.isArray(r.picks))return false;
+    if(!r.picks.includes(sid)||!r.picks.includes(mid))return false;
+    if(!r.roles||typeof r.roles!=="object")r.roles={};
+
+    let local=false;
+    if(r.roles[sid]!=="Titular"){r.roles[sid]="Titular";local=true}
+    if(r.roles[mid]!=="Suplente"){r.roles[mid]="Suplente";local=true}
+
+    return local;
+  };
+
+  if(fix(state.confirmedTeams?.Doman))changed=true;
+  if(fix(state.draftRosters?.Doman))changed=true;
+  if(fix(state.rosterHistory?.["8"]?.Doman))changed=true;
+
+  state.domanFecha8RolesPatch="2026-09-08";
+  if(changed)cloudStateNeedsMigrationSave=true;
+  return changed;
+}
+
+
 function patchAlvaFecha8Captain(){
   if(state?.alvaFecha8LencioniCaptainPatch==="2026-09-06")return false;
   const lencioni=(state.players||[]).find(p=>p.name==="Lencioni, Facundo");
@@ -2610,6 +2643,7 @@ function normalizeCloudState(){
   syncOfficialPlayerBase();
   patchHistoricalTransferFacts();
   patchDomanMaroniFecha8();
+  patchDomanFecha8Roles();
   patchAlvaFecha8Captain();
 }
 
@@ -2905,6 +2939,7 @@ function loadState(){
   });
   if(state.lateJoin===undefined)state.lateJoin=null;
   patchDomanMaroniFecha8();
+  patchDomanFecha8Roles();
   patchAlvaFecha8Captain();
     if(state.lateJoin){
       if(!Array.isArray(state.lateJoin.names)){
@@ -3220,6 +3255,10 @@ function validateRoster(m,r){
   r.picks.forEach(id=>{const p=player(id),role=r.roles[id];if(role==="Titular")tc[p.position]++;if(role==="Suplente")sc[p.position]++});
   Object.keys(tc).forEach(pos=>{if(tc[pos]!==f[pos])issues.push(`titulares ${pos}: ${tc[pos]} (requiere ${f[pos]})`)});
   Object.keys(sc).forEach(pos=>{if(sc[pos]!==1)issues.push(`debe tener 1 suplente ${pos} (${sc[pos]})`)});
+  const totalSubs=r.picks.filter(id=>r.roles?.[id]==="Suplente").length;
+  const totalStarters=r.picks.filter(id=>r.roles?.[id]==="Titular").length;
+  if(totalSubs!==4)issues.push(`debe tener exactamente 4 suplentes (tiene ${totalSubs})`);
+  if(totalStarters!==11)issues.push(`debe tener exactamente 11 titulares (tiene ${totalStarters})`);
   return issues;
 }
 function renderProgress(){

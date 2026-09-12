@@ -1650,6 +1650,92 @@ body.app-booting > .modal{visibility:hidden!important}
   .best-match-row>:last-child{display:block!important}
 }
 
+
+/* V93 · Bonus capitán visible en Formaciones */
+.captain-bonus-input.no-play,
+.captain-bonus-input.no-play:disabled{
+  color:#ff9191!important;
+  border-color:#7b3b45!important;
+  background:#261419!important;
+  opacity:1!important;
+  -webkit-text-fill-color:#ff9191!important;
+  cursor:not-allowed;
+}
+.formation-bonus-pill,
+.formation-bonus-spacer{
+  min-width:44px;
+  height:26px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  font-size:10.5px;
+  font-weight:1000;
+}
+.formation-bonus-spacer{border:1px solid transparent}
+.formation-bonus-pill{
+  color:#9fcaff;
+  border:1px solid #365f89;
+  background:#102338;
+}
+.formation-bonus-pill.scored{color:#92c7ff;border-color:#3b73a9;background:#10283f}
+.formation-bonus-pill.pending{color:#7f98b1;border-color:#2b4359;background:#111e2a}
+.formation-bonus-pill.no-play{color:#ff8f8f;border-color:#7b3b45;background:#261419}
+.field-score-line{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:3px;
+  margin-top:1px;
+}
+.field-score-line .field-score{margin-top:0!important}
+.field-bonus{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:24px;
+  padding:1px 4px;
+  border-radius:999px;
+  font-size:7.5px;
+  line-height:1.1;
+  font-weight:1000;
+  color:#9fcaff;
+  border:1px solid #365f89;
+  background:#102338;
+}
+.field-bonus.scored{color:#92c7ff;border-color:#3b73a9;background:#10283f}
+.field-bonus.pending{color:#7f98b1;border-color:#2b4359;background:#111e2a}
+.field-bonus.no-play{color:#ff8f8f;border-color:#7b3b45;background:#261419}
+
+@media(max-width:700px){
+  #formationRosterList .form-row{
+    grid-template-columns:35px minmax(108px,1fr) 30px 27px 39px 39px!important;
+    gap:3px!important;
+  }
+  #formationRosterList .score-pill{
+    min-width:37px!important;
+    padding:3px 3px!important;
+  }
+  #formationRosterList .formation-bonus-pill,
+  #formationRosterList .formation-bonus-spacer{
+    min-width:37px!important;
+    width:37px!important;
+    height:25px!important;
+    font-size:9.5px!important;
+  }
+  #formations .field-score-line{gap:2px!important}
+  #formations .field-bonus{
+    min-width:21px!important;
+    padding:1px 3px!important;
+    font-size:6.8px!important;
+  }
+  #formations .field-bench .field-bonus{
+    min-width:18px!important;
+    padding:1px 2px!important;
+    font-size:6.2px!important;
+  }
+}
+
 </style>
 </head>
 <body class="app-booting">
@@ -2653,10 +2739,44 @@ function unresolvedLegacyCaptainBonuses(roundFilter=""){
   });
   return pending;
 }
+
+function captainBonusUiState(rk,id){
+  rk=String(rk);id=Number(id);
+  const score=state.rounds?.[rk]?.[id];
+  if(score==="NO JUEGA"){
+    return {disabled:true,value:"NJ",text:"NJ",cls:"no-play",hasBonus:false};
+  }
+  const raw=captainBonusRaw(rk,id);
+  if(typeof raw==="number"){
+    return {disabled:false,value:String(raw),text:`+${raw}`,cls:"scored",hasBonus:true};
+  }
+  return {disabled:false,value:"",text:"+—",cls:"pending",hasBonus:false};
+}
+function captainBonusInputHtml(rk,id,{fixture=false}={}){
+  const ui=captainBonusUiState(rk,id);
+  const admin=isCloudAdmin();
+  const disabled=ui.disabled||!admin;
+  const placeholder=ui.disabled?"NJ":admin?(fixture?"Clarín":"Bonus"):"—";
+  return `<input class="captain-bonus-input ${ui.cls} ${admin?"":"public-readonly"}"
+    value="${esc(ui.value)}"
+    placeholder="${esc(placeholder)}"
+    title="${ui.disabled?"El capitán no jugó: no corresponde Bonus capitán.":"Bonus capitán = Calificación Clarín"}"
+    ${disabled?"disabled":`onfocus="this.select()" onchange="setCaptainBonus(${Number(id)},this,'${String(rk)}')"`}>`;
+}
+
 function setCaptainBonus(id,input,rk){
   if(!isCloudAdmin())return;
   ensureCaptainBonusState();
   rk=String(rk); id=Number(id);
+
+  if(state.rounds?.[rk]?.[id]==="NO JUEGA"){
+    if(state.captainBonuses?.[rk])delete state.captainBonuses[rk][id];
+    input.value="NJ";
+    input.disabled=true;
+    persist();
+    return;
+  }
+
   const raw=String(input.value??"").trim().replace(",",".");
 
   if(raw===""){
@@ -3849,6 +3969,17 @@ function setScore(id,val,rkOverride=null,keepFixtureOpen=false){
   if(norm!=="")ensureRoundSnapshot(rk);
   if(norm==="")delete state.rounds[rk][id];else state.rounds[rk][id]=norm;
 
+  if(norm==="NO JUEGA"){
+    ensureCaptainBonusState();
+    if(state.captainBonuses?.[rk])delete state.captainBonuses[rk][Number(id)];
+
+    // Si era un round legacy, desde este momento ya no queda un puntaje viejo
+    // al que haya que separarle un bonus en una futura corrección.
+    if(state.captainBonusLegacyRounds?.[rk]){
+      state.captainBonusMigrated[captainBonusKey(rk,id)]=true;
+    }
+  }
+
   if(Object.keys(state.rounds[rk]).length===0){
     delete state.rounds[rk];
     delete state.rosterHistory[rk];
@@ -4051,7 +4182,7 @@ function matchPlayerRowHtml(row,rk){
     <div><span class="pos pos-${p.position}">${p.position}</span></div>
     <div class="match-score-stack">
       <input class="scoreinput ${cls} ${isCloudAdmin()?"":"public-readonly"}" data-fixture-score-id="${p.id}" value="${esc(v)}" placeholder="${isCloudAdmin()?"Puntos / NJ":"—"}" ${isCloudAdmin()?`onfocus="this.select()" onkeydown="handleFixtureScoreKey(event,${p.id},this,'${rk}')" onchange="setFixtureScore(${p.id},this,'${rk}')"`:"disabled"}>
-      ${captain?`<label class="match-captain-bonus"><span>Bonus cap.</span><input class="captain-bonus-input ${isCloudAdmin()?"":"public-readonly"}" value="${esc(captainBonusRaw(rk,p.id)??"")}" placeholder="${isCloudAdmin()?"Clarín":"—"}" title="Bonus capitán = Calificación Clarín" ${isCloudAdmin()?`onfocus="this.select()" onchange="setCaptainBonus(${p.id},this,'${rk}')"`:"disabled"}></label>`:""}
+      ${captain?`<label class="match-captain-bonus"><span>Bonus cap.</span>${captainBonusInputHtml(rk,p.id,{fixture:true})}</label>`:""}
     </div>
   </div>`;
 }
@@ -4288,7 +4419,7 @@ function renderScores(resetFocus=true){
       <td class="score-col-dt">${esc(m)}</td>
       <td class="score-col-role"><span class="score-role-full">${esc(role)}</span><span class="score-role-short">${role==="Titular"?"T":"S"}</span>${r.captain===p.id?' <span class="badge score-captain">C</span>':""}</td>
       <td class="score-col-result"><input class="scoreinput ${cls} ${isCloudAdmin()?"":"public-readonly"}" data-score-id="${p.id}" value="${esc(v)}" placeholder="${isCloudAdmin()?"Pts/NJ":"—"}" ${isCloudAdmin()?`onfocus="this.select()" onkeydown="handleScoreInputKey(event,${p.id},this)" onchange="setScore(${p.id},this.value)"`:"disabled"}></td>
-      <td class="score-col-bonus">${r.captain===p.id?`<input class="captain-bonus-input ${isCloudAdmin()?"":"public-readonly"}" value="${esc(captainBonusRaw(rk,p.id)??"")}" placeholder="${isCloudAdmin()?"Bonus":"—"}" title="Bonus capitán = Calificación Clarín" ${isCloudAdmin()?`onfocus="this.select()" onchange="setCaptainBonus(${p.id},this,'${rk}')"`:"disabled"}>`:'<span class="muted">—</span>'}</td>
+      <td class="score-col-bonus">${r.captain===p.id?captainBonusInputHtml(rk,p.id):'<span class="muted">—</span>'}</td>
     </tr>`
   }).join("");
   updateRoundOptions();
@@ -4368,6 +4499,15 @@ function formationScore(id,rk){
   if(v==="JUEGA")return {text:"—",cls:"pending"};
   return {text:String(v),cls:"scored"};
 }
+
+function formationCaptainBonus(id,r,rk){
+  if(Number(r?.captain)!==Number(id))return {html:'<span class="formation-bonus-spacer"></span>',field:""};
+  const ui=captainBonusUiState(rk,id);
+  const html=`<span class="formation-bonus-pill ${ui.cls}" title="Bonus capitán">${ui.text}</span>`;
+  const field=`<span class="field-bonus ${ui.cls}" title="Bonus capitán">${ui.text}</span>`;
+  return {html,field};
+}
+
 function formationEditable(m,rk){
   if(!isCloudAdmin())return false;
   if(state.phase==="draft")return true;
@@ -4378,22 +4518,22 @@ function formationDragAttrs(id,m,rk){
   return formationEditable(m,rk)?`draggable="true" ondragstart="formationDragStart(event,${id})" ondragend="formationDragEnd(event)" ondragover="formationDragOver(event)" ondragleave="formationDragLeave(event)" ondrop="formationDrop(event,${id})"`:"";
 }
 function formationPlayerRow(id,r,rk,m){
-  const p=player(id),sc=formationScore(id,rk),role=r.roles[id],drag=formationDragAttrs(id,m,rk),editable=formationEditable(m,rk),captain=r.captain===id;
+  const p=player(id),sc=formationScore(id,rk),role=r.roles[id],drag=formationDragAttrs(id,m,rk),editable=formationEditable(m,rk),captain=r.captain===id,bonus=formationCaptainBonus(id,r,rk);
   const captainControl=role==="Titular"?`<button type="button" class="formation-captain-btn ${captain?"active":""}" title="${captain?"Quitar capitanía":"Hacer capitán"}" ${editable?`onclick="event.stopPropagation();toggleFormationCaptain(${id})"`:'disabled'}>C</button>`:`<span class="formation-captain-spacer"></span>`;
-  return `<div class="form-row ${editable?"formation-draggable":""}" ${drag} style="grid-template-columns:39px minmax(148px,1fr) 82px 30px 48px">
+  return `<div class="form-row ${editable?"formation-draggable":""}" ${drag} style="grid-template-columns:39px minmax(148px,1fr) 82px 30px 48px 48px">
     <span class="pos pos-${p.position}">${p.position}</span>
     <span style="line-height:1.05"><b style="font-size:14.5px">${esc(p.name)}</b><br><small class="muted" style="font-size:10.5px">${esc(p.team)} · ${money(p.price)}</small></span>
-    <span class="badge formation-role"><span class="role-full">${role||"—"}</span><span class="role-short">${role==="Titular"?"T":role==="Suplente"?"S":"—"}</span></span>${captainControl}<span class="score-pill ${sc.cls}">${sc.text}</span>
+    <span class="badge formation-role"><span class="role-full">${role||"—"}</span><span class="role-short">${role==="Titular"?"T":role==="Suplente"?"S":"—"}</span></span>${captainControl}<span class="score-pill ${sc.cls}">${sc.text}</span>${bonus.html}
   </div>`;
 }
 function fieldPlayer(id,r,rk,m){
-  const p=player(id),sc=formationScore(id,rk),short=String(p.name).split(",")[0],drag=formationDragAttrs(id,m,rk),captain=r.captain===id;
+  const p=player(id),sc=formationScore(id,rk),short=String(p.name).split(",")[0],drag=formationDragAttrs(id,m,rk),captain=r.captain===id,bonus=formationCaptainBonus(id,r,rk);
   return `<div class="field-player ${formationEditable(m,rk)?"formation-draggable":""}" ${drag} title="${esc(p.name)}">
     ${captain?'<div class="captain-badge">C</div>':""}
     <div class="player-dot pos-${p.position}">${p.position}</div>
     <div class="field-name">${esc(short)}</div>
     <div class="field-team">${esc(p.team)}</div>
-    <span class="field-score ${sc.cls}">${sc.text}</span>
+    <div class="field-score-line"><span class="field-score ${sc.cls}">${sc.text}</span>${bonus.field}</div>
   </div>`;
 }
 function toggleFormationCaptain(id){

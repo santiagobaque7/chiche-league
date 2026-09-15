@@ -1,14 +1,12 @@
-V93 · SUBIR A GITHUB
+V94 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
 - ChicheLeague_Clausura2026.html
 
-Cambios:
-- Bonus capitán visible en Formaciones (listado + cancha).
-- Funciona en desktop y mobile.
-- Si el capitán tiene NO JUEGA, su Bonus capitán muestra NJ y queda bloqueado.
-- Al marcar NJ se elimina cualquier bonus previo de ese jugador/fecha.
+Corrección Fecha 9 · Fede:
+- Oviedo, Brandon = Titular
+- Mondino, Diego = Suplente
 
 No tocar Supabase manualmente.
-No hace falta modificar api/chiche-cloud.js ni vercel.json.
+Después del deploy, ingresar una vez como Admin para sincronizar la corrección.

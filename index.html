@@ -2665,6 +2665,38 @@ function patchTanguitaFernandezAldosivi(){
 }
 
 
+
+function patchFedeFecha9OviedoTitular(){
+  if(state?.fedeFecha9OviedoPatch==="2026-09-15")return false;
+
+  const oviedo=(state.players||[]).find(p=>p.name==="Oviedo, Brandon");
+  const mondino=(state.players||[]).find(p=>p.name==="Mondino, Diego");
+  if(!oviedo||!mondino)return false;
+
+  const oid=Number(oviedo.id),mid=Number(mondino.id);
+  let changed=false;
+
+  const fix=(r)=>{
+    if(!r||!Array.isArray(r.picks))return false;
+    if(!r.picks.includes(oid)||!r.picks.includes(mid))return false;
+    if(!r.roles||typeof r.roles!=="object")r.roles={};
+
+    let local=false;
+    if(r.roles[oid]!=="Titular"){r.roles[oid]="Titular";local=true}
+    if(r.roles[mid]!=="Suplente"){r.roles[mid]="Suplente";local=true}
+    return local;
+  };
+
+  if(fix(state.confirmedTeams?.Fede))changed=true;
+  if(fix(state.draftRosters?.Fede))changed=true;
+  if(fix(state.rosterHistory?.["9"]?.Fede))changed=true;
+
+  state.fedeFecha9OviedoPatch="2026-09-15";
+  if(changed)cloudStateNeedsMigrationSave=true;
+  return changed;
+}
+
+
 function patchAlvaFecha8Captain(){
   if(state?.alvaFecha8LencioniCaptainPatch==="2026-09-06")return false;
   const lencioni=(state.players||[]).find(p=>p.name==="Lencioni, Facundo");
@@ -2845,6 +2877,7 @@ function normalizeCloudState(){
   patchDomanMaroniFecha8();
   patchDomanFecha8Roles();
   patchTanguitaFernandezAldosivi();
+  patchFedeFecha9OviedoTitular();
   patchAlvaFecha8Captain();
 }
 
@@ -3142,6 +3175,7 @@ function loadState(){
   patchDomanMaroniFecha8();
   patchDomanFecha8Roles();
   patchTanguitaFernandezAldosivi();
+  patchFedeFecha9OviedoTitular();
   patchAlvaFecha8Captain();
     if(state.lateJoin){
       if(!Array.isArray(state.lateJoin.names)){

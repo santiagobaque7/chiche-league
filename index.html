@@ -1980,6 +1980,153 @@ body.app-booting > .modal{visibility:hidden!important}
   }
 }
 
+
+/* V97 · Tabla general multi-desplegable y proporciones estables */
+.general-rank-chevron{display:none!important}
+
+.general-rank-main{
+  height:31px!important;
+  min-height:31px!important;
+}
+.general-rank-main td{
+  height:31px!important;
+  min-height:31px!important;
+  padding-top:3px!important;
+  padding-bottom:3px!important;
+  vertical-align:middle!important;
+}
+.general-rank-main.expanded{
+  background:#142536!important;
+  box-shadow:inset 3px 0 0 #4b96e6;
+}
+
+/* La tarjeta de fecha nunca cambia su densidad aunque se abran detalles abajo. */
+#scoresRoundCard{
+  height:auto!important;
+  align-self:start!important;
+}
+#scoresRoundCard .tablewrap{
+  height:auto!important;
+  flex:none!important;
+}
+#scoresRoundCard table,
+#scoresRoundCard tbody{
+  height:auto!important;
+}
+#scoresRoundCard tbody tr{
+  height:31px!important;
+}
+#scoresRoundCard tbody td{
+  height:31px!important;
+  padding-top:3px!important;
+  padding-bottom:3px!important;
+}
+
+/* La tabla general mantiene sus filas principales con la misma altura.
+   Los detalles agregan contenido debajo, sin recalcular el alto del resto. */
+#scoresGeneralCard{
+  height:auto!important;
+  align-self:start!important;
+}
+#scoresGeneralCard .tablewrap{
+  height:auto!important;
+  flex:none!important;
+}
+#scoresGeneralCard table,
+#scoresGeneralCard tbody{
+  height:auto!important;
+}
+#scoresGeneralCard tbody tr.general-rank-main{
+  height:31px!important;
+}
+
+/* En desktop, si el detalle total supera el espacio disponible,
+   sólo la Tabla general tiene scroll interno. La tabla de fecha no se estira. */
+@media(min-width:1101px){
+  .scores-side{
+    grid-template-rows:auto minmax(0,1fr)!important;
+    align-content:start!important;
+  }
+  #scoresGeneralCard.general-expanded{
+    min-height:0!important;
+    max-height:calc(100vh - 390px)!important;
+  }
+  #scoresGeneralCard.general-expanded .tablewrap{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    min-height:0!important;
+    flex:1!important;
+  }
+}
+
+/* Mobile/tablet: ambas tablas tienen altura natural.
+   Abrir uno o varios DT sólo empuja contenido hacia abajo. */
+@media(max-width:1100px){
+  #scores .scores-side{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:8px!important;
+  }
+  #scores .scores-rank-card{
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+    flex:none!important;
+  }
+  #scores .scores-rank-card .tablewrap{
+    height:auto!important;
+    max-height:none!important;
+    overflow:visible!important;
+    flex:none!important;
+  }
+  #scores .scores-rank-card table,
+  #scores .scores-rank-card tbody{
+    height:auto!important;
+  }
+  #scores .scores-rank-card tbody tr:not(.general-rank-detail){
+    height:31px!important;
+  }
+  #scores .scores-rank-card tbody td{
+    padding-top:3px!important;
+    padding-bottom:3px!important;
+  }
+}
+
+/* Detalles compactos: no alteran el ancho de las columnas principales. */
+.general-rank-detail{
+  height:auto!important;
+}
+.general-rank-detail>td{
+  height:auto!important;
+  padding:0!important;
+}
+.general-history{
+  padding:6px 8px 8px!important;
+  gap:4px!important;
+}
+.general-history-row{
+  min-height:34px!important;
+  padding:5px 8px!important;
+}
+
+/* Mobile más compacto aún */
+@media(max-width:620px){
+  .general-rank-main,
+  .general-rank-main td,
+  #scoresRoundCard tbody tr,
+  #scoresRoundCard tbody td{
+    height:31px!important;
+    min-height:31px!important;
+  }
+  .general-history{
+    padding:5px 6px 7px!important;
+  }
+  .general-history-row{
+    min-height:33px!important;
+    padding:5px 6px!important;
+  }
+}
+
 </style>
 </head>
 <body class="app-booting">
@@ -4735,13 +4882,44 @@ function calcTeamRound(m,rk){
 function allRounds(){return Object.keys(state.rounds).filter(k=>Object.keys(state.rounds[k]||{}).length).sort((a,b)=>Number(a)-Number(b))}
 function updateRoundOptions(){}
 
-let generalRankingExpandedManager=sessionStorage.getItem("chicheGeneralExpandedManager")||null;
+let generalRankingExpandedManagers=(()=>{
+  try{
+    const raw=JSON.parse(sessionStorage.getItem("chicheGeneralExpandedManagers")||"[]");
+    return new Set(Array.isArray(raw)?raw:[]);
+  }catch(e){
+    return new Set();
+  }
+})();
 let formationNavigationTarget=null;
 
+function persistGeneralExpandedManagers(){
+  sessionStorage.setItem("chicheGeneralExpandedManagers",JSON.stringify([...generalRankingExpandedManagers]));
+}
+function cleanGeneralExpandedManagers(){
+  const valid=new Set(state.participants||[]);
+  let changed=false;
+  [...generalRankingExpandedManagers].forEach(m=>{
+    if(!valid.has(m)){
+      generalRankingExpandedManagers.delete(m);
+      changed=true;
+    }
+  });
+  if(changed)persistGeneralExpandedManagers();
+}
+function isGeneralManagerExpanded(manager){
+  return generalRankingExpandedManagers.has(manager);
+}
+function toggleGeneralRankingManager(manager){
+  if(generalRankingExpandedManagers.has(manager))generalRankingExpandedManagers.delete(manager);
+  else generalRankingExpandedManagers.add(manager);
+  persistGeneralExpandedManagers();
+  renderRankingTables("scoresRoundRanking","scoresGeneralRanking","scoresRoundRankingTitle",roundKey());
+}
 function rememberGeneralExpandedManager(manager){
-  generalRankingExpandedManager=manager||null;
-  if(generalRankingExpandedManager)sessionStorage.setItem("chicheGeneralExpandedManager",generalRankingExpandedManager);
-  else sessionStorage.removeItem("chicheGeneralExpandedManager");
+  if(manager&&!generalRankingExpandedManagers.has(manager)){
+    generalRankingExpandedManagers.add(manager);
+    persistGeneralExpandedManagers();
+  }
 }
 
 function generalManagerHistory(manager){
@@ -4760,11 +4938,6 @@ function generalManagerHistory(manager){
       complete:roundComplete(String(rk))
     };
   });
-}
-
-function toggleGeneralRankingManager(manager){
-  rememberGeneralExpandedManager(generalRankingExpandedManager===manager?null:manager);
-  renderRankingTables("scoresRoundRanking","scoresGeneralRanking","scoresRoundRankingTitle",roundKey());
 }
 
 function openGeneralRoundFormation(manager,rk){
@@ -4800,25 +4973,23 @@ function generalRankingRows(){
   return state.participants.map(m=>{const activeRounds=rounds.filter(r=>participantActiveInRound(m,r));return {m,total:activeRounds.reduce((s,r)=>s+calcTeamRound(m,r).total,0),dates:activeRounds.length,start:participantStartRound(m)}}).sort((a,b)=>b.total-a.total||a.m.localeCompare(b.m));
 }
 function renderRankingTables(roundTbodyId,generalTbodyId,titleId,rk){
-  if(generalRankingExpandedManager&&!state.participants.includes(generalRankingExpandedManager)){
-    rememberGeneralExpandedManager(null);
-  }
+  cleanGeneralExpandedManagers();
   if($(titleId))$(titleId).textContent=`Tabla · Fecha ${rk}`;
   const roundRows=roundRankingRows(rk);
   $(roundTbodyId).innerHTML=roundRows.length?roundRows.map((x,i)=>`<tr><td class="ranknum">${i+1}</td><td class="name">${esc(x.m)}</td><td><b>${x.total}</b></td><td>${x.subs}</td><td>${x.pending}</td></tr>`).join(""):`<tr><td colspan="5" class="muted" style="text-align:center">Todavía no hay puntajes cargados.</td></tr>`;
 
   const gen=generalRankingRows();
   const generalCard=$("scoresGeneralCard");
-  if(generalCard)generalCard.classList.toggle("general-expanded",!!generalRankingExpandedManager);
+  if(generalCard)generalCard.classList.toggle("general-expanded",generalRankingExpandedManagers.size>0);
 
   $(generalTbodyId).innerHTML=gen.length?gen.map((x,i)=>{
-    const expanded=generalRankingExpandedManager===x.m;
+    const expanded=isGeneralManagerExpanded(x.m);
     const encoded=encodeURIComponent(x.m);
-    return `<tr class="general-rank-main ${expanded?"expanded":""}" tabindex="0"
+    return `<tr class="general-rank-main ${expanded?"expanded":""}" tabindex="0" aria-expanded="${expanded?"true":"false"}"
       onclick="toggleGeneralRankingManager(decodeURIComponent('${encoded}'))"
       onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleGeneralRankingManager(decodeURIComponent('${encoded}'))}">
       <td class="ranknum">${i+1}</td>
-      <td class="name"><span class="general-manager-name">${esc(x.m)}</span><span class="general-rank-chevron">${expanded?"▴":"▾"}</span></td>
+      <td class="name"><span class="general-manager-name">${esc(x.m)}</span></td>
       <td><b>${x.total}</b></td>
       <td>${x.dates}</td>
     </tr>

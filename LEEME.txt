@@ -1,16 +1,16 @@
-V96 · SUBIR A GITHUB
+V97 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
 - ChicheLeague_Clausura2026.html
 
-NOVEDADES
-- Tabla general: tocar un DT despliega Fecha / Puntos / Posición.
-- Tocar una fecha abre Formaciones con ese DT y esa fecha.
-- El DT permanece desplegado al navegar a otra solapa y volver a Puntajes.
-- También se conserva durante la sesión del navegador.
-- Tabla de Fecha y Tabla General alinean exactamente sus primeras 3 columnas:
-  # / DT / Puntos-Total.
+CAMBIOS
+- Se pueden desplegar varios DT de la Tabla general al mismo tiempo.
+- Los desplegados permanecen abiertos durante la sesión al navegar por otras vistas.
+- Se elimina el icono/flechita junto al nombre del DT.
+- Abrir resúmenes ya no cambia el tamaño ni la proporción de las filas de las tablas.
+- Corrección especialmente aplicada a mobile.
+- Se mantiene la alineación # / DT / Puntos-Total entre ambas tablas.
 
 No tocar Supabase manualmente.
 No cambia api/chiche-cloud.js ni vercel.json.

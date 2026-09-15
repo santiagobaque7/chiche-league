@@ -2273,6 +2273,117 @@ body.app-booting > .modal{visibility:hidden!important}
   }
 }
 
+
+/* V100 · FIX DEFINITIVO DE ALTURA EN PUNTAJES */
+
+/* Reservamos aire real dentro de la vista, no fuera de ella. */
+#scores.active{
+  height:calc(100dvh - 56px)!important;
+  padding-bottom:8px!important;
+  overflow:hidden!important;
+}
+#scores .scores-unified{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  padding-bottom:0!important;
+}
+
+/* DESKTOP:
+   ambas columnas comparten exactamente el mismo alto útil. */
+@media(min-width:1101px){
+  #scores .scores-side{
+    height:100%!important;
+    min-height:0!important;
+    display:grid!important;
+    grid-template-rows:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:10px!important;
+    overflow:hidden!important;
+  }
+
+  #scores .scores-entry-card,
+  #scores #scoresRoundCard,
+  #scores #scoresGeneralCard{
+    height:100%!important;
+    min-height:0!important;
+    max-height:none!important;
+    margin:0!important;
+    overflow:hidden!important;
+  }
+
+  /* Las tablas de ranking llenan su mitad sin empujar el contenedor. */
+  #scores #scoresRoundCard .tablewrap,
+  #scores #scoresGeneralCard .tablewrap{
+    flex:1 1 auto!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow:hidden!important;
+  }
+
+  /* Cerrada: entran los 10 DT dentro de su mitad, sin scrollbar. */
+  #scores #scoresGeneralCard:not(.general-expanded) .tablewrap{
+    overflow:hidden!important;
+  }
+
+  /* Abierta: misma altura exterior, scroll sólo dentro de Tabla general. */
+  #scores #scoresGeneralCard.general-expanded .tablewrap{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    scrollbar-gutter:stable;
+    overscroll-behavior:contain;
+  }
+
+  /* Volvemos a usar distribución automática de filas para que
+     10 participantes ocupen exactamente la tarjeta disponible. */
+  #scores #scoresRoundCard table,
+  #scores #scoresGeneralCard table{
+    height:100%!important;
+    table-layout:fixed!important;
+  }
+  #scores #scoresRoundCard tbody,
+  #scores #scoresGeneralCard:not(.general-expanded) tbody{
+    height:calc(100% - 28px)!important;
+  }
+  #scores #scoresRoundCard tbody tr,
+  #scores #scoresGeneralCard:not(.general-expanded) tbody tr.general-rank-main{
+    height:auto!important;
+    min-height:0!important;
+  }
+  #scores #scoresRoundCard tbody td,
+  #scores #scoresGeneralCard:not(.general-expanded) tbody tr.general-rank-main td{
+    height:auto!important;
+    min-height:0!important;
+    padding-top:4px!important;
+    padding-bottom:4px!important;
+  }
+
+  /* Con detalles abiertos ya no forzamos height:100% del tbody,
+     para que el scroll interno represente contenido real. */
+  #scores #scoresGeneralCard.general-expanded table,
+  #scores #scoresGeneralCard.general-expanded tbody{
+    height:auto!important;
+  }
+  #scores #scoresGeneralCard.general-expanded tbody tr.general-rank-main{
+    height:31px!important;
+    min-height:31px!important;
+  }
+}
+
+/* MOBILE/TABLET:
+   mantenemos altura natural y no aplicamos el recorte desktop. */
+@media(max-width:1100px){
+  #scores.active{
+    height:auto!important;
+    min-height:calc(100dvh - 56px)!important;
+    padding-bottom:12px!important;
+    overflow:visible!important;
+  }
+  #scores .scores-side{
+    height:auto!important;
+    overflow:visible!important;
+  }
+}
+
 </style>
 </head>
 <body class="app-booting">

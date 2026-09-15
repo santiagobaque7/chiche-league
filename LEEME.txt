@@ -1,15 +1,17 @@
-V99 · SUBIR A GITHUB
+V100 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
 - ChicheLeague_Clausura2026.html
 
-AJUSTE VISUAL
-- Se agrega margen inferior a la vista Puntajes.
-- Tabla general ya no toca el borde inferior de la pantalla.
-- El espaciado queda alineado visualmente con el listado de jugadores.
-- Se mantiene el scroll interno al desplegar uno o varios DT.
-- No se modifican datos ni lógica del torneo.
+FIX DEFINITIVO PUNTAJES
+- La columna derecha usa exactamente el mismo alto útil que el listado de jugadores.
+- Tabla de Fecha y Tabla General se reparten ese alto.
+- El borde inferior de Tabla General queda siempre visible.
+- Se deja margen inferior real dentro del viewport.
+- Cerrada: Tabla General muestra los 10 DT sin scroll.
+- Abierta: el scroll aparece dentro de Tabla General.
+- Mobile mantiene altura natural.
 
 No tocar Supabase manualmente.
 No cambia api/chiche-cloud.js ni vercel.json.

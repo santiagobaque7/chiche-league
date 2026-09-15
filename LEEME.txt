@@ -1,17 +1,14 @@
-V100 · SUBIR A GITHUB
+V102 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
 - ChicheLeague_Clausura2026.html
 
-FIX DEFINITIVO PUNTAJES
-- La columna derecha usa exactamente el mismo alto útil que el listado de jugadores.
-- Tabla de Fecha y Tabla General se reparten ese alto.
-- El borde inferior de Tabla General queda siempre visible.
-- Se deja margen inferior real dentro del viewport.
-- Cerrada: Tabla General muestra los 10 DT sin scroll.
-- Abierta: el scroll aparece dentro de Tabla General.
-- Mobile mantiene altura natural.
+AJUSTE
+- En el detalle de Tabla general, los encabezados PUNTOS y POSICIÓN
+  quedan alineados exactamente con sus valores.
+- Se mantiene la misma grilla para encabezado y filas.
+- No se modifica ninguna lógica ni dato.
 
-No tocar Supabase manualmente.
+No tocar Supabase.
 No cambia api/chiche-cloud.js ni vercel.json.

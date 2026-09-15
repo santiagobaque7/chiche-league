@@ -1,15 +1,15 @@
-V98 · SUBIR A GITHUB
+V99 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
 - ChicheLeague_Clausura2026.html
 
-CORRECCIÓN TABLA GENERAL
-- Sin DT desplegados: aparecen siempre los 10 DT completos y sin scrollbar.
-- Con uno o más DT desplegados: se habilita scrollbar interno en Tabla general.
-- La barra permite llegar hasta el último DT aunque haya varios resúmenes abiertos.
-- La Tabla de la Fecha no cambia de altura ni proporciones.
-- Se mantiene multi-desplegable y sin iconos junto al DT.
+AJUSTE VISUAL
+- Se agrega margen inferior a la vista Puntajes.
+- Tabla general ya no toca el borde inferior de la pantalla.
+- El espaciado queda alineado visualmente con el listado de jugadores.
+- Se mantiene el scroll interno al desplegar uno o varios DT.
+- No se modifican datos ni lógica del torneo.
 
 No tocar Supabase manualmente.
 No cambia api/chiche-cloud.js ni vercel.json.

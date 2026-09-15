@@ -2241,6 +2241,38 @@ body.app-booting > .modal{visibility:hidden!important}
   }
 }
 
+
+/* V99 · margen inferior consistente en Puntajes */
+#scores .scores-unified{
+  padding-bottom:10px!important;
+  box-sizing:border-box!important;
+}
+#scores .scores-side{
+  padding-bottom:0!important;
+  box-sizing:border-box!important;
+}
+
+/* La última tarjeta de la derecha conserva el mismo aire visual
+   que el listado de jugadores de la izquierda. */
+#scoresGeneralCard{
+  margin-bottom:0!important;
+}
+
+/* En escritorio, el cálculo disponible para la tabla desplegada
+   contempla el nuevo margen y evita que roce el borde inferior. */
+@media(min-width:1101px){
+  #scoresGeneralCard.general-expanded{
+    max-height:calc(100vh - 555px)!important;
+  }
+}
+
+/* En mobile/tablet también dejamos separación real del borde inferior. */
+@media(max-width:1100px){
+  #scores .scores-unified{
+    padding-bottom:12px!important;
+  }
+}
+
 </style>
 </head>
 <body class="app-booting">

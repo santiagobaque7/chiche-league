@@ -1736,6 +1736,250 @@ body.app-booting > .modal{visibility:hidden!important}
   }
 }
 
+
+/* V95 · Tabla general interactiva */
+.general-rank-main{
+  cursor:pointer;
+  transition:background .12s ease;
+}
+.general-rank-main:hover,
+.general-rank-main:focus{
+  background:#142536;
+  outline:none;
+}
+.general-rank-main.expanded{
+  background:#142536;
+}
+.general-manager-name{
+  display:inline-block;
+  vertical-align:middle;
+}
+.general-rank-chevron{
+  display:inline-flex;
+  margin-left:6px;
+  color:#64a9ee;
+  font-size:10px;
+  vertical-align:middle;
+}
+.general-rank-detail td{
+  padding:0!important;
+  background:#0c151e;
+  white-space:normal!important;
+}
+.general-history{
+  padding:7px 8px 9px;
+  display:grid;
+  gap:4px;
+}
+.general-history-head,
+.general-history-row{
+  display:grid;
+  grid-template-columns:minmax(80px,1.2fr) .75fr .8fr 24px;
+  gap:7px;
+  align-items:center;
+}
+.general-history-head{
+  padding:1px 8px 4px;
+  color:#718da7;
+  font-size:8.5px;
+  text-transform:uppercase;
+  font-weight:800;
+}
+.general-history-row{
+  width:100%;
+  border:1px solid #223b51;
+  border-radius:7px;
+  background:#101d29;
+  color:#e9f1f8;
+  padding:6px 8px;
+  text-align:left;
+  cursor:pointer;
+}
+.general-history-row:hover{
+  border-color:#3c72a3;
+  background:#142638;
+}
+.general-history-row span:first-child{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  min-width:0;
+}
+.general-history-row b{
+  font-size:10.5px;
+}
+.general-history-row small{
+  display:inline-flex;
+  border:1px solid #6f5d31;
+  border-radius:999px;
+  padding:1px 5px;
+  color:#e3c97e;
+  font-size:7.5px;
+  font-weight:800;
+}
+.general-history-points{
+  font-weight:1000;
+  color:#f4f8fc;
+  text-align:center;
+}
+.general-history-position{
+  font-weight:900;
+  color:#7dbbfa;
+  text-align:center;
+}
+.general-history-arrow{
+  color:#59a3ee;
+  font-weight:1000;
+  text-align:right;
+}
+.general-history-empty{
+  padding:10px;
+  text-align:center;
+  color:#7f95a9;
+  font-size:9.5px;
+}
+
+/* Normal: siguen entrando los 10 DT sin scroll.
+   Sólo cuando se despliega uno habilitamos scroll interno en esa tarjeta. */
+#scoresGeneralCard.general-expanded .tablewrap{
+  overflow:auto!important;
+}
+#scoresGeneralCard.general-expanded table,
+#scoresGeneralCard.general-expanded tbody{
+  height:auto!important;
+}
+#scoresGeneralCard.general-expanded tbody tr{
+  height:auto!important;
+}
+
+@media(max-width:1100px){
+  #scoresGeneralCard.general-expanded .tablewrap{
+    overflow:visible!important;
+  }
+  #scoresGeneralCard.general-expanded{
+    overflow:visible!important;
+  }
+}
+
+@media(max-width:620px){
+  .general-rank-chevron{
+    margin-left:4px;
+    font-size:9px;
+  }
+  .general-history{
+    padding:6px;
+    gap:4px;
+  }
+  .general-history-head,
+  .general-history-row{
+    grid-template-columns:minmax(72px,1.1fr) .7fr .8fr 18px;
+    gap:4px;
+  }
+  .general-history-head{
+    font-size:7.5px;
+    padding-left:6px;
+    padding-right:6px;
+  }
+  .general-history-row{
+    min-height:36px;
+    padding:5px 6px;
+  }
+  .general-history-row b{
+    font-size:9.5px;
+  }
+  .general-history-row small{
+    font-size:6.8px;
+    padding:1px 4px;
+  }
+  .general-history-points,
+  .general-history-position{
+    font-size:10px;
+  }
+}
+
+
+/* V96 · Alineación entre Tabla Fecha y Tabla General */
+#scoresRoundCard table,
+#scoresGeneralCard table{
+  table-layout:fixed!important;
+}
+
+/* Las primeras tres columnas comparten exactamente la misma geometría */
+#scoresRoundCard th:nth-child(1),
+#scoresRoundCard td:nth-child(1),
+#scoresGeneralCard th:nth-child(1),
+#scoresGeneralCard td:nth-child(1){
+  width:8%!important;
+  text-align:left!important;
+}
+#scoresRoundCard th:nth-child(2),
+#scoresRoundCard td:nth-child(2),
+#scoresGeneralCard th:nth-child(2),
+#scoresGeneralCard td:nth-child(2){
+  width:39%!important;
+  text-align:left!important;
+}
+#scoresRoundCard th:nth-child(3),
+#scoresRoundCard td:nth-child(3),
+#scoresGeneralCard th:nth-child(3),
+#scoresGeneralCard td:nth-child(3){
+  width:20%!important;
+  text-align:left!important;
+}
+
+/* El espacio restante se reparte según las columnas propias de cada tabla */
+#scoresRoundCard th:nth-child(4),
+#scoresRoundCard td:nth-child(4){
+  width:17%!important;
+}
+#scoresRoundCard th:nth-child(5),
+#scoresRoundCard td:nth-child(5){
+  width:16%!important;
+}
+#scoresGeneralCard th:nth-child(4),
+#scoresGeneralCard td:nth-child(4){
+  width:33%!important;
+}
+
+/* Al expandir un DT, el encabezado principal conserva la misma alineación */
+#scoresGeneralCard .general-rank-main td:nth-child(1){width:8%!important}
+#scoresGeneralCard .general-rank-main td:nth-child(2){width:39%!important}
+#scoresGeneralCard .general-rank-main td:nth-child(3){width:20%!important}
+#scoresGeneralCard .general-rank-main td:nth-child(4){width:33%!important}
+
+@media(max-width:620px){
+  #scoresRoundCard th:nth-child(1),
+  #scoresRoundCard td:nth-child(1),
+  #scoresGeneralCard th:nth-child(1),
+  #scoresGeneralCard td:nth-child(1){
+    width:9%!important;
+  }
+  #scoresRoundCard th:nth-child(2),
+  #scoresRoundCard td:nth-child(2),
+  #scoresGeneralCard th:nth-child(2),
+  #scoresGeneralCard td:nth-child(2){
+    width:37%!important;
+  }
+  #scoresRoundCard th:nth-child(3),
+  #scoresRoundCard td:nth-child(3),
+  #scoresGeneralCard th:nth-child(3),
+  #scoresGeneralCard td:nth-child(3){
+    width:19%!important;
+  }
+  #scoresRoundCard th:nth-child(4),
+  #scoresRoundCard td:nth-child(4){
+    width:18%!important;
+  }
+  #scoresRoundCard th:nth-child(5),
+  #scoresRoundCard td:nth-child(5){
+    width:17%!important;
+  }
+  #scoresGeneralCard th:nth-child(4),
+  #scoresGeneralCard td:nth-child(4){
+    width:35%!important;
+  }
+}
+
 </style>
 </head>
 <body class="app-booting">
@@ -1942,8 +2186,8 @@ body.app-booting > .modal{visibility:hidden!important}
       </table></div>
     </div>
     <div class="scores-side">
-      <div class="card scores-rank-card"><div class="cardhead"><h3 id="scoresRoundRankingTitle">Tabla de la fecha</h3></div><div class="tablewrap"><table><thead><tr><th>#</th><th>DT</th><th>Puntos</th><th>Suplentes</th><th>Pend.</th></tr></thead><tbody id="scoresRoundRanking"></tbody></table></div></div>
-      <div class="card scores-rank-card"><div class="cardhead"><h3>Tabla general</h3></div><div class="tablewrap"><table><thead><tr><th>#</th><th>DT</th><th>Total</th><th>Fechas</th></tr></thead><tbody id="scoresGeneralRanking"></tbody></table></div></div>
+      <div id="scoresRoundCard" class="card scores-rank-card"><div class="cardhead"><h3 id="scoresRoundRankingTitle">Tabla de la fecha</h3></div><div class="tablewrap"><table><thead><tr><th>#</th><th>DT</th><th>Puntos</th><th>Suplentes</th><th>Pend.</th></tr></thead><tbody id="scoresRoundRanking"></tbody></table></div></div>
+      <div id="scoresGeneralCard" class="card scores-rank-card"><div class="cardhead"><h3>Tabla general</h3></div><div class="tablewrap"><table><thead><tr><th>#</th><th>DT</th><th>Total</th><th>Fechas</th></tr></thead><tbody id="scoresGeneralRanking"></tbody></table></div></div>
     </div>
   </div>
 
@@ -4490,6 +4734,64 @@ function calcTeamRound(m,rk){
 }
 function allRounds(){return Object.keys(state.rounds).filter(k=>Object.keys(state.rounds[k]||{}).length).sort((a,b)=>Number(a)-Number(b))}
 function updateRoundOptions(){}
+
+let generalRankingExpandedManager=sessionStorage.getItem("chicheGeneralExpandedManager")||null;
+let formationNavigationTarget=null;
+
+function rememberGeneralExpandedManager(manager){
+  generalRankingExpandedManager=manager||null;
+  if(generalRankingExpandedManager)sessionStorage.setItem("chicheGeneralExpandedManager",generalRankingExpandedManager);
+  else sessionStorage.removeItem("chicheGeneralExpandedManager");
+}
+
+function generalManagerHistory(manager){
+  const rounds=allRounds()
+    .filter(rk=>participantActiveInRound(manager,rk))
+    .sort((a,b)=>Number(b)-Number(a));
+
+  return rounds.map(rk=>{
+    const result=calcTeamRound(manager,rk);
+    const ranking=roundRankingRows(rk);
+    const position=ranking.findIndex(x=>x.m===manager)+1;
+    return {
+      round:String(rk),
+      points:result.total,
+      position:position>0?position:null,
+      complete:roundComplete(String(rk))
+    };
+  });
+}
+
+function toggleGeneralRankingManager(manager){
+  rememberGeneralExpandedManager(generalRankingExpandedManager===manager?null:manager);
+  renderRankingTables("scoresRoundRanking","scoresGeneralRanking","scoresRoundRankingTitle",roundKey());
+}
+
+function openGeneralRoundFormation(manager,rk){
+  rememberGeneralExpandedManager(manager);
+  formationNavigationTarget={manager,round:String(rk)};
+  setPage("formations");
+}
+
+function generalHistoryHtml(manager){
+  const history=generalManagerHistory(manager);
+  if(!history.length){
+    return `<div class="general-history-empty">Todavía no tiene fechas con puntajes.</div>`;
+  }
+
+  return `<div class="general-history">
+    <div class="general-history-head">
+      <span>Fecha</span><span>Puntos</span><span>Posición</span><span></span>
+    </div>
+    ${history.map(x=>`<button type="button" class="general-history-row" onclick="event.stopPropagation();openGeneralRoundFormation(decodeURIComponent('${encodeURIComponent(manager)}'),'${x.round}')">
+      <span><b>Fecha ${x.round}</b>${x.complete?"":'<small>En curso</small>'}</span>
+      <span class="general-history-points">${x.points}</span>
+      <span class="general-history-position">${x.position?`${x.position}°`:"—"}</span>
+      <span class="general-history-arrow">→</span>
+    </button>`).join("")}
+  </div>`;
+}
+
 function roundRankingRows(rk){
   return state.participants.filter(m=>participantActiveInRound(m,rk)).map(m=>({m,...calcTeamRound(m,rk)})).sort((a,b)=>b.total-a.total||a.m.localeCompare(b.m));
 }
@@ -4498,11 +4800,30 @@ function generalRankingRows(){
   return state.participants.map(m=>{const activeRounds=rounds.filter(r=>participantActiveInRound(m,r));return {m,total:activeRounds.reduce((s,r)=>s+calcTeamRound(m,r).total,0),dates:activeRounds.length,start:participantStartRound(m)}}).sort((a,b)=>b.total-a.total||a.m.localeCompare(b.m));
 }
 function renderRankingTables(roundTbodyId,generalTbodyId,titleId,rk){
+  if(generalRankingExpandedManager&&!state.participants.includes(generalRankingExpandedManager)){
+    rememberGeneralExpandedManager(null);
+  }
   if($(titleId))$(titleId).textContent=`Tabla · Fecha ${rk}`;
   const roundRows=roundRankingRows(rk);
   $(roundTbodyId).innerHTML=roundRows.length?roundRows.map((x,i)=>`<tr><td class="ranknum">${i+1}</td><td class="name">${esc(x.m)}</td><td><b>${x.total}</b></td><td>${x.subs}</td><td>${x.pending}</td></tr>`).join(""):`<tr><td colspan="5" class="muted" style="text-align:center">Todavía no hay puntajes cargados.</td></tr>`;
+
   const gen=generalRankingRows();
-  $(generalTbodyId).innerHTML=gen.length?gen.map((x,i)=>`<tr><td class="ranknum">${i+1}</td><td class="name">${esc(x.m)}</td><td><b>${x.total}</b></td><td>${x.dates}</td></tr>`).join(""):`<tr><td colspan="4" class="muted" style="text-align:center">Todavía no hay datos acumulados.</td></tr>`;
+  const generalCard=$("scoresGeneralCard");
+  if(generalCard)generalCard.classList.toggle("general-expanded",!!generalRankingExpandedManager);
+
+  $(generalTbodyId).innerHTML=gen.length?gen.map((x,i)=>{
+    const expanded=generalRankingExpandedManager===x.m;
+    const encoded=encodeURIComponent(x.m);
+    return `<tr class="general-rank-main ${expanded?"expanded":""}" tabindex="0"
+      onclick="toggleGeneralRankingManager(decodeURIComponent('${encoded}'))"
+      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleGeneralRankingManager(decodeURIComponent('${encoded}'))}">
+      <td class="ranknum">${i+1}</td>
+      <td class="name"><span class="general-manager-name">${esc(x.m)}</span><span class="general-rank-chevron">${expanded?"▴":"▾"}</span></td>
+      <td><b>${x.total}</b></td>
+      <td>${x.dates}</td>
+    </tr>
+    ${expanded?`<tr class="general-rank-detail"><td colspan="4">${generalHistoryHtml(x.m)}</td></tr>`:""}`;
+  }).join(""):`<tr><td colspan="4" class="muted" style="text-align:center">Todavía no hay datos acumulados.</td></tr>`;
 }
 function renderResults(){
   if(state.phase!=="confirmed")return;
@@ -4653,11 +4974,22 @@ function changeFormationRole(id,role){
 }
 
 function renderFormations(){
-  const prevM=$("formationManager").value;
+  const target=formationNavigationTarget;
+  const prevM=target?.manager||$("formationManager").value;
   $("formationManager").innerHTML=participantsAlphabetical(state.participants).map(m=>`<option>${esc(m)}</option>`).join("");
   const alphabeticalManagers=participantsAlphabetical(state.participants);
   $("formationManager").value=state.participants.includes(prevM)?prevM:(alphabeticalManagers[0]||"");
+
+  if(target?.round)$("formationRound").value=String(target.round);
   formationRoundOptions();
+
+  if(target){
+    if(state.participants.includes(target.manager))$("formationManager").value=target.manager;
+    const roundExists=[...$("formationRound").options].some(o=>o.value===String(target.round));
+    if(roundExists)$("formationRound").value=String(target.round);
+    formationNavigationTarget=null;
+  }
+
   const m=$("formationManager").value,rk=$("formationRound").value||"5";
   if(!participantActiveInRound(m,rk)){
     const rosterTitleInactive=`Plantel de ${esc(m)} <span class="muted" style="font-size:13px;font-weight:700">· ${money(rosterBudget(state.phase==="draft"?(state.draftRosters[m]||emptyRoster()):(state.confirmedTeams[m]||emptyRoster())) )}</span>`;

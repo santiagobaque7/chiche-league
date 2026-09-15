@@ -1,12 +1,16 @@
-V94 · SUBIR A GITHUB
+V96 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
 - ChicheLeague_Clausura2026.html
 
-Corrección Fecha 9 · Fede:
-- Oviedo, Brandon = Titular
-- Mondino, Diego = Suplente
+NOVEDADES
+- Tabla general: tocar un DT despliega Fecha / Puntos / Posición.
+- Tocar una fecha abre Formaciones con ese DT y esa fecha.
+- El DT permanece desplegado al navegar a otra solapa y volver a Puntajes.
+- También se conserva durante la sesión del navegador.
+- Tabla de Fecha y Tabla General alinean exactamente sus primeras 3 columnas:
+  # / DT / Puntos-Total.
 
 No tocar Supabase manualmente.
-Después del deploy, ingresar una vez como Admin para sincronizar la corrección.
+No cambia api/chiche-cloud.js ni vercel.json.

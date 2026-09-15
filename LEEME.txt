@@ -1,16 +1,15 @@
-V97 · SUBIR A GITHUB
+V98 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
 - ChicheLeague_Clausura2026.html
 
-CAMBIOS
-- Se pueden desplegar varios DT de la Tabla general al mismo tiempo.
-- Los desplegados permanecen abiertos durante la sesión al navegar por otras vistas.
-- Se elimina el icono/flechita junto al nombre del DT.
-- Abrir resúmenes ya no cambia el tamaño ni la proporción de las filas de las tablas.
-- Corrección especialmente aplicada a mobile.
-- Se mantiene la alineación # / DT / Puntos-Total entre ambas tablas.
+CORRECCIÓN TABLA GENERAL
+- Sin DT desplegados: aparecen siempre los 10 DT completos y sin scrollbar.
+- Con uno o más DT desplegados: se habilita scrollbar interno en Tabla general.
+- La barra permite llegar hasta el último DT aunque haya varios resúmenes abiertos.
+- La Tabla de la Fecha no cambia de altura ni proporciones.
+- Se mantiene multi-desplegable y sin iconos junto al DT.
 
 No tocar Supabase manualmente.
 No cambia api/chiche-cloud.js ni vercel.json.

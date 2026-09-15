@@ -2127,6 +2127,120 @@ body.app-booting > .modal{visibility:hidden!important}
   }
 }
 
+
+/* V98 · Comportamiento definitivo de Tabla general */
+
+/* ESTADO CERRADO:
+   deben entrar siempre los 10 DT completos, sin scroll interno. */
+#scoresGeneralCard:not(.general-expanded){
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+}
+#scoresGeneralCard:not(.general-expanded) .tablewrap{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+  flex:none!important;
+}
+#scoresGeneralCard:not(.general-expanded) table,
+#scoresGeneralCard:not(.general-expanded) tbody{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+}
+#scoresGeneralCard:not(.general-expanded) tbody tr.general-rank-main{
+  height:31px!important;
+  min-height:31px!important;
+}
+#scoresGeneralCard:not(.general-expanded) tbody tr.general-rank-main td{
+  height:31px!important;
+  min-height:31px!important;
+  padding-top:3px!important;
+  padding-bottom:3px!important;
+}
+
+/* ESTADO CON ALGÚN DT DESPLEGADO:
+   la tarjeta conserva una altura razonable y se habilita scroll interno. */
+#scoresGeneralCard.general-expanded{
+  min-height:0!important;
+  overflow:hidden!important;
+  display:flex!important;
+  flex-direction:column!important;
+}
+#scoresGeneralCard.general-expanded .tablewrap{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  scrollbar-gutter:stable;
+  overscroll-behavior:contain;
+}
+#scoresGeneralCard.general-expanded table,
+#scoresGeneralCard.general-expanded tbody{
+  height:auto!important;
+  min-height:0!important;
+}
+
+/* Desktop: suficiente alto para consulta, pero sin empujar toda la pantalla. */
+@media(min-width:1101px){
+  #scoresGeneralCard:not(.general-expanded){
+    max-height:none!important;
+  }
+
+  #scoresGeneralCard.general-expanded{
+    height:calc(100vh - 545px)!important;
+    min-height:330px!important;
+    max-height:470px!important;
+  }
+
+  /* La columna derecha deja de repartir el alto 50/50:
+     la tabla de fecha usa lo que necesita y la general administra el resto. */
+  #scores .scores-side{
+    grid-template-rows:auto minmax(0,1fr)!important;
+    align-content:start!important;
+  }
+}
+
+/* Tablet/mobile:
+   cerrada = contenido completo;
+   abierta = ventana scrollable suficientemente grande para navegar. */
+@media(max-width:1100px){
+  #scoresGeneralCard:not(.general-expanded){
+    height:auto!important;
+    max-height:none!important;
+  }
+  #scoresGeneralCard:not(.general-expanded) .tablewrap{
+    overflow:visible!important;
+    max-height:none!important;
+  }
+
+  #scoresGeneralCard.general-expanded{
+    height:auto!important;
+    max-height:none!important;
+    overflow:visible!important;
+  }
+  #scoresGeneralCard.general-expanded .tablewrap{
+    height:min(62vh,560px)!important;
+    max-height:min(62vh,560px)!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    flex:none!important;
+    -webkit-overflow-scrolling:touch;
+  }
+}
+
+/* Mobile angosto: damos un poco más de ventana al detalle,
+   pero siempre dentro de la Tabla general. */
+@media(max-width:620px){
+  #scoresGeneralCard.general-expanded .tablewrap{
+    height:58vh!important;
+    max-height:58vh!important;
+  }
+}
+
 </style>
 </head>
 <body class="app-booting">

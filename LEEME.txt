@@ -1,14 +1,15 @@
-V102 · SUBIR A GITHUB
+V103 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
 - ChicheLeague_Clausura2026.html
 
-AJUSTE
-- En el detalle de Tabla general, los encabezados PUNTOS y POSICIÓN
-  quedan alineados exactamente con sus valores.
-- Se mantiene la misma grilla para encabezado y filas.
-- No se modifica ninguna lógica ni dato.
+FIX
+- Se corrige exclusivamente la columna derecha de Puntajes.
+- Tabla Fecha y Tabla General reparten exactamente el alto disponible.
+- Tabla General cerrada muestra los 10 DT completos.
+- Tabla General abierta conserva el mismo alto y habilita scroll interno.
+- No se toca el encabezado ni el listado de jugadores.
 
 No tocar Supabase.
 No cambia api/chiche-cloud.js ni vercel.json.

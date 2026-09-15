@@ -2310,6 +2310,106 @@ body.app-booting > .modal{visibility:hidden!important}
   width:100%!important;
 }
 
+
+/* V103 · FIX AISLADO COLUMNA DERECHA DE PUNTAJES
+   No toca el header ni el panel izquierdo. */
+@media(min-width:1101px){
+
+  /* La columna derecha ocupa exactamente el alto disponible del grid,
+     igual que el listado de jugadores de la izquierda. */
+  #scores .scores-side{
+    height:100%!important;
+    min-height:0!important;
+    display:grid!important;
+    grid-template-rows:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:10px!important;
+    align-content:stretch!important;
+    overflow:hidden!important;
+  }
+
+  #scores #scoresRoundCard,
+  #scores #scoresGeneralCard{
+    height:100%!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow:hidden!important;
+    display:flex!important;
+    flex-direction:column!important;
+    margin:0!important;
+  }
+
+  #scores #scoresRoundCard .tablewrap,
+  #scores #scoresGeneralCard .tablewrap{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    height:auto!important;
+    max-height:none!important;
+  }
+
+  /* TABLA FECHA:
+     siempre encaja los 10 DT dentro de su mitad. */
+  #scores #scoresRoundCard .tablewrap{
+    overflow:hidden!important;
+  }
+  #scores #scoresRoundCard table{
+    height:100%!important;
+    table-layout:fixed!important;
+  }
+  #scores #scoresRoundCard tbody{
+    height:calc(100% - 24px)!important;
+  }
+  #scores #scoresRoundCard tbody tr{
+    height:auto!important;
+    min-height:0!important;
+  }
+
+  /* TABLA GENERAL CERRADA:
+     los 10 DT entran completos sin scroll. */
+  #scores #scoresGeneralCard:not(.general-expanded) .tablewrap{
+    overflow:hidden!important;
+  }
+  #scores #scoresGeneralCard:not(.general-expanded) table{
+    height:100%!important;
+    table-layout:fixed!important;
+  }
+  #scores #scoresGeneralCard:not(.general-expanded) tbody{
+    height:calc(100% - 24px)!important;
+  }
+  #scores #scoresGeneralCard:not(.general-expanded) tbody tr.general-rank-main{
+    height:auto!important;
+    min-height:0!important;
+  }
+  #scores #scoresGeneralCard:not(.general-expanded) tbody tr.general-rank-main td{
+    height:auto!important;
+    min-height:0!important;
+    padding-top:3px!important;
+    padding-bottom:3px!important;
+  }
+
+  /* TABLA GENERAL ABIERTA:
+     conserva exactamente el mismo alto exterior.
+     El contenido extra se desplaza dentro de esta tarjeta. */
+  #scores #scoresGeneralCard.general-expanded{
+    height:100%!important;
+    min-height:0!important;
+    max-height:none!important;
+  }
+  #scores #scoresGeneralCard.general-expanded .tablewrap{
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    scrollbar-gutter:stable;
+    overscroll-behavior:contain;
+  }
+  #scores #scoresGeneralCard.general-expanded table,
+  #scores #scoresGeneralCard.general-expanded tbody{
+    height:auto!important;
+  }
+  #scores #scoresGeneralCard.general-expanded tbody tr.general-rank-main{
+    height:31px!important;
+    min-height:31px!important;
+  }
+}
+
 </style>
 </head>
 <body class="app-booting">

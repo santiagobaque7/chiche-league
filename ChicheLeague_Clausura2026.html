@@ -2410,6 +2410,46 @@ body.app-booting > .modal{visibility:hidden!important}
   }
 }
 
+
+/* V102 · Formaciones táctiles */
+.form-row.formation-tappable{
+  -webkit-user-select:none!important;
+  user-select:none!important;
+  -webkit-touch-callout:none!important;
+  touch-action:manipulation!important;
+  cursor:pointer!important;
+}
+.form-row.formation-selected{
+  background:#15304b!important;
+  box-shadow:inset 3px 0 0 #4b96e6!important;
+}
+.form-row.formation-selected .pos{
+  filter:brightness(1.08);
+}
+.formation-captain-btn{
+  -webkit-user-select:none!important;
+  user-select:none!important;
+  -webkit-touch-callout:none!important;
+  touch-action:manipulation!important;
+  position:relative;
+  z-index:4;
+}
+@media(pointer:coarse),(max-width:700px){
+  .form-row.formation-tappable{
+    cursor:pointer!important;
+  }
+  .form-row.formation-tappable:active{
+    background:#132b42!important;
+  }
+  .form-row.formation-selected{
+    background:#173755!important;
+  }
+  .formation-captain-btn{
+    min-width:30px!important;
+    min-height:30px!important;
+  }
+}
+
 </style>
 </head>
 <body class="app-booting">
@@ -5317,19 +5357,52 @@ function formationCaptainBonus(id,r,rk){
   return {html,field};
 }
 
+function managerRoundHasAnyData(m,rk){
+  rk=String(rk);
+  const scores=state.rounds?.[rk]||{};
+  const ids=new Set([
+    ...(state.confirmedTeams?.[m]?.picks||[]),
+    ...(state.rosterHistory?.[rk]?.[m]?.picks||[])
+  ].map(Number));
+  return [...ids].some(id=>scores[id]!==undefined&&scores[id]!=="");
+}
 function formationEditable(m,rk){
   if(!isCloudAdmin())return false;
   if(state.phase==="draft")return true;
-  return state.phase==="confirmed"&&participantActiveInRound(m,rk)&&!roundHasAnyData(rk);
+  return state.phase==="confirmed"&&participantActiveInRound(m,rk)&&!managerRoundHasAnyData(m,rk);
+}
+function editableFormationRoster(m,rk){
+  if(state.phase==="draft")return state.draftRosters[m]||emptyRoster();
+  if(formationEditable(m,rk))return state.confirmedTeams[m]||emptyRoster();
+  return rosterForRound(m,rk);
+}
+function syncEditableFormationSnapshot(m,rk,r){
+  rk=String(rk);
+  if(state.phase!=="confirmed"||managerRoundHasAnyData(m,rk))return;
+  if(state.rosterHistory?.[rk]){
+    state.rosterHistory[rk][m]=clone(r);
+  }
+}
+function formationTouchSelectionMode(){
+  try{
+    return window.matchMedia("(pointer: coarse)").matches||window.innerWidth<=700;
+  }catch(e){
+    return window.innerWidth<=700;
+  }
 }
 let draggedFormationPlayer=null;
+let selectedFormationPlayer=null;
 function formationDragAttrs(id,m,rk){
-  return formationEditable(m,rk)?`draggable="true" ondragstart="formationDragStart(event,${id})" ondragend="formationDragEnd(event)" ondragover="formationDragOver(event)" ondragleave="formationDragLeave(event)" ondrop="formationDrop(event,${id})"`:"";
+  if(!formationEditable(m,rk))return "";
+  const tap=`onclick="formationPlayerTap(event,${id})"`;
+  if(formationTouchSelectionMode())return tap;
+  return `draggable="true" ${tap} ondragstart="formationDragStart(event,${id})" ondragend="formationDragEnd(event)" ondragover="formationDragOver(event)" ondragleave="formationDragLeave(event)" ondrop="formationDrop(event,${id})"`;
 }
 function formationPlayerRow(id,r,rk,m){
   const p=player(id),sc=formationScore(id,rk),role=r.roles[id],drag=formationDragAttrs(id,m,rk),editable=formationEditable(m,rk),captain=r.captain===id,bonus=formationCaptainBonus(id,r,rk);
-  const captainControl=role==="Titular"?`<button type="button" class="formation-captain-btn ${captain?"active":""}" title="${captain?"Quitar capitanía":"Hacer capitán"}" ${editable?`onclick="event.stopPropagation();toggleFormationCaptain(${id})"`:'disabled'}>C</button>`:`<span class="formation-captain-spacer"></span>`;
-  return `<div class="form-row ${editable?"formation-draggable":""}" ${drag} style="grid-template-columns:39px minmax(148px,1fr) 82px 30px 48px 48px">
+  const selected=!!(selectedFormationPlayer&&selectedFormationPlayer.id===Number(id)&&selectedFormationPlayer.m===m&&selectedFormationPlayer.rk===String(rk));
+  const captainControl=role==="Titular"?`<button type="button" class="formation-captain-btn ${captain?"active":""}" title="${captain?"Quitar capitanía":"Hacer capitán"}" ${editable?`onclick="event.preventDefault();event.stopPropagation();toggleFormationCaptain(${id})"`:'disabled'}>C</button>`:`<span class="formation-captain-spacer"></span>`;
+  return `<div class="form-row ${editable?"formation-draggable formation-tappable":""} ${selected?"formation-selected":""}" ${drag} style="grid-template-columns:39px minmax(148px,1fr) 82px 30px 48px 48px">
     <span class="pos pos-${p.position}">${p.position}</span>
     <span style="line-height:1.05"><b style="font-size:14.5px">${esc(p.name)}</b><br><small class="muted" style="font-size:10.5px">${esc(p.team)} · ${money(p.price)}</small></span>
     <span class="badge formation-role"><span class="role-full">${role||"—"}</span><span class="role-short">${role==="Titular"?"T":role==="Suplente"?"S":"—"}</span></span>${captainControl}<span class="score-pill ${sc.cls}">${sc.text}</span>${bonus.html}
@@ -5351,7 +5424,53 @@ function toggleFormationCaptain(id){
   const r=state.phase==="draft"?state.draftRosters[m]:state.confirmedTeams[m];
   if(!r||r.roles[id]!=="Titular")return alert("El capitán tiene que ser titular.");
   r.captain=r.captain===id?null:id;
+  selectedFormationPlayer=null;
+  syncEditableFormationSnapshot(m,rk,r);
   persist();renderFormations();renderDraft();
+}
+function formationPlayerTap(e,id){
+  if(e?.target?.closest?.("button,input,select,a"))return;
+  const m=$("formationManager").value,rk=String($("formationRound").value||"5");
+  if(!formationEditable(m,rk))return;
+  const r=state.phase==="draft"?state.draftRosters[m]:state.confirmedTeams[m];
+  const pid=Number(id),p=player(pid);
+  if(!r||!p||!r.picks.includes(pid))return;
+
+  const current=selectedFormationPlayer;
+  if(!current||current.m!==m||current.rk!==rk){
+    selectedFormationPlayer={id:pid,m,rk};
+    renderFormations();
+    return;
+  }
+
+  if(current.id===pid){
+    selectedFormationPlayer=null;
+    renderFormations();
+    return;
+  }
+
+  const sourceId=Number(current.id),a=player(sourceId),b=p;
+  const ra=r.roles[sourceId],rb=r.roles[pid];
+
+  // Si tocó un jugador no compatible, pasa a ser la nueva selección.
+  if(!a||a.position!==b.position||ra===rb||!["Titular","Suplente"].includes(ra)||!["Titular","Suplente"].includes(rb)){
+    selectedFormationPlayer={id:pid,m,rk};
+    renderFormations();
+    return;
+  }
+
+  r.roles[sourceId]=rb;
+  r.roles[pid]=ra;
+
+  // Si el capitán sale del XI, la capitanía pasa al jugador que entra en su lugar.
+  if(r.captain===sourceId&&rb==="Suplente")r.captain=pid;
+  else if(r.captain===pid&&ra==="Suplente")r.captain=sourceId;
+
+  selectedFormationPlayer=null;
+  syncEditableFormationSnapshot(m,rk,r);
+  persist();
+  renderFormations();
+  renderDraft();
 }
 function formationDragStart(e,id){draggedFormationPlayer=id;e.currentTarget.classList.add("formation-dragging");if(e.dataTransfer){e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",String(id))}}
 function formationDragEnd(e){e.currentTarget.classList.remove("formation-dragging");document.querySelectorAll(".formation-drop").forEach(x=>x.classList.remove("formation-drop"));draggedFormationPlayer=null}
@@ -5371,6 +5490,8 @@ function formationDrop(e,targetId){
   r.roles[sourceId]=rb;r.roles[targetId]=ra;
   if(r.captain===sourceId&&rb==="Suplente")r.captain=targetId;
   else if(r.captain===targetId&&ra==="Suplente")r.captain=sourceId;
+  selectedFormationPlayer=null;
+  syncEditableFormationSnapshot(m,rk,r);
   persist();renderFormations();renderDraft();
 }
 function changeFormationRole(id,role){
@@ -5445,6 +5566,7 @@ function renderFormations(){
   }
 
   const m=$("formationManager").value,rk=$("formationRound").value||"5";
+  if(selectedFormationPlayer&&(selectedFormationPlayer.m!==m||selectedFormationPlayer.rk!==String(rk)))selectedFormationPlayer=null;
   if(!participantActiveInRound(m,rk)){
     const rosterTitleInactive=`Plantel de ${esc(m)} <span class="muted" style="font-size:13px;font-weight:700">· ${money(rosterBudget(state.phase==="draft"?(state.draftRosters[m]||emptyRoster()):(state.confirmedTeams[m]||emptyRoster())) )}</span>`;
     $("formationRosterTitle").innerHTML=rosterTitleInactive;$("formationNameBadge").textContent=`Desde F${participantStartRound(m)}`;$("fieldTeamName").textContent=m;$("fieldRoundLabel").textContent=`Fecha ${rk}`;
@@ -5452,9 +5574,9 @@ function renderFormations(){
     $("formationRosterList").innerHTML=`<div class="emptybox">${esc(m)} todavía no participaba del torneo en la Fecha ${rk}. Se incorporó en la Fecha ${participantStartRound(m)}.</div>`;
     ["ARQ","DEF","VOL","DEL"].forEach(pos=>$(`field${pos}`).innerHTML="");$("fieldBench").innerHTML="";return;
   }
-  const r=state.phase==="draft"?(state.draftRosters[m]||emptyRoster()):rosterForRound(m,rk);
+  const r=editableFormationRoster(m,rk);
   $("formationRosterTitle").innerHTML=`Plantel de ${esc(m)} <span class="muted" style="font-size:13px;font-weight:700">· ${money(rosterBudget(r))}</span>`;$("formationNameBadge").textContent=r.formation||"—";$("fieldTeamName").textContent=m;
-  $("fieldRoundLabel").textContent=`Fecha ${rk}${state.rosterHistory?.[String(rk)]?" · cerrada":formationEditable(m,rk)?" · editable":""}`;
+  $("fieldRoundLabel").textContent=`Fecha ${rk}${formationEditable(m,rk)?" · editable":managerRoundHasAnyData(m,rk)?" · cerrada":""}`;
   const captainPlayer=player(r.captain);
   const roundCalc=state.phase==="confirmed"?calcTeamRound(m,rk):null;
   if($("formationSummary"))$("formationSummary").innerHTML=[

@@ -2450,6 +2450,54 @@ body.app-booting > .modal{visibility:hidden!important}
   }
 }
 
+
+/* V103 · JUEGA no bloquea Formaciones */
+@media(pointer:coarse),(max-width:700px){
+  .form-row.formation-tappable{
+    -webkit-user-select:none!important;
+    user-select:none!important;
+    -webkit-touch-callout:none!important;
+    touch-action:manipulation!important;
+  }
+  .form-row.formation-tappable .formation-role,
+  .form-row.formation-tappable .formation-captain-btn{
+    cursor:pointer!important;
+  }
+}
+
+
+/* V104 · Tabla de Fecha más compacta
+   Ajuste aislado: NO modifica Tabla general. */
+@media(min-width:1101px){
+  #scores #scoresRoundCard tbody tr{
+    height:26px!important;
+    min-height:26px!important;
+  }
+  #scores #scoresRoundCard tbody td{
+    height:26px!important;
+    min-height:26px!important;
+    padding-top:1px!important;
+    padding-bottom:1px!important;
+    line-height:1!important;
+  }
+}
+
+/* También la mantenemos compacta en tablet/mobile,
+   sin alterar la Tabla general. */
+@media(max-width:1100px){
+  #scores #scoresRoundCard tbody tr{
+    height:28px!important;
+    min-height:28px!important;
+  }
+  #scores #scoresRoundCard tbody td{
+    height:28px!important;
+    min-height:28px!important;
+    padding-top:2px!important;
+    padding-bottom:2px!important;
+    line-height:1!important;
+  }
+}
+
 </style>
 </head>
 <body class="app-booting">
@@ -5364,7 +5412,14 @@ function managerRoundHasAnyData(m,rk){
     ...(state.confirmedTeams?.[m]?.picks||[]),
     ...(state.rosterHistory?.[rk]?.[m]?.picks||[])
   ].map(Number));
-  return [...ids].some(id=>scores[id]!==undefined&&scores[id]!=="");
+
+  // JUEGA sigue siendo un estado pendiente: no debe cerrar la formación.
+  // La formación de ese DT recién se bloquea cuando aparece un resultado
+  // definitivo para alguno de sus jugadores: puntaje numérico o NO JUEGA.
+  return [...ids].some(id=>{
+    const v=scores[id];
+    return typeof v==="number"||v==="NO JUEGA";
+  });
 }
 function formationEditable(m,rk){
   if(!isCloudAdmin())return false;

@@ -1,22 +1,14 @@
-V102 · SUBIR A GITHUB
+V104 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
 - ChicheLeague_Clausura2026.html
 
-CORRECCIONES FORMACIONES
-- Mobile: tocar un jugador lo selecciona; tocar luego el titular/suplente
-  de la misma posición realiza el intercambio.
-- Se evita que iPhone seleccione el texto al intentar cambiar jugadores.
-- El botón C de capitanía vuelve a funcionar correctamente en táctil.
-- Un DT puede modificar su formación mientras ninguno de SUS jugadores
-  tenga puntaje cargado, aunque la fecha ya haya comenzado para otros DT.
-- Si ya existe snapshot de la fecha, se sincroniza sólo el plantel de ese DT
-  mientras siga editable.
-- Desktop conserva drag & drop y además admite selección por click.
+CAMBIO
+- Se reduce únicamente la altura de las filas de "Tabla · Fecha".
+- Desktop: 26 px por fila.
+- Mobile/tablet: 28 px por fila.
+- Deben verse los 10 participantes completos.
+- Tabla general NO fue modificada.
 
-Incluye también:
-- Solari, Santiago en NEWELL'S.
-
-No hace falta modificar Supabase manualmente.
-No cambia api/chiche-cloud.js ni vercel.json.
+No hace falta tocar Supabase ni otros archivos.

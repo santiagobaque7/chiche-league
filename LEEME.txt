@@ -1,14 +1,13 @@
-V104 · SUBIR A GITHUB
+V105 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
 - ChicheLeague_Clausura2026.html
 
-CAMBIO
-- Se reduce únicamente la altura de las filas de "Tabla · Fecha".
-- Desktop: 26 px por fila.
-- Mobile/tablet: 28 px por fila.
-- Deben verse los 10 participantes completos.
-- Tabla general NO fue modificada.
+Corrección Fecha 10 · Tota:
+- Aguerre, Alan = Titular
+- Arce, Ignacio = Suplente
 
-No hace falta tocar Supabase ni otros archivos.
+No se modifica ningún puntaje.
+No hace falta tocar Supabase manualmente.
+Después del deploy, ingresar una vez como Admin para sincronizar la corrección.

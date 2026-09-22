@@ -3459,6 +3459,43 @@ function patchFedeFecha9OviedoTitular(){
 }
 
 
+
+function patchTotaFecha10AguerreTitular(){
+  if(state?.totaFecha10AguerrePatch==="2026-09-22")return false;
+
+  const aguerre=(state.players||[]).find(p=>p.name==="Aguerre, Alan");
+  const arce=(state.players||[]).find(p=>p.name==="Arce, Ignacio");
+  if(!aguerre||!arce)return false;
+
+  const aid=Number(aguerre.id),rid=Number(arce.id);
+  let changed=false;
+
+  const fix=(r)=>{
+    if(!r||!Array.isArray(r.picks))return false;
+    if(!r.picks.includes(aid)||!r.picks.includes(rid))return false;
+    if(!r.roles||typeof r.roles!=="object")r.roles={};
+
+    let local=false;
+    if(r.roles[aid]!=="Titular"){r.roles[aid]="Titular";local=true}
+    if(r.roles[rid]!=="Suplente"){r.roles[rid]="Suplente";local=true}
+
+    if(Number(r.captain)===rid){
+      r.captain=aid;
+      local=true;
+    }
+    return local;
+  };
+
+  if(fix(state.confirmedTeams?.Tota))changed=true;
+  if(fix(state.draftRosters?.Tota))changed=true;
+  if(fix(state.rosterHistory?.["10"]?.Tota))changed=true;
+
+  state.totaFecha10AguerrePatch="2026-09-22";
+  if(changed)cloudStateNeedsMigrationSave=true;
+  return changed;
+}
+
+
 function patchAlvaFecha8Captain(){
   if(state?.alvaFecha8LencioniCaptainPatch==="2026-09-06")return false;
   const lencioni=(state.players||[]).find(p=>p.name==="Lencioni, Facundo");
@@ -3640,6 +3677,7 @@ function normalizeCloudState(){
   patchDomanFecha8Roles();
   patchTanguitaFernandezAldosivi();
   patchFedeFecha9OviedoTitular();
+  patchTotaFecha10AguerreTitular();
   patchAlvaFecha8Captain();
 }
 
@@ -3938,6 +3976,7 @@ function loadState(){
   patchDomanFecha8Roles();
   patchTanguitaFernandezAldosivi();
   patchFedeFecha9OviedoTitular();
+  patchTotaFecha10AguerreTitular();
   patchAlvaFecha8Captain();
     if(state.lateJoin){
       if(!Array.isArray(state.lateJoin.names)){

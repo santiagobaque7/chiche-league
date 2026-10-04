@@ -1,13 +1,15 @@
-V105 · SUBIR A GITHUB
+V103 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
 - ChicheLeague_Clausura2026.html
 
-Corrección Fecha 10 · Tota:
-- Aguerre, Alan = Titular
-- Arce, Ignacio = Suplente
+FIX
+- Se corrige exclusivamente la columna derecha de Puntajes.
+- Tabla Fecha y Tabla General reparten exactamente el alto disponible.
+- Tabla General cerrada muestra los 10 DT completos.
+- Tabla General abierta conserva el mismo alto y habilita scroll interno.
+- No se toca el encabezado ni el listado de jugadores.
 
-No se modifica ningún puntaje.
-No hace falta tocar Supabase manualmente.
-Después del deploy, ingresar una vez como Admin para sincronizar la corrección.
+No tocar Supabase.
+No cambia api/chiche-cloud.js ni vercel.json.

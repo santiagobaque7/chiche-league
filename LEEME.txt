@@ -1,15 +1,25 @@
-V103 · SUBIR A GITHUB
+V108 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
 - ChicheLeague_Clausura2026.html
 
-FIX
-- Se corrige exclusivamente la columna derecha de Puntajes.
-- Tabla Fecha y Tabla General reparten exactamente el alto disponible.
-- Tabla General cerrada muestra los 10 DT completos.
-- Tabla General abierta conserva el mismo alto y habilita scroll interno.
-- No se toca el encabezado ni el listado de jugadores.
+CORRECCIONES
+1. Solari, Santiago queda oficialmente en NEWELL'S.
+   - Se elimina cualquier override viejo que intentara devolverlo a RACING.
+   - Al cargar como Admin se sincroniza la corrección.
 
-No tocar Supabase.
-No cambia api/chiche-cloud.js ni vercel.json.
+2. Base > Administrar jugadores
+   - Ahora es un bloque independiente, ancho completo, debajo de Base/Estado.
+   - Se agrega además un botón "Administrar jugadores" arriba.
+   - Sólo se muestra estando logueado como Admin.
+   - Permite cambiar club o eliminar jugadores libres.
+   - Si un DT tiene el jugador, ambas acciones siguen bloqueadas.
+
+VERIFICACIÓN
+En Estado debe aparecer:
+Base V108 · 04/10/2026
+
+Si no aparece esa marca, Vercel todavía está sirviendo una versión anterior.
+
+No modificar api/chiche-cloud.js ni vercel.json.

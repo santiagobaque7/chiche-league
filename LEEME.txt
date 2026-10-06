@@ -1,25 +1,36 @@
-V108 · SUBIR A GITHUB
+V109 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
 - ChicheLeague_Clausura2026.html
 
-CORRECCIONES
-1. Solari, Santiago queda oficialmente en NEWELL'S.
-   - Se elimina cualquier override viejo que intentara devolverlo a RACING.
-   - Al cargar como Admin se sincroniza la corrección.
+FECHA 11 · ALINEACIONES
+- Tanguita:
+  Carrizo, Lucas = TITULAR
+  Ludueña, Juan Pablo = SUPLENTE
 
-2. Base > Administrar jugadores
-   - Ahora es un bloque independiente, ancho completo, debajo de Base/Estado.
-   - Se agrega además un botón "Administrar jugadores" arriba.
-   - Sólo se muestra estando logueado como Admin.
-   - Permite cambiar club o eliminar jugadores libres.
-   - Si un DT tiene el jugador, ambas acciones siguen bloqueadas.
+- Alva:
+  Cuello, Brahian = TITULAR
+  Lencioni, Facundo = SUPLENTE
+
+Si el jugador que sale era capitán, la capitanía pasa al jugador que entra.
+
+FORMACIONES
+- La fecha actual puede modificarse aunque ya tenga puntajes cargados.
+- Se puede seguir haciendo Titular <-> Suplente durante la fecha.
+- Sólo se congelan fechas históricas anteriores.
+- El snapshot de la fecha actual se actualiza cuando hacés el cambio.
+
+RIVER PLATE - SARMIENTO · FECHA 11
+- Marcado como POSTERGADO.
+- Queda sin resultado.
+- Todos los jugadores de River Plate y Sarmiento que estén en planteles de la liga
+  reciben NO JUEGA en Fecha 11.
+- Se elimina cualquier bonus de capitán de esos jugadores para esa fecha.
 
 VERIFICACIÓN
-En Estado debe aparecer:
-Base V108 · 04/10/2026
+En Base debe aparecer:
+Base V109 · 06/10/2026
 
-Si no aparece esa marca, Vercel todavía está sirviendo una versión anterior.
-
+Después del deploy, ingresar una vez como Admin para publicar las correcciones.
 No modificar api/chiche-cloud.js ni vercel.json.

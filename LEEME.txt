@@ -1,36 +1,22 @@
-V109 · SUBIR A GITHUB
+V110 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
 - ChicheLeague_Clausura2026.html
 
-FECHA 11 · ALINEACIONES
-- Tanguita:
-  Carrizo, Lucas = TITULAR
-  Ludueña, Juan Pablo = SUPLENTE
+NUEVO JUGADOR
+- Balboa, Adrián
+- Club: BANFIELD
+- Posición: DEL
+- Precio: $2.8 M
+- ID interno: 1015
 
-- Alva:
-  Cuello, Brahian = TITULAR
-  Lencioni, Facundo = SUPLENTE
-
-Si el jugador que sale era capitán, la capitanía pasa al jugador que entra.
-
-FORMACIONES
-- La fecha actual puede modificarse aunque ya tenga puntajes cargados.
-- Se puede seguir haciendo Titular <-> Suplente durante la fecha.
-- Sólo se congelan fechas históricas anteriores.
-- El snapshot de la fecha actual se actualiza cuando hacés el cambio.
-
-RIVER PLATE - SARMIENTO · FECHA 11
-- Marcado como POSTERGADO.
-- Queda sin resultado.
-- Todos los jugadores de River Plate y Sarmiento que estén en planteles de la liga
-  reciben NO JUEGA en Fecha 11.
-- Se elimina cualquier bonus de capitán de esos jugadores para esa fecha.
+No se modifica ningún plantel, puntaje ni historial existente.
+La revisión de la base se actualizó para incorporarlo automáticamente.
 
 VERIFICACIÓN
 En Base debe aparecer:
-Base V109 · 06/10/2026
+Base V110 · 06/10/2026
 
-Después del deploy, ingresar una vez como Admin para publicar las correcciones.
+Después del deploy, ingresar una vez como Admin para publicar la actualización.
 No modificar api/chiche-cloud.js ni vercel.json.

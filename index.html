@@ -2642,6 +2642,28 @@ body.app-booting > .modal{visibility:hidden!important}
 .match-game-status.postponed{color:#f4c97a!important}
 .postponed-note{gap:10px!important;justify-content:center!important;color:#f4c97a}
 
+
+/* V111 · Historial: pass inicial seguido de reposición */
+.transfer-pass-followed .transfer-pass-text{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.transfer-pass-followed .transfer-pass-text small{
+  display:block;
+  color:var(--muted);
+  font-size:9.5px;
+  font-weight:600;
+}
+@media(max-width:760px){
+  .transfer-pass-followed .transfer-pass-text{
+    text-align:center!important;
+  }
+  .transfer-pass-followed .transfer-pass-text small{
+    font-size:9px;
+  }
+}
+
 </style>
 </head>
 <body class="app-booting">
@@ -5863,7 +5885,7 @@ function renderResults(){
 }
 function renderDb(){
   const rounds=allRounds(),teams=state.phase==="confirmed"?state.confirmedTeams:state.draftRosters,totalPicks=state.participants.reduce((s,m)=>s+(teams[m]?.picks.length||0),0);
-  $("dbStats").innerHTML=`<div class="metrics" style="padding:0"><div class="metric"><b>${state.players.length}</b><span>Jugadores activos</span></div><div class="metric"><b>${state.participants.length}</b><span>Participantes</span></div><div class="metric"><b>${rounds.length}</b><span>Fechas con datos</span></div></div><p class="muted">Estado: <b style="color:var(--text)">${state.phase==="draft"?"Draft en curso":state.phase==="confirmed"?"Equipos confirmados":state.phase==="setup"?"Configurando participantes":"Sin torneo iniciado"}</b></p><p class="muted">Última actualización de datos: ${formatDateTime24(state.updatedAt)}</p><p class="muted">Fuente oficial del torneo: <b style="color:var(--text)">Supabase · ${isCloudAdmin()?"Administrador":"Solo lectura"}</b></p><p class="muted">Base de jugadores sincronizada: <b style="color:var(--text)">04/10/2026</b></p><p class="base-version-mark">Base V110 · 06/10/2026</p><div style="margin-top:10px">${state.participants.map(m=>`<span class="badge" style="margin:2px">${esc(m)} · desde F${participantStartRound(m)}</span>`).join("")}</div>${officialBaseWarningHtml()}`;
+  $("dbStats").innerHTML=`<div class="metrics" style="padding:0"><div class="metric"><b>${state.players.length}</b><span>Jugadores activos</span></div><div class="metric"><b>${state.participants.length}</b><span>Participantes</span></div><div class="metric"><b>${rounds.length}</b><span>Fechas con datos</span></div></div><p class="muted">Estado: <b style="color:var(--text)">${state.phase==="draft"?"Draft en curso":state.phase==="confirmed"?"Equipos confirmados":state.phase==="setup"?"Configurando participantes":"Sin torneo iniciado"}</b></p><p class="muted">Última actualización de datos: ${formatDateTime24(state.updatedAt)}</p><p class="muted">Fuente oficial del torneo: <b style="color:var(--text)">Supabase · ${isCloudAdmin()?"Administrador":"Solo lectura"}</b></p><p class="muted">Base de jugadores sincronizada: <b style="color:var(--text)">04/10/2026</b></p><p class="base-version-mark">Base V111 · 06/10/2026</p><div style="margin-top:10px">${state.participants.map(m=>`<span class="badge" style="margin:2px">${esc(m)} · desde F${participantStartRound(m)}</span>`).join("")}</div>${officialBaseWarningHtml()}`;
   const adminSection=$("playerAdminSection");
   if(adminSection)adminSection.style.display=isCloudAdmin()?"flex":"none";
   if(isCloudAdmin())renderAdminPlayersTable();
@@ -6533,6 +6555,32 @@ function renderTransferHistory(){
     const dateTitle=`Fecha ${Number(group.rk)+1}`;
     const body=group.rows.map(({ev})=>{
       if(ev.type==="pass"){
+        const laterMovement=group.rows.find(row=>{
+          const other=row.ev||{};
+          return other.manager===ev.manager&&other.type!=="pass";
+        });
+
+        if(laterMovement){
+          const later=laterMovement.ev||{};
+          const owner=later.stolenFrom||later.sourceOwner||"";
+          const details=[
+            later.club||later.inPlayerTeam||"",
+            later.inPlayerName||"",
+            owner?`robado a ${owner}`:""
+          ].filter(Boolean).map(esc).join(" · ");
+
+          return `<div class="transfer-ledger-row pass transfer-pass-followed">
+            <div class="transfer-ledger-manager">
+              ${esc(ev.manager)}
+              <small>Pasó inicialmente</small>
+            </div>
+            <div class="transfer-pass-text">
+              Pasó su turno inicial.${later.type==="forced"?" Luego tuvo reposición obligatoria.":" Luego realizó un cambio."}
+              ${details?`<small>${details}</small>`:""}
+            </div>
+          </div>`;
+        }
+
         return `<div class="transfer-ledger-row pass">
           <div class="transfer-ledger-manager">${esc(ev.manager)}</div>
           <div class="transfer-pass-text">No realizó cambios.</div>

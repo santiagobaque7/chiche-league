@@ -1,22 +1,32 @@
-V110 · SUBIR A GITHUB
+V111 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
 - ChicheLeague_Clausura2026.html
 
-NUEVO JUGADOR
-- Balboa, Adrián
-- Club: BANFIELD
-- Posición: DEL
-- Precio: $2.8 M
-- ID interno: 1015
+CORRECCIÓN HISTORIAL DE CAMBIOS
 
-No se modifica ningún plantel, puntaje ni historial existente.
-La revisión de la base se actualizó para incorporarlo automáticamente.
+Antes:
+Si un DT pasaba su turno pero después era robado y tenía una reposición
+obligatoria, el historial seguía mostrando:
+"No realizó cambios."
+
+Ahora:
+- Si pasó y nunca volvió a intervenir:
+  "No realizó cambios."
+- Si pasó inicialmente pero luego tuvo un cambio/reposición:
+  "Pasó su turno inicial. Luego tuvo reposición obligatoria."
+- Debajo se muestra club sorteado, jugador incorporado y de quién fue robado.
+
+Ejemplo Fecha 12 · Ini:
+- Pasó su turno inicial.
+- Luego tuvo reposición obligatoria.
+- ARGENTINOS JRS. · Verón, Gastón · robado a Tota.
+- La fila detallada Russo -> Verón se mantiene también.
+
+No modifica ningún dato de planteles, puntajes ni cambios.
+Es una corrección de representación del historial.
 
 VERIFICACIÓN
 En Base debe aparecer:
-Base V110 · 06/10/2026
-
-Después del deploy, ingresar una vez como Admin para publicar la actualización.
-No modificar api/chiche-cloud.js ni vercel.json.
+Base V111 · 06/10/2026

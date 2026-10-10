@@ -5623,7 +5623,8 @@ function clubRosterRows(manager,role){
 }
 function clubIdentityHtml(summary,manager){
   const p=summary.profile;
-  return `<div class="club-admin-form club-admin-only"><div class="club-info-note">Editá el texto debajo del DT, <b>Fundado en</b>, <b>Estadio</b> y <b>Lema</b>.</div>
+  return `<div class="club-admin-form club-admin-only"><div class="club-info-note">Editá el nombre del equipo y su identidad.</div>
+    <label class="club-admin-field"><span>Nombre del equipo</span><input id="clubEditName" maxlength="40" value="${esc(p.clubName)}"></label>
     <div class="club-admin-field"><span>Texto debajo del DT</span><textarea id="clubEditDescription">${esc(p.description)}</textarea></div>
     <div class="club-admin-grid">
       <label class="club-admin-field"><span>Fundado en</span><input id="clubEditFounded" value="${esc(p.founded)}"></label>
@@ -5654,6 +5655,7 @@ function saveClubIdentity(){
   ensureClubProfiles();
   const edited={
     ...clubProfile(manager),
+    clubName:String($("clubEditName")?.value||"").trim().slice(0,40)||defaultClubProfile(manager).clubName,
     description:String($("clubEditDescription")?.value||"").trim()||defaultClubProfile(manager).description,
     founded:String($("clubEditFounded")?.value||"").trim()||defaultClubProfile(manager).founded,
     stadium:String($("clubEditStadium")?.value||"").trim()||defaultClubProfile(manager).stadium,
@@ -5666,7 +5668,9 @@ function saveClubIdentity(){
     saveClubLocalIdentityOverride(manager,edited);
   }
   closeClubIdentityEditor();
+  renderClubChooser();
   renderClubPage();
+  renderHome();
   updateTopBrand();
 }
 function updateTopBrand(){
@@ -6999,7 +7003,7 @@ function renderResults(){
 }
 function renderDb(){
   const rounds=allRounds(),teams=state.phase==="confirmed"?state.confirmedTeams:state.draftRosters,totalPicks=state.participants.reduce((s,m)=>s+(teams[m]?.picks.length||0),0);
-  $("dbStats").innerHTML=`<div class="metrics" style="padding:0"><div class="metric"><b>${state.players.length}</b><span>Jugadores activos</span></div><div class="metric"><b>${state.participants.length}</b><span>Participantes</span></div><div class="metric"><b>${rounds.length}</b><span>Fechas con datos</span></div></div><p class="muted">Estado: <b style="color:var(--text)">${state.phase==="draft"?"Draft en curso":state.phase==="confirmed"?"Equipos confirmados":state.phase==="setup"?"Configurando participantes":"Sin torneo iniciado"}</b></p><p class="muted">Última actualización de datos: ${formatDateTime24(state.updatedAt)}</p><p class="muted">Fuente oficial del torneo: <b style="color:var(--text)">Supabase · ${isCloudAdmin()?"Administrador":"Solo lectura"}</b></p><p class="muted">Base de jugadores sincronizada: <b style="color:var(--text)">04/10/2026</b></p><p class="base-version-mark">Base V120 · Selector corregido</p><div style="margin-top:10px">${state.participants.map(m=>`<span class="badge" style="margin:2px">${esc(m)} · desde F${participantStartRound(m)}</span>`).join("")}</div>${officialBaseWarningHtml()}`;
+  $("dbStats").innerHTML=`<div class="metrics" style="padding:0"><div class="metric"><b>${state.players.length}</b><span>Jugadores activos</span></div><div class="metric"><b>${state.participants.length}</b><span>Participantes</span></div><div class="metric"><b>${rounds.length}</b><span>Fechas con datos</span></div></div><p class="muted">Estado: <b style="color:var(--text)">${state.phase==="draft"?"Draft en curso":state.phase==="confirmed"?"Equipos confirmados":state.phase==="setup"?"Configurando participantes":"Sin torneo iniciado"}</b></p><p class="muted">Última actualización de datos: ${formatDateTime24(state.updatedAt)}</p><p class="muted">Fuente oficial del torneo: <b style="color:var(--text)">Supabase · ${isCloudAdmin()?"Administrador":"Solo lectura"}</b></p><p class="muted">Base de jugadores sincronizada: <b style="color:var(--text)">04/10/2026</b></p><p class="base-version-mark">Base V121 · Nombre de equipo editable</p><div style="margin-top:10px">${state.participants.map(m=>`<span class="badge" style="margin:2px">${esc(m)} · desde F${participantStartRound(m)}</span>`).join("")}</div>${officialBaseWarningHtml()}`;
   const adminSection=$("playerAdminSection");
   if(adminSection)adminSection.style.display=isCloudAdmin()?"flex":"none";
   if(isCloudAdmin())renderAdminPlayersTable();

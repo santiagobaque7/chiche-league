@@ -1,17 +1,15 @@
-V119 · SUBIR A GITHUB
+V120 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
 - ChicheLeague_Clausura2026.html
 
-MI CLUB
-- Recorrido del torneo ordenado de la última fecha a la primera.
-- Aporte por posición: ARQ / DEF / VOL / DEL.
-- Impacto del capitán: puntos normales + bonus acumulado.
-- Impacto del banco: puntos aportados y cantidad de entradas.
-- Récords: jugador emblema, mayor actuación individual, racha Top 3 y fechas ganadas.
-- Mercado: cambios, robos, veces que le robaron y último fichaje.
-- Sin valor del plantel en el tiempo.
-- Sin nuevos bloques de personalización ni palmarés.
-
-No cambian los assets respecto de V118.
+CORRECCIÓN
+- Se corrige el selector inicial de equipos.
+- El contenedor vuelve a estar centrado.
+- Título arriba, sin superposición.
+- 2 columnas en desktop.
+- 1 columna en mobile.
+- Filas finas, con escudo + nombre + DT.
+- Toda la fila sigue siendo clickeable.
+- No cambian assets respecto de V119.

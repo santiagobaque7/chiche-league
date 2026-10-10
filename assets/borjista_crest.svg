@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 250">
+<defs><filter id="s"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000" flood-opacity="0.15"/></filter></defs>
+<g filter="url(#s)">
+<path d="M110 10 C128 26 151 31 188 35 L188 145 Q188 198 110 239 Q32 198 32 145 L32 35 C69 31 92 26 110 10 Z" fill="#222831" stroke="#ffffff" stroke-width="8"/>
+<path d="M110 18 C126 31 146 35 180 38 L180 142 Q180 191 110 229 Q40 191 40 142 L40 38 C74 35 94 31 110 18 Z" fill="#222831" stroke="rgba(255,255,255,.28)" stroke-width="2"/>
+<rect x="95" y="28" width="30" height="190" fill="#ff8a1f" opacity="0.98"/>
+<text x="110" y="105" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="32" font-weight="900" letter-spacing="1" fill="#ffffff">BHF</text>
+</g></svg>

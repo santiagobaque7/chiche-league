@@ -3,5 +3,5 @@
 <g filter="url(#s)">
 <path d="M110 10 C128 26 151 31 188 35 L188 145 Q188 198 110 239 Q32 198 32 145 L32 35 C69 31 92 26 110 10 Z" fill="#0f8c47" stroke="#ffffff" stroke-width="8"/>
 <path d="M95 28 H125 V216 Q118 225 110 230 Q102 225 95 216 Z" fill="#f8f8f3"/>
-<text x="110" y="88" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="30" font-weight="900" fill="#ffffff" stroke="#0b5e33" stroke-width="2">CFC</text>
+<text x="110" y="88" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="30" font-weight="900" fill="#111111" stroke="#0b5e33" stroke-width="2">CFC</text>
 </g></svg>

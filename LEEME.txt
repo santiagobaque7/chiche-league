@@ -1,20 +1,13 @@
-V115 · MI CLUB REFINADO
+V117 · SUBIR A GITHUB
 
-Reemplazar en GitHub:
+Reemplazar:
 - index.html
 - ChicheLeague_Clausura2026.html
 - carpeta assets/ completa
 
 Cambios:
-- Selector inicial en filas: escudo, nombre, DT y botón Entrar.
-- La selección de equipo se pide nuevamente una vez al actualizar esta versión.
-- Se elimina Cambiar mi equipo.
-- El equipo elegido puede editar únicamente su identidad en ese navegador.
-- Admin puede editar todas las identidades y publicarlas.
-- Escudos uniformes, transparentes y sin fondo.
-- HDC corregido según el escudo de referencia.
-- Camisetas rehechas con una silueta más realista y uniforme.
-- Identidad se muestra únicamente dentro del flyer.
-- El bloque inferior sólo aparece como Editar identidad cuando corresponde.
-- Flyer adopta la gama de colores de cada club.
-- Flyer simplificado: escudo + identidad a la izquierda/centro y camiseta a la derecha.
+- selector de equipo compacto y fila completa clickeable; sin botón Entrar;
+- iniciales negras en Swifties, Doman, Coty FC, Tano FC y El Brazo de Costitas;
+- flyer sin borde azul;
+- Editar identidad junto a Fecha / Posición / Capitán como botón azul;
+- Ver puntajes abre Formaciones en la fecha actual o última disponible.

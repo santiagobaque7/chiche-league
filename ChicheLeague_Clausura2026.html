@@ -2931,6 +2931,42 @@ textarea{font:inherit}
 @media (max-width:980px){.club-main-grid{grid-template-columns:1fr}.club-hero{grid-template-columns:1fr}.club-hero-main{flex-direction:column;align-items:flex-start}.club-hero-shirt{justify-self:center}}
 @media (max-width:720px){.club-chooser-grid{grid-template-columns:1fr}.club-choice-card{grid-template-columns:1fr auto;padding:14px 16px}.club-hero-copy h1{font-size:28px}.club-hero-copy .club-dt{font-size:16px}.club-flyer-identity{font-size:11px}.club-hero-shirt{width:180px;height:165px}.club-edit-modal-dialog{margin:4vh 10px 0}.club-general-table th,.club-general-table td{padding:8px 9px;font-size:12px}}
 
+
+/* V117 · selector compacto + puntajes */
+.club-chooser-grid{grid-template-columns:1fr 1fr!important;gap:7px!important}
+.club-chooser-card{
+  width:100%;min-height:60px!important;display:grid!important;
+  grid-template-columns:46px minmax(0,1fr)!important;align-items:center!important;
+  gap:10px!important;padding:6px 10px!important;text-align:left!important;
+  color:var(--text)!important;font:inherit!important;background:#101b26!important;
+  border:1px solid #22384d!important;border-radius:11px!important;cursor:pointer!important;
+  appearance:none!important;box-shadow:none!important;transform:none!important;
+}
+.club-chooser-card:hover,.club-chooser-card:focus-visible{
+  background:#132232!important;border-color:#3972aa!important;
+  box-shadow:0 0 0 2px rgba(47,118,199,.12)!important;outline:none!important;
+}
+.club-choice-crest{width:42px!important;height:48px!important;display:grid!important;place-items:center!important}
+.club-choice-crest img{width:41px!important;height:48px!important;object-fit:contain!important}
+.club-choice-copy{min-width:0;display:grid;gap:2px}
+.club-choice-name{font-size:14px!important;line-height:1.1!important}
+.club-choice-dt{margin:0!important;font-size:10.5px!important;line-height:1.1!important}
+.club-hero-card{border:0!important;box-shadow:none!important;background:transparent!important}
+.club-hero-card>.club-hero{border:0!important}
+.club-edit-pill{
+  border-color:#2f76c7!important;background:linear-gradient(180deg,#2c74cc,#205fa9)!important;
+  color:#fff!important;font-weight:850!important;cursor:pointer!important;
+  box-shadow:0 5px 14px rgba(36,101,180,.28)!important;
+}
+.club-edit-pill:hover{filter:brightness(1.08)}
+.club-edit-trigger{display:none!important}
+@media(max-width:720px){
+  .club-chooser-grid{grid-template-columns:1fr!important}
+  .club-chooser-card{min-height:56px!important;padding:5px 9px!important}
+  .club-choice-crest{width:39px!important;height:44px!important}
+  .club-choice-crest img{width:38px!important;height:44px!important}
+}
+
 </style>
 </head>
 <body class="app-booting">
@@ -5109,10 +5145,13 @@ function renderClubChooser(){
   grid.innerHTML=managers.map(manager=>{
     const p=clubProfile(manager);
     const shield=p.crestImage?`<img src="${esc(p.crestImage)}" alt="Escudo de ${esc(p.clubName)}">`:"";
-    return `<div class="club-choice-card">
-      <div class="club-choice-top"><div class="club-choice-crest">${shield}</div><div><div class="club-choice-name">${esc(p.clubName)}</div><div class="club-choice-dt">DT · ${esc(manager)}</div></div></div>
-      <button type="button" class="btn primary" onclick="chooseViewerClub('${esc(manager)}')">Entrar</button>
-    </div>`;
+    return `<button type="button" class="club-choice-card" onclick="chooseViewerClub('${esc(manager)}')" aria-label="Entrar como ${esc(manager)} · ${esc(p.clubName)}">
+      <div class="club-choice-crest">${shield}</div>
+      <div class="club-choice-copy">
+        <div class="club-choice-name">${esc(p.clubName)}</div>
+        <div class="club-choice-dt">DT · ${esc(manager)}</div>
+      </div>
+    </button>`;
   }).join("");
 }
 function chooseViewerClub(manager){
@@ -5234,7 +5273,8 @@ function clubHeroHtml(summary,manager){
   const p=summary.profile;
   const shirt=p.shirtImage?`<img class="club-hero-shirt" src="${esc(p.shirtImage)}" alt="Camiseta de ${esc(p.clubName)}">`:"";
   const shield=p.crestImage?`<img src="${esc(p.crestImage)}" alt="Escudo de ${esc(p.clubName)}">`:"";
-  const latestBadge=summary.latest?`<span class="club-pill">Fecha ${summary.latest.round} · ${summary.latest.points} pts</span><span class="club-pill">Posición actual · ${summary.overallPosition?summary.overallPosition+"°":"—"}</span><span class="club-pill">Capitán · ${esc(summary.captainName)}</span>`:`<span class="club-pill">Sin fechas cargadas</span>`;
+  const editPill=canEditClubIdentity(manager)?`<button type="button" class="club-pill club-edit-pill" onclick="openClubIdentityEditor()">Editar identidad</button>`:"";
+  const latestBadge=summary.latest?`<span class="club-pill">Fecha ${summary.latest.round} · ${summary.latest.points} pts</span><span class="club-pill">Posición actual · ${summary.overallPosition?summary.overallPosition+"°":"—"}</span><span class="club-pill">Capitán · ${esc(summary.captainName)}</span>${editPill}`:`<span class="club-pill">Sin fechas cargadas</span>${editPill}`;
   const c1=(p.colors||[])[0]||"#2f76c7",c2=(p.colors||[])[1]||"#ffffff";
   const theme=`--club-primary-rgb:${hexRgbString(c1)};--club-secondary-rgb:${hexRgbString(c2)};background:radial-gradient(circle at 18% 18%,rgba(${hexRgbString(c1)},.26),transparent 28%),radial-gradient(circle at 82% 20%,rgba(${hexRgbString(c2)},.15),transparent 24%),linear-gradient(120deg,rgba(6,14,22,.98) 0%,rgba(6,14,22,.98) 46%,rgba(${hexRgbString(c1)},.12) 100%)`;
   return `<div class="card club-hero-card"><div class="club-hero" style="${theme}">
@@ -5251,6 +5291,18 @@ function clubHeroHtml(summary,manager){
       ${shirt}
     </div></div>`;
 }
+function clubPointsRound(manager){
+  const active=String(competitionActiveRound());
+  if(participantActiveInRound(manager,active))return active;
+  const series=clubRoundSeries(manager);
+  return series.length?String(series[series.length-1].round):"";
+}
+function openClubPoints(manager){
+  const rk=clubPointsRound(manager);
+  if(!rk)return;
+  openGeneralRoundFormation(manager,rk);
+}
+
 function clubGeneralTableHtml(current){
   const rows=generalRankingRows();
   return `<div class="card"><div class="cardhead"><h3>Tabla general</h3><span class="badge">${rows.length} equipos</span></div><div class="club-card-body"><div class="club-general-table-wrap"><table class="club-general-table"><thead><tr><th>#</th><th>DT</th><th>Equipo</th><th>Total</th><th>Fechas</th></tr></thead><tbody>${rows.map((row,index)=>{const selected=row.m===current;const series=clubRoundSeries(row.m);return `<tr class="${selected?"is-selected":""}"><td>${index+1}</td><td>${esc(row.m)}</td><td>${esc(clubProfile(row.m).clubName)}</td><td><b>${row.total}</b></td><td>${series.length}</td></tr>`;}).join("")}</tbody></table></div></div></div>`;
@@ -5263,11 +5315,19 @@ function renderClubPage(){
   saveClubPageManagerLocal(current);
   $("clubManagerSelect").innerHTML=managers.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join("");
   if(current)$("clubManagerSelect").value=current;
-  if(!current){$("myClubContent").innerHTML='<div class="card"><div class="emptybox">Todavía no hay participantes cargados.</div></div>';updateTopBrand();return;}
+
+  if(!current){
+    $("myClubContent").innerHTML='<div class="card"><div class="emptybox">Todavía no hay participantes cargados.</div></div>';
+    updateTopBrand();
+    return;
+  }
+
   const summary=clubSummary(current);
   const latest=summary.latest;
   const best=summary.best;
   const worst=summary.worst;
+  const pointsRound=clubPointsRound(current);
+
   const statsHtml=`<div class="club-stats">
     <div class="club-stat"><strong>${summary.overallPosition?summary.overallPosition+"°":"—"}</strong><span>Posición general</span><small>${summary.playedRounds||0} fecha${summary.playedRounds===1?"":"s"} disputada${summary.playedRounds===1?"":"s"}</small></div>
     <div class="club-stat"><strong>${summary.total}</strong><span>Puntos totales</span><small>Acumulado del torneo</small></div>
@@ -5276,13 +5336,47 @@ function renderClubPage(){
     <div class="club-stat"><strong>${worst?worst.points:"—"}</strong><span>Peor fecha</span><small>${worst?`F${worst.round} · ${worst.position?worst.position+"°":"—"}`:"Sin datos"}</small></div>
     <div class="club-stat"><strong>${money(summary.squadValue)}</strong><span>Valor del plantel</span><small>Capitán actual: ${esc(summary.captainName)}</small></div>
   </div>`;
-  const seriesHtml=summary.series.length?summary.series.map(item=>`<div class="club-round-chip"><small>Fecha ${item.round}</small><b>${item.points} pts</b><small class="club-round-rank">${item.position?item.position+"°":"—"} en la fecha</small><small>${item.pending?`${item.pending} pendientes · `:""}${item.subs?`${item.subs} supl.`:"Sin suplentes"}</small></div>`).join(""):`<div class="club-empty-note">Todavía no hay puntajes cargados para este equipo.</div>`;
+
+  const seriesHtml=summary.series.length
+    ? summary.series.map(item=>`<div class="club-round-chip"><small>Fecha ${item.round}</small><b>${item.points} pts</b><small class="club-round-rank">${item.position?item.position+"°":"—"} en la fecha</small><small>${item.pending?`${item.pending} pendientes · `:""}${item.subs?`${item.subs} supl.`:"Sin suplentes"}</small></div>`).join("")
+    : `<div class="club-empty-note">Todavía no hay puntajes cargados para este equipo.</div>`;
+
   const latestHtml=`<div class="club-latest-grid">
-    <div class="club-kpi-box"><div class="club-series-head"><h4>Última fecha cargada</h4><span>${latest?`Fecha ${latest.round}`:"Sin datos"}</span></div><div class="club-kpi-inline"><strong>${latest?latest.points:"—"}</strong><small>Puntos</small></div><div class="club-kpi-sub">${latest?`${latest.position?latest.position+"°":"—"} en la tabla de la fecha · ${latest.pending} pendiente${latest.pending===1?"":"s"}`:"Aún no se cargaron fechas para este DT."}</div>${latest?`<div class="club-meta-mini"><button class="btn" type="button" onclick="openGeneralRoundFormation(decodeURIComponent('${encodeURIComponent(current)}'),'${latest.round}')">Ver formación</button></div>`:""}</div>
+    <div class="club-kpi-box">
+      <div class="club-series-head"><h4>Última fecha cargada</h4><span>${latest?`Fecha ${latest.round}`:"Sin datos"}</span></div>
+      <div class="club-kpi-inline"><strong>${latest?latest.points:"—"}</strong><small>Puntos</small></div>
+      <div class="club-kpi-sub">${latest?`${latest.position?latest.position+"°":"—"} en la tabla de la fecha · ${latest.pending} pendiente${latest.pending===1?"":"s"}`:"Aún no se cargaron fechas para este DT."}</div>
+      ${pointsRound?`<div class="club-meta-mini"><button class="btn" type="button" onclick="openClubPoints(decodeURIComponent('${encodeURIComponent(current)}'))">Ver puntajes</button></div>`:""}
+    </div>
   </div>`;
-  const rosterHtml=`<div class="card club-roster-card"><div class="cardhead"><div><h3>Plantel actual</h3><div class="muted" style="font-size:11px">Sin escudos de clubes ni fotos: sólo nombres, puestos, club y cotización.</div></div><span class="badge">${money(summary.squadValue)}</span></div><div class="club-roster-grid"><div class="club-roster-col"><h4>Titulares (11)</h4><div class="club-roster-list">${clubRosterRows(current,'Titular')}</div></div><div class="club-roster-col"><h4>Suplentes (4)</h4><div class="club-roster-list">${clubRosterRows(current,'Suplente')}</div></div></div></div>`;
-  const editTrigger=canEditClubIdentity(current)?`<div class="club-edit-trigger"><button type="button" class="btn primary" onclick="openClubIdentityEditor()">Editar identidad</button></div>`:"";
-  $("myClubContent").innerHTML=`<div class="club-dashboard">${clubHeroHtml(summary,current)}${editTrigger}${statsHtml}<div class="club-main-grid"><div class="card"><div class="cardhead"><h3>Rendimiento por fecha</h3><span class="badge">${summary.playedRounds||0} fechas</span></div><div class="club-card-body">${latestHtml}<div class="club-series-head"><h4>Recorrido del torneo</h4><span>Puntos y posición por fecha</span></div><div class="club-round-strip">${seriesHtml}</div></div></div>${clubGeneralTableHtml(current)}</div>${rosterHtml}</div>`;
+
+  const rosterHtml=`<div class="card club-roster-card">
+    <div class="cardhead">
+      <div><h3>Plantel actual</h3><div class="muted" style="font-size:11px">Sin escudos de clubes ni fotos: sólo nombres, puestos, club y cotización.</div></div>
+      <span class="badge">${money(summary.squadValue)}</span>
+    </div>
+    <div class="club-roster-grid">
+      <div class="club-roster-col"><h4>Titulares (11)</h4><div class="club-roster-list">${clubRosterRows(current,'Titular')}</div></div>
+      <div class="club-roster-col"><h4>Suplentes (4)</h4><div class="club-roster-list">${clubRosterRows(current,'Suplente')}</div></div>
+    </div>
+  </div>`;
+
+  $("myClubContent").innerHTML=`<div class="club-dashboard">
+    ${clubHeroHtml(summary,current)}
+    ${statsHtml}
+    <div class="club-main-grid">
+      <div class="card">
+        <div class="cardhead"><h3>Rendimiento por fecha</h3><span class="badge">${summary.playedRounds||0} fechas</span></div>
+        <div class="club-card-body">
+          ${latestHtml}
+          <div class="club-series-head"><h4>Recorrido del torneo</h4><span>Puntos y posición por fecha</span></div>
+          <div class="club-round-strip">${seriesHtml}</div>
+        </div>
+      </div>
+      ${clubGeneralTableHtml(current)}
+    </div>
+    ${rosterHtml}
+  </div>`;
   updateTopBrand();
 }
 
@@ -6493,7 +6587,7 @@ function renderResults(){
 }
 function renderDb(){
   const rounds=allRounds(),teams=state.phase==="confirmed"?state.confirmedTeams:state.draftRosters,totalPicks=state.participants.reduce((s,m)=>s+(teams[m]?.picks.length||0),0);
-  $("dbStats").innerHTML=`<div class="metrics" style="padding:0"><div class="metric"><b>${state.players.length}</b><span>Jugadores activos</span></div><div class="metric"><b>${state.participants.length}</b><span>Participantes</span></div><div class="metric"><b>${rounds.length}</b><span>Fechas con datos</span></div></div><p class="muted">Estado: <b style="color:var(--text)">${state.phase==="draft"?"Draft en curso":state.phase==="confirmed"?"Equipos confirmados":state.phase==="setup"?"Configurando participantes":"Sin torneo iniciado"}</b></p><p class="muted">Última actualización de datos: ${formatDateTime24(state.updatedAt)}</p><p class="muted">Fuente oficial del torneo: <b style="color:var(--text)">Supabase · ${isCloudAdmin()?"Administrador":"Solo lectura"}</b></p><p class="muted">Base de jugadores sincronizada: <b style="color:var(--text)">04/10/2026</b></p><p class="base-version-mark">Base V116 · Mi Club ajustes finales</p><div style="margin-top:10px">${state.participants.map(m=>`<span class="badge" style="margin:2px">${esc(m)} · desde F${participantStartRound(m)}</span>`).join("")}</div>${officialBaseWarningHtml()}`;
+  $("dbStats").innerHTML=`<div class="metrics" style="padding:0"><div class="metric"><b>${state.players.length}</b><span>Jugadores activos</span></div><div class="metric"><b>${state.participants.length}</b><span>Participantes</span></div><div class="metric"><b>${rounds.length}</b><span>Fechas con datos</span></div></div><p class="muted">Estado: <b style="color:var(--text)">${state.phase==="draft"?"Draft en curso":state.phase==="confirmed"?"Equipos confirmados":state.phase==="setup"?"Configurando participantes":"Sin torneo iniciado"}</b></p><p class="muted">Última actualización de datos: ${formatDateTime24(state.updatedAt)}</p><p class="muted">Fuente oficial del torneo: <b style="color:var(--text)">Supabase · ${isCloudAdmin()?"Administrador":"Solo lectura"}</b></p><p class="muted">Base de jugadores sincronizada: <b style="color:var(--text)">04/10/2026</b></p><p class="base-version-mark">Base V117 · Selector y puntajes</p><div style="margin-top:10px">${state.participants.map(m=>`<span class="badge" style="margin:2px">${esc(m)} · desde F${participantStartRound(m)}</span>`).join("")}</div>${officialBaseWarningHtml()}`;
   const adminSection=$("playerAdminSection");
   if(adminSection)adminSection.style.display=isCloudAdmin()?"flex":"none";
   if(isCloudAdmin())renderAdminPlayersTable();

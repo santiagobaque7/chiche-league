@@ -3035,6 +3035,118 @@ textarea{font:inherit}
   .club-roster-extra b{font-size:11.5px!important}
 }
 
+
+/* V119 · Mi Club · estadísticas compactas */
+.club-insights-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:9px;
+  margin-bottom:10px;
+}
+.club-insight-card{
+  min-width:0;
+}
+.club-insight-card .cardhead{
+  min-height:38px;
+  padding:7px 10px;
+}
+.club-insight-card .cardhead h3{
+  font-size:12.5px;
+}
+.club-insight-body{
+  padding:9px 10px 10px;
+}
+.club-pos-list{
+  display:grid;
+  gap:7px;
+}
+.club-pos-row{
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr) 34px;
+  align-items:center;
+  gap:7px;
+}
+.club-pos-row .pos{
+  min-width:32px;
+  padding:3px 4px;
+  font-size:8.5px;
+}
+.club-pos-row>b{
+  text-align:right;
+  font-size:11px;
+}
+.club-pos-track{
+  height:6px;
+  overflow:hidden;
+  border-radius:999px;
+  background:#0b141d;
+  border:1px solid #213548;
+}
+.club-pos-track i{
+  display:block;
+  height:100%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#2f76c7,#67a9ed);
+}
+.club-mini-metrics{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.club-mini-metrics>div{
+  min-width:0;
+  padding:8px;
+  border:1px solid #20364a;
+  border-radius:10px;
+  background:#0e1924;
+}
+.club-mini-metrics span,
+.club-record-list span{
+  display:block;
+  color:#8fa6bd;
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.055em;
+}
+.club-mini-metrics b{
+  display:block;
+  margin-top:3px;
+  font-size:22px;
+  line-height:1;
+}
+.club-mini-metrics small,
+.club-record-list small{
+  display:block;
+  margin-top:3px;
+  color:#a8bfd5;
+  font-size:9px;
+}
+.club-record-list{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px 10px;
+}
+.club-record-list>div{
+  min-width:0;
+}
+.club-record-list b{
+  display:block;
+  margin-top:2px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:11px;
+}
+.club-record-list .wide{
+  grid-column:1/-1;
+}
+@media(max-width:1120px){
+  .club-insights-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:620px){
+  .club-insights-grid{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body class="app-booting">
@@ -5261,6 +5373,166 @@ function clubSummary(manager){
     playedRounds:series.length
   };
 }
+
+function clubRoundContribution(manager,rk){
+  rk=String(rk);
+  const r=rosterForRound(manager,rk),vals=state.rounds?.[rk]||{};
+  const posPoints={ARQ:0,DEF:0,VOL:0,DEL:0};
+  const counted=[];
+  let benchPoints=0,benchEntries=0,captainNormal=0,captainBonus=0;
+
+  const titularByPos={ARQ:[],DEF:[],VOL:[],DEL:[]},subByPos={};
+  (r?.picks||[]).forEach(id=>{
+    const p=player(id);if(!p)return;
+    const role=r.roles?.[id];
+    if(role==="Titular")titularByPos[p.position].push(Number(id));
+    if(role==="Suplente")subByPos[p.position]=Number(id);
+  });
+
+  ["ARQ","DEF","VOL","DEL"].forEach(pos=>{
+    let needsSub=false;
+    titularByPos[pos].forEach(id=>{
+      const v=vals[id];
+      if(typeof v==="number"){
+        posPoints[pos]+=v;
+        counted.push({id,score:v,pos,bench:false});
+        if(Number(r.captain)===id)captainNormal+=v;
+      }else if(v==="NO JUEGA"){
+        needsSub=true;
+      }
+    });
+    if(needsSub){
+      const sid=subByPos[pos],sv=vals[sid];
+      if(typeof sv==="number"){
+        posPoints[pos]+=sv;
+        benchPoints+=sv;
+        benchEntries++;
+        counted.push({id:sid,score:sv,pos,bench:true});
+      }
+    }
+  });
+
+  const capId=Number(r?.captain);
+  if(capId&&typeof vals[capId]==="number")captainBonus=captainBonusValue(rk,capId);
+
+  return {posPoints,counted,benchPoints,benchEntries,captainNormal,captainBonus};
+}
+function clubMarketStats(manager){
+  const movements=[];
+  Object.entries(state.transferRounds||{}).forEach(([rk,tr])=>{
+    (tr?.history||[]).forEach((ev,index)=>{
+      if(!ev||!["change","forced"].includes(ev.type))return;
+      movements.push({round:Number(rk),index,ev});
+    });
+  });
+  movements.sort((a,b)=>a.round-b.round||a.index-b.index);
+
+  const own=movements.filter(x=>x.ev.manager===manager);
+  const steals=own.filter(x=>(x.ev.stolenFrom||x.ev.sourceOwner||""));
+  const robbed=movements.filter(x=>(x.ev.stolenFrom||x.ev.sourceOwner||"")===manager);
+  const last=own.length?own[own.length-1]:null;
+
+  return {
+    changes:own.length,
+    steals:steals.length,
+    robbed:robbed.length,
+    lastName:last?.ev?.inPlayerName||"—",
+    lastRound:last?.round||0
+  };
+}
+function clubSeasonInsights(manager){
+  const series=clubRoundSeries(manager);
+  const posPoints={ARQ:0,DEF:0,VOL:0,DEL:0};
+  const playerTotals=new Map();
+  let benchPoints=0,benchEntries=0,captainNormal=0,captainBonus=0;
+  let maxSingle=null,wins=0,longestTop3=0,currentTop3=0;
+
+  series.forEach(item=>{
+    const c=clubRoundContribution(manager,item.round);
+    ["ARQ","DEF","VOL","DEL"].forEach(pos=>posPoints[pos]+=c.posPoints[pos]);
+    benchPoints+=c.benchPoints;
+    benchEntries+=c.benchEntries;
+    captainNormal+=c.captainNormal;
+    captainBonus+=c.captainBonus;
+
+    c.counted.forEach(x=>{
+      playerTotals.set(x.id,(playerTotals.get(x.id)||0)+x.score);
+      if(!maxSingle||x.score>maxSingle.score){
+        maxSingle={id:x.id,score:x.score,round:item.round};
+      }
+    });
+
+    if(item.position===1)wins++;
+    if(item.position>0&&item.position<=3){
+      currentTop3++;
+      longestTop3=Math.max(longestTop3,currentTop3);
+    }else{
+      currentTop3=0;
+    }
+  });
+
+  let emblem=null;
+  [...playerTotals.entries()].forEach(([id,total])=>{
+    if(!emblem||total>emblem.total)emblem={id,total};
+  });
+
+  return {
+    posPoints,
+    benchPoints,
+    benchEntries,
+    captainNormal,
+    captainBonus,
+    wins,
+    longestTop3,
+    emblem:emblem?{...emblem,name:player(emblem.id)?.name||"—"}:null,
+    maxSingle:maxSingle?{...maxSingle,name:player(maxSingle.id)?.name||"—"}:null,
+    market:clubMarketStats(manager)
+  };
+}
+function clubInsightsHtml(manager){
+  const s=clubSeasonInsights(manager);
+  const posMax=Math.max(1,...Object.values(s.posPoints).map(v=>Math.max(0,v)));
+  const posRows=["ARQ","DEF","VOL","DEL"].map(pos=>{
+    const value=s.posPoints[pos];
+    const width=Math.max(0,Math.min(100,(Math.max(0,value)/posMax)*100));
+    return `<div class="club-pos-row"><span class="pos pos-${pos}">${pos}</span><div class="club-pos-track"><i style="width:${width}%"></i></div><b>${value}</b></div>`;
+  }).join("");
+
+  const lastMarket=s.market.lastRound?`F${s.market.lastRound} · ${esc(s.market.lastName)}`:"—";
+
+  return `<div class="club-insights-grid">
+    <div class="card club-insight-card">
+      <div class="cardhead"><h3>Aporte por posición</h3></div>
+      <div class="club-insight-body club-pos-list">${posRows}</div>
+    </div>
+    <div class="card club-insight-card">
+      <div class="cardhead"><h3>Impacto</h3></div>
+      <div class="club-insight-body club-mini-metrics">
+        <div><span>Capitán</span><b>${s.captainNormal}</b><small>+${s.captainBonus} bonus</small></div>
+        <div><span>Banco</span><b>${s.benchPoints}</b><small>${s.benchEntries} entrada${s.benchEntries===1?"":"s"}</small></div>
+      </div>
+    </div>
+    <div class="card club-insight-card">
+      <div class="cardhead"><h3>Récords</h3></div>
+      <div class="club-insight-body club-record-list">
+        <div><span>Jugador emblema</span><b>${esc(s.emblem?.name||"—")}</b><small>${s.emblem?`${s.emblem.total} pts`:""}</small></div>
+        <div><span>Mayor individual</span><b>${esc(s.maxSingle?.name||"—")}</b><small>${s.maxSingle?`${s.maxSingle.score} pts · F${s.maxSingle.round}`:""}</small></div>
+        <div><span>Racha Top 3</span><b>${s.longestTop3}</b><small>fechas</small></div>
+        <div><span>Fechas ganadas</span><b>${s.wins}</b></div>
+      </div>
+    </div>
+    <div class="card club-insight-card">
+      <div class="cardhead"><h3>Mercado</h3></div>
+      <div class="club-insight-body club-record-list">
+        <div><span>Cambios</span><b>${s.market.changes}</b></div>
+        <div><span>Robos</span><b>${s.market.steals}</b></div>
+        <div><span>Le robaron</span><b>${s.market.robbed}</b></div>
+        <div class="wide"><span>Último fichaje</span><b>${lastMarket}</b></div>
+      </div>
+    </div>
+  </div>`;
+}
+
 function clubRosterRows(manager,role){
   const roster=currentRosterForManager(manager);
   const ids=(roster.picks||[]).filter(id=>roster.roles?.[id]===role).sort((a,b)=>{
@@ -5406,7 +5678,7 @@ function renderClubPage(){
   </div>`;
 
   const seriesHtml=summary.series.length
-    ? summary.series.map(item=>`<div class="club-round-chip"><small>Fecha ${item.round}</small><b>${item.points} pts</b><small class="club-round-rank">${item.position?item.position+"°":"—"} en la fecha</small><small>${item.pending?`${item.pending} pendientes · `:""}${item.subs?`${item.subs} supl.`:"Sin suplentes"}</small></div>`).join("")
+    ? [...summary.series].reverse().map(item=>`<div class="club-round-chip"><small>Fecha ${item.round}</small><b>${item.points} pts</b><small class="club-round-rank">${item.position?item.position+"°":"—"} en la fecha</small><small>${item.pending?`${item.pending} pendientes · `:""}${item.subs?`${item.subs} supl.`:"Sin suplentes"}</small></div>`).join("")
     : `<div class="club-empty-note">Todavía no hay puntajes cargados para este equipo.</div>`;
 
   const latestHtml=`<div class="club-latest-grid">
@@ -5432,12 +5704,13 @@ function renderClubPage(){
   $("myClubContent").innerHTML=`<div class="club-dashboard">
     ${clubHeroHtml(summary,current)}
     ${statsHtml}
+    ${clubInsightsHtml(current)}
     <div class="club-main-grid">
       <div class="card">
         <div class="cardhead"><h3>Rendimiento por fecha</h3><span class="badge">${summary.playedRounds||0} fechas</span></div>
         <div class="club-card-body">
           ${latestHtml}
-          <div class="club-series-head"><h4>Recorrido del torneo</h4><span>Puntos y posición por fecha</span></div>
+          <div class="club-series-head"><h4>Recorrido del torneo</h4><span>Última → primera</span></div>
           <div class="club-round-strip">${seriesHtml}</div>
         </div>
       </div>
@@ -6655,7 +6928,7 @@ function renderResults(){
 }
 function renderDb(){
   const rounds=allRounds(),teams=state.phase==="confirmed"?state.confirmedTeams:state.draftRosters,totalPicks=state.participants.reduce((s,m)=>s+(teams[m]?.picks.length||0),0);
-  $("dbStats").innerHTML=`<div class="metrics" style="padding:0"><div class="metric"><b>${state.players.length}</b><span>Jugadores activos</span></div><div class="metric"><b>${state.participants.length}</b><span>Participantes</span></div><div class="metric"><b>${rounds.length}</b><span>Fechas con datos</span></div></div><p class="muted">Estado: <b style="color:var(--text)">${state.phase==="draft"?"Draft en curso":state.phase==="confirmed"?"Equipos confirmados":state.phase==="setup"?"Configurando participantes":"Sin torneo iniciado"}</b></p><p class="muted">Última actualización de datos: ${formatDateTime24(state.updatedAt)}</p><p class="muted">Fuente oficial del torneo: <b style="color:var(--text)">Supabase · ${isCloudAdmin()?"Administrador":"Solo lectura"}</b></p><p class="muted">Base de jugadores sincronizada: <b style="color:var(--text)">04/10/2026</b></p><p class="base-version-mark">Base V118 · Plantel compacto</p><div style="margin-top:10px">${state.participants.map(m=>`<span class="badge" style="margin:2px">${esc(m)} · desde F${participantStartRound(m)}</span>`).join("")}</div>${officialBaseWarningHtml()}`;
+  $("dbStats").innerHTML=`<div class="metrics" style="padding:0"><div class="metric"><b>${state.players.length}</b><span>Jugadores activos</span></div><div class="metric"><b>${state.participants.length}</b><span>Participantes</span></div><div class="metric"><b>${rounds.length}</b><span>Fechas con datos</span></div></div><p class="muted">Estado: <b style="color:var(--text)">${state.phase==="draft"?"Draft en curso":state.phase==="confirmed"?"Equipos confirmados":state.phase==="setup"?"Configurando participantes":"Sin torneo iniciado"}</b></p><p class="muted">Última actualización de datos: ${formatDateTime24(state.updatedAt)}</p><p class="muted">Fuente oficial del torneo: <b style="color:var(--text)">Supabase · ${isCloudAdmin()?"Administrador":"Solo lectura"}</b></p><p class="muted">Base de jugadores sincronizada: <b style="color:var(--text)">04/10/2026</b></p><p class="base-version-mark">Base V119 · Mi Club estadísticas</p><div style="margin-top:10px">${state.participants.map(m=>`<span class="badge" style="margin:2px">${esc(m)} · desde F${participantStartRound(m)}</span>`).join("")}</div>${officialBaseWarningHtml()}`;
   const adminSection=$("playerAdminSection");
   if(adminSection)adminSection.style.display=isCloudAdmin()?"flex":"none";
   if(isCloudAdmin())renderAdminPlayersTable();

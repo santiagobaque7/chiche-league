@@ -1,17 +1,21 @@
-V122 · SUBIR A GITHUB
+V123 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
 - ChicheLeague_Clausura2026.html
 
-CORRECCIÓN
-- El nombre editado del equipo ya no se vuelve a pisar con el nombre original.
-- El preset sólo se usa como nombre inicial.
-- Después de guardar, el nuevo nombre se mantiene en:
-  * flyer de Mi Club
-  * selector inicial
-  * tabla general de Mi Club
-  * barra superior
-  * Home
+FIX DEFINITIVO · NOMBRE DEL EQUIPO
+- El nuevo nombre se actualiza inmediatamente en memoria.
+- Se guarda siempre como override local.
+- Si sos Admin, además se guarda en el estado compartido y se sincroniza a la nube.
+- clubProfile() ahora respeta el nombre local también cuando estás como Admin.
+- Un pull/re-render ya no debería devolver el nombre al preset original.
 
-No cambian assets respecto de V121/V120.
+Se actualiza en:
+- flyer
+- selector inicial
+- tabla general de Mi Club
+- barra superior
+- Home
+
+No cambian assets.

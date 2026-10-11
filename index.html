@@ -5377,7 +5377,12 @@ function ensureClubProfiles(){
 function clubProfile(manager){
   ensureClubProfiles();
   const shared={...defaultClubProfile(manager),...(state.clubProfiles?.[manager]||{})};
-  if(!isCloudAdmin()&&clubLocalIdentityOverrides?.[manager])return {...shared,...clubLocalIdentityOverrides[manager]};
+  const local=clubLocalIdentityOverrides?.[manager]||null;
+
+  // El override local siempre tiene prioridad para evitar que un re-render
+  // vuelva a mostrar el nombre anterior. Si sos Admin, además el mismo cambio
+  // se guarda en el estado compartido desde saveClubIdentity().
+  if(local)return {...shared,...local};
   return shared;
 }
 function currentClubPageManager(){
@@ -5408,6 +5413,7 @@ function renderClubChooser(){
 }
 function chooseViewerClub(manager){
   if(!(state.participants||[]).includes(manager))return;
+  loadClubLocalIdentityOverrides();
   saveViewerManagerLocal(manager);
   saveClubPageManagerLocal(manager);
   renderClubPage();
@@ -5654,20 +5660,35 @@ function saveClubIdentity(){
   const manager=currentClubPageManager();
   if(!canEditClubIdentity(manager))return;
   ensureClubProfiles();
+
+  const newName=String($("clubEditName")?.value||"").trim().slice(0,40);
   const edited={
     ...clubProfile(manager),
-    clubName:String($("clubEditName")?.value||"").trim().slice(0,40)||defaultClubProfile(manager).clubName,
+    clubName:newName||defaultClubProfile(manager).clubName,
     description:String($("clubEditDescription")?.value||"").trim()||defaultClubProfile(manager).description,
     founded:String($("clubEditFounded")?.value||"").trim()||defaultClubProfile(manager).founded,
     stadium:String($("clubEditStadium")?.value||"").trim()||defaultClubProfile(manager).stadium,
     motto:String($("clubEditMotto")?.value||"").trim()||defaultClubProfile(manager).motto
   };
+
+  // 1) Actualización inmediata en memoria.
+  state.clubProfiles[manager]={...(state.clubProfiles[manager]||{}),...edited};
+
+  // 2) Persistencia local para que el DT vea siempre su nombre editado,
+  // incluso después de un pull automático de la partida oficial.
+  saveClubLocalIdentityOverride(manager,edited);
+
+  // 3) Si es Admin, además se publica en la partida compartida.
   if(isCloudAdmin()){
-    state.clubProfiles[manager]={...(state.clubProfiles[manager]||{}),...edited};
     persist();
   }else{
-    saveClubLocalIdentityOverride(manager,edited);
+    // Guardamos también el estado local sin intentar publicar a la nube.
+    try{
+      state.updatedAt=new Date().toISOString();
+      localStorage.setItem(STORAGE,JSON.stringify(state));
+    }catch(e){}
   }
+
   closeClubIdentityEditor();
   renderClubChooser();
   renderClubPage();
@@ -7004,7 +7025,7 @@ function renderResults(){
 }
 function renderDb(){
   const rounds=allRounds(),teams=state.phase==="confirmed"?state.confirmedTeams:state.draftRosters,totalPicks=state.participants.reduce((s,m)=>s+(teams[m]?.picks.length||0),0);
-  $("dbStats").innerHTML=`<div class="metrics" style="padding:0"><div class="metric"><b>${state.players.length}</b><span>Jugadores activos</span></div><div class="metric"><b>${state.participants.length}</b><span>Participantes</span></div><div class="metric"><b>${rounds.length}</b><span>Fechas con datos</span></div></div><p class="muted">Estado: <b style="color:var(--text)">${state.phase==="draft"?"Draft en curso":state.phase==="confirmed"?"Equipos confirmados":state.phase==="setup"?"Configurando participantes":"Sin torneo iniciado"}</b></p><p class="muted">Última actualización de datos: ${formatDateTime24(state.updatedAt)}</p><p class="muted">Fuente oficial del torneo: <b style="color:var(--text)">Supabase · ${isCloudAdmin()?"Administrador":"Solo lectura"}</b></p><p class="muted">Base de jugadores sincronizada: <b style="color:var(--text)">04/10/2026</b></p><p class="base-version-mark">Base V122 · Nombre de equipo corregido</p><div style="margin-top:10px">${state.participants.map(m=>`<span class="badge" style="margin:2px">${esc(m)} · desde F${participantStartRound(m)}</span>`).join("")}</div>${officialBaseWarningHtml()}`;
+  $("dbStats").innerHTML=`<div class="metrics" style="padding:0"><div class="metric"><b>${state.players.length}</b><span>Jugadores activos</span></div><div class="metric"><b>${state.participants.length}</b><span>Participantes</span></div><div class="metric"><b>${rounds.length}</b><span>Fechas con datos</span></div></div><p class="muted">Estado: <b style="color:var(--text)">${state.phase==="draft"?"Draft en curso":state.phase==="confirmed"?"Equipos confirmados":state.phase==="setup"?"Configurando participantes":"Sin torneo iniciado"}</b></p><p class="muted">Última actualización de datos: ${formatDateTime24(state.updatedAt)}</p><p class="muted">Fuente oficial del torneo: <b style="color:var(--text)">Supabase · ${isCloudAdmin()?"Administrador":"Solo lectura"}</b></p><p class="muted">Base de jugadores sincronizada: <b style="color:var(--text)">04/10/2026</b></p><p class="base-version-mark">Base V123 · Nombre de equipo fix definitivo</p><div style="margin-top:10px">${state.participants.map(m=>`<span class="badge" style="margin:2px">${esc(m)} · desde F${participantStartRound(m)}</span>`).join("")}</div>${officialBaseWarningHtml()}`;
   const adminSection=$("playerAdminSection");
   if(adminSection)adminSection.style.display=isCloudAdmin()?"flex":"none";
   if(isCloudAdmin())renderAdminPlayersTable();

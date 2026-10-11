@@ -1,11 +1,17 @@
-V121 · SUBIR A GITHUB
+V122 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
 - ChicheLeague_Clausura2026.html
 
-Se agrega Nombre del equipo al popup Editar identidad.
-Cada DT puede editar el nombre de su propio club y el Admin puede editar cualquiera.
-Al guardar se actualizan flyer, selector, tabla general de Mi Club, Home y encabezado superior.
+CORRECCIÓN
+- El nombre editado del equipo ya no se vuelve a pisar con el nombre original.
+- El preset sólo se usa como nombre inicial.
+- Después de guardar, el nuevo nombre se mantiene en:
+  * flyer de Mi Club
+  * selector inicial
+  * tabla general de Mi Club
+  * barra superior
+  * Home
 
-No cambian assets.
+No cambian assets respecto de V121/V120.

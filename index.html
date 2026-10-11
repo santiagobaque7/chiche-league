@@ -5416,6 +5416,7 @@ function chooseViewerClub(manager){
   loadClubLocalIdentityOverrides();
   saveViewerManagerLocal(manager);
   saveClubPageManagerLocal(manager);
+  formationDefaultManagerOnOpen=manager;
   renderClubPage();
   renderHome();
   updateTopBrand();
@@ -5864,9 +5865,15 @@ function setPage(id){
   if(id==="bestPlayers")renderBestPlayers();
   if(id==="database")renderDb();
 }
-document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>setPage(b.dataset.page));
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>{
+  if(b.dataset.page==="formations")return openDefaultFormations();
+  setPage(b.dataset.page);
+});
 $("homeReturnBtn").onclick=openHome;
-document.querySelectorAll(".home-module-card").forEach(b=>b.onclick=()=>setPage(b.dataset.homePage));
+document.querySelectorAll(".home-module-card").forEach(b=>b.onclick=()=>{
+  if(b.dataset.homePage==="formations")return openDefaultFormations();
+  setPage(b.dataset.homePage);
+});
 
 function status(msg,ok=false){$("draftStatus").textContent=msg;$("draftStatus").className="status "+(ok?"ok":"err")}
 function rosterBudget(r){return r.picks.reduce((s,id)=>s+(player(id)?.price||0),0)}
@@ -6911,6 +6918,7 @@ let generalRankingExpandedManagers=(()=>{
   }
 })();
 let formationNavigationTarget=null;
+let formationDefaultManagerOnOpen=null;
 
 function persistGeneralExpandedManagers(){
   sessionStorage.setItem("chicheGeneralExpandedManagers",JSON.stringify([...generalRankingExpandedManagers]));
@@ -6960,8 +6968,14 @@ function generalManagerHistory(manager){
   });
 }
 
+function openDefaultFormations(){
+  formationNavigationTarget=null;
+  formationDefaultManagerOnOpen=viewerManager()||"";
+  setPage("formations");
+}
 function openGeneralRoundFormation(manager,rk){
   rememberGeneralExpandedManager(manager);
+  formationDefaultManagerOnOpen=null;
   formationNavigationTarget={manager,round:String(rk)};
   setPage("formations");
 }
@@ -7025,7 +7039,7 @@ function renderResults(){
 }
 function renderDb(){
   const rounds=allRounds(),teams=state.phase==="confirmed"?state.confirmedTeams:state.draftRosters,totalPicks=state.participants.reduce((s,m)=>s+(teams[m]?.picks.length||0),0);
-  $("dbStats").innerHTML=`<div class="metrics" style="padding:0"><div class="metric"><b>${state.players.length}</b><span>Jugadores activos</span></div><div class="metric"><b>${state.participants.length}</b><span>Participantes</span></div><div class="metric"><b>${rounds.length}</b><span>Fechas con datos</span></div></div><p class="muted">Estado: <b style="color:var(--text)">${state.phase==="draft"?"Draft en curso":state.phase==="confirmed"?"Equipos confirmados":state.phase==="setup"?"Configurando participantes":"Sin torneo iniciado"}</b></p><p class="muted">Última actualización de datos: ${formatDateTime24(state.updatedAt)}</p><p class="muted">Fuente oficial del torneo: <b style="color:var(--text)">Supabase · ${isCloudAdmin()?"Administrador":"Solo lectura"}</b></p><p class="muted">Base de jugadores sincronizada: <b style="color:var(--text)">04/10/2026</b></p><p class="base-version-mark">Base V123 · Nombre de equipo fix definitivo</p><div style="margin-top:10px">${state.participants.map(m=>`<span class="badge" style="margin:2px">${esc(m)} · desde F${participantStartRound(m)}</span>`).join("")}</div>${officialBaseWarningHtml()}`;
+  $("dbStats").innerHTML=`<div class="metrics" style="padding:0"><div class="metric"><b>${state.players.length}</b><span>Jugadores activos</span></div><div class="metric"><b>${state.participants.length}</b><span>Participantes</span></div><div class="metric"><b>${rounds.length}</b><span>Fechas con datos</span></div></div><p class="muted">Estado: <b style="color:var(--text)">${state.phase==="draft"?"Draft en curso":state.phase==="confirmed"?"Equipos confirmados":state.phase==="setup"?"Configurando participantes":"Sin torneo iniciado"}</b></p><p class="muted">Última actualización de datos: ${formatDateTime24(state.updatedAt)}</p><p class="muted">Fuente oficial del torneo: <b style="color:var(--text)">Supabase · ${isCloudAdmin()?"Administrador":"Solo lectura"}</b></p><p class="muted">Base de jugadores sincronizada: <b style="color:var(--text)">04/10/2026</b></p><p class="base-version-mark">Base V124 · Formaciones por equipo</p><div style="margin-top:10px">${state.participants.map(m=>`<span class="badge" style="margin:2px">${esc(m)} · desde F${participantStartRound(m)}</span>`).join("")}</div>${officialBaseWarningHtml()}`;
   const adminSection=$("playerAdminSection");
   if(adminSection)adminSection.style.display=isCloudAdmin()?"flex":"none";
   if(isCloudAdmin())renderAdminPlayersTable();
@@ -7261,10 +7275,14 @@ function changeFormationRole(id,role){
 
 function renderFormations(){
   const target=formationNavigationTarget;
-  const prevM=target?.manager||$("formationManager").value;
+  const preferredManager=target?.manager||formationDefaultManagerOnOpen||$("formationManager").value;
   $("formationManager").innerHTML=participantsAlphabetical(state.participants).map(m=>`<option>${esc(m)}</option>`).join("");
   const alphabeticalManagers=participantsAlphabetical(state.participants);
-  $("formationManager").value=state.participants.includes(prevM)?prevM:(alphabeticalManagers[0]||"");
+  $("formationManager").value=state.participants.includes(preferredManager)?preferredManager:(alphabeticalManagers[0]||"");
+
+  // El DT por defecto se aplica sólo al entrar a la solapa.
+  // Una vez adentro, el selector puede cambiarse normalmente.
+  formationDefaultManagerOnOpen=null;
 
   if(target?.round)$("formationRound").value=String(target.round);
   formationRoundOptions();

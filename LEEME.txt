@@ -1,21 +1,19 @@
-V123 · SUBIR A GITHUB
+V124 · SUBIR A GITHUB
 
 Reemplazar únicamente:
 - index.html
 - ChicheLeague_Clausura2026.html
 
-FIX DEFINITIVO · NOMBRE DEL EQUIPO
-- El nuevo nombre se actualiza inmediatamente en memoria.
-- Se guarda siempre como override local.
-- Si sos Admin, además se guarda en el estado compartido y se sincroniza a la nube.
-- clubProfile() ahora respeta el nombre local también cuando estás como Admin.
-- Un pull/re-render ya no debería devolver el nombre al preset original.
+FORMACIONES
+- Al entrar normalmente desde menú o Home muestra por defecto el DT/equipo
+  seleccionado al iniciar la app.
+- Dentro de Formaciones se puede seguir cambiando manualmente de DT.
+- Si se sale de Formaciones y luego se vuelve a entrar, vuelve al equipo propio.
 
-Se actualiza en:
-- flyer
-- selector inicial
-- tabla general de Mi Club
-- barra superior
-- Home
+MI CLUB > VER PUNTAJES
+- Si estás viendo tu Mi Club, abre tu formación.
+- Si estás viendo Mi Club de otro DT, abre temporalmente la formación de ese DT.
+- Usa la fecha actual o la última disponible según la lógica existente.
+- Esa visita temporal NO cambia el DT por defecto de Formaciones.
 
 No cambian assets.

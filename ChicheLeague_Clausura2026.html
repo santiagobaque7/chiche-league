@@ -3218,6 +3218,49 @@ textarea{font:inherit}
   .club-insights-grid{grid-template-columns:1fr}
 }
 
+
+/* V125 · estadios + identidad visual */
+.club-hero{
+  grid-template-columns:minmax(0,1fr) minmax(360px,470px)!important;
+  gap:18px!important;
+  min-height:270px!important;
+}
+.club-hero-main{min-width:0!important}
+.club-hero-visuals{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  align-items:center!important;
+  justify-items:center!important;
+  gap:10px!important;
+  min-width:0!important;
+}
+.club-hero-shirt,.club-hero-stadium{
+  position:static!important;
+  width:220px!important;
+  height:205px!important;
+  max-width:100%!important;
+  object-fit:contain!important;
+  margin:0!important;
+  align-self:center!important;
+  justify-self:center!important;
+}
+.club-hero-shirt{filter:drop-shadow(0 16px 22px rgba(0,0,0,.32))!important}
+.club-hero-stadium{filter:drop-shadow(0 14px 18px rgba(0,0,0,.28))!important}
+@media(max-width:1180px){
+  .club-hero{grid-template-columns:minmax(0,1fr) 350px!important}
+  .club-hero-shirt,.club-hero-stadium{width:168px!important;height:160px!important}
+}
+@media(max-width:900px){
+  .club-hero{grid-template-columns:1fr!important}
+  .club-hero-main{align-items:flex-start!important}
+  .club-hero-visuals{width:100%!important;grid-template-columns:1fr 1fr!important}
+  .club-hero-shirt,.club-hero-stadium{width:170px!important;height:155px!important}
+}
+@media(max-width:560px){
+  .club-hero-visuals{gap:4px!important}
+  .club-hero-shirt,.club-hero-stadium{width:132px!important;height:122px!important}
+}
+
 </style>
 </head>
 <body class="app-booting">
@@ -5304,16 +5347,16 @@ function hexRgbString(hex){
 }
 
 const CLUB_IDENTITY_PRESETS={
-  Baco:{clubName:"Héroes de Cantilo",shortName:"HDC",description:"Fútbol, amigos y una sola banda.",founded:"Marzo 2026",stadium:"Cantilo Park",motto:"No negociamos la épica.",colors:["#d73535","#f5f9ff"],shirtImage:"assets/hdc_shirt.svg?v=116",crestImage:"assets/hdc_crest.svg?v=116"},
-  Alva:{clubName:"Swifties",shortName:"SFC",description:"Ritmo alto, hits en cadena y un equipo que nunca baja del escenario.",founded:"Diciembre 2025",stadium:"The Eras Ground",motto:"Shake it off y a sumar.",colors:["#db3dd7","#fff6fd"],shirtImage:"assets/swifties_shirt.svg?v=116",crestImage:"assets/swifties_crest.svg?v=116"},
-  Ini:{clubName:"Coty FC",shortName:"CFC",description:"Verde, sobrio y competitivo: un equipo que juega simple y muerde arriba.",founded:"Enero 2026",stadium:"Coty Arena",motto:"Juego corto, memoria larga.",colors:["#0f8c47","#f3f3ec"],shirtImage:"assets/coty_shirt.svg?v=116",crestImage:"assets/coty_crest.svg?v=116"},
-  Frigo:{clubName:"Toco y Acabo",shortName:"TYA",description:"Ataque rápido, pocas vueltas y obsesión por resolver cada fecha.",founded:"Abril 2026",stadium:"La Terminal",motto:"Una y adentro.",colors:["#cf2b2b","#111111"],shirtImage:"assets/toco_shirt.svg?v=116",crestImage:"assets/toco_crest.svg?v=116"},
-  Tota:{clubName:"El Brazo de Costitas",shortName:"EBC",description:"Mística de potrero, plantel ancho y hambre de gloria en cada fecha.",founded:"Marzo 2026",stadium:"El Asador",motto:"Brazo firme, hambre de gloria.",colors:["#8fd8ff","#f8f8f8"],shirtImage:"assets/costitas_shirt.svg?v=116",crestImage:"assets/costitas_crest.svg?v=116"},
-  Fede:{clubName:"El Millo FC",shortName:"MFC",description:"Camiseta blanca, vocación ofensiva y gusto por jugar siempre un poco mejor.",founded:"Mayo 2026",stadium:"El Monumentalito",motto:"Jugar, gustar y puntuar.",colors:["#ffffff","#d53131"],shirtImage:"assets/millo_shirt.svg?v=116",crestImage:"assets/millo_crest.svg?v=116"},
-  Tanguita:{clubName:"Tano FC",shortName:"TFC",description:"Azul, carácter fuerte y un equipo hecho para competir en partidos cerrados.",founded:"Febrero 2026",stadium:"San Tano",motto:"Catenaccio y corazón.",colors:["#1f63e1","#ffffff"],shirtImage:"assets/tano_shirt.svg?v=116",crestImage:"assets/tano_crest.svg?v=116"},
-  Doman:{clubName:"Doman",shortName:"DOM",description:"Minimalismo, lectura de partido y una apuesta constante por el detalle.",founded:"Junio 2026",stadium:"El Estudio",motto:"Sin ruido, con puntos.",colors:["#49525d","#f7f7f5"],shirtImage:"assets/doman_shirt.svg?v=116",crestImage:"assets/doman_crest.svg?v=116"},
-  Jero:{clubName:"Borjista hasta el Final",shortName:"BHF",description:"Equipo de culto, intensidad alta y fe hasta la última pelota.",founded:"Febrero 2026",stadium:"La Fortaleza Borjista",motto:"Hasta el final, siempre.",colors:["#ff8a1f","#1f2328"],shirtImage:"assets/borjista_shirt.svg?v=116",crestImage:"assets/borjista_crest.svg?v=116"},
-  Vico:{clubName:"Container FC",shortName:"CFC",description:"Estructura, orden y golpe justo: cada pieza tiene su lugar.",founded:"Marzo 2026",stadium:"El Puerto",motto:"Todo entra, todo suma.",colors:["#d517ff","#1b1b22"],shirtImage:"assets/container_shirt.svg?v=116",crestImage:"assets/container_crest.svg?v=116"}
+  Baco:{clubName:"Héroes de Cantilo",shortName:"HDC",description:"Fútbol, amigos y una sola banda.",founded:"Marzo 2026",stadium:"Cantilo Park",motto:"No negociamos la épica.",colors:["#d73535","#f5f9ff"],shirtImage:"assets/hdc_shirt.svg?v=116",crestImage:"assets/hdc_crest.svg?v=125",stadiumImage:"assets/stadium_hdc.svg?v=125"},
+  Alva:{clubName:"Swifties",shortName:"SFC",description:"Ritmo alto, hits en cadena y un equipo que nunca baja del escenario.",founded:"Diciembre 2025",stadium:"The Eras Ground",motto:"Shake it off y a sumar.",colors:["#e30c60","#f4e0cf"],shirtImage:"assets/swifties_shirt.svg?v=125",crestImage:"assets/swifties_crest.svg?v=125",stadiumImage:"assets/stadium_swifties.svg?v=125"},
+  Ini:{clubName:"Coty FC",shortName:"CFC",description:"Verde, sobrio y competitivo: un equipo que juega simple y muerde arriba.",founded:"Enero 2026",stadium:"Coty Arena",motto:"Juego corto, memoria larga.",colors:["#0f8c47","#f3f3ec"],shirtImage:"assets/coty_shirt.svg?v=116",crestImage:"assets/coty_crest.svg?v=116",stadiumImage:"assets/stadium_coty.svg?v=125"},
+  Frigo:{clubName:"Toco y Acabo",shortName:"TYA",description:"Ataque rápido, pocas vueltas y obsesión por resolver cada fecha.",founded:"Abril 2026",stadium:"La Terminal",motto:"Una y adentro.",colors:["#cf2b2b","#111111"],shirtImage:"assets/toco_shirt.svg?v=116",crestImage:"assets/toco_crest.svg?v=116",stadiumImage:"assets/stadium_toco.svg?v=125"},
+  Tota:{clubName:"El Brazo de Costitas",shortName:"EBC",description:"Mística de potrero, plantel ancho y hambre de gloria en cada fecha.",founded:"Marzo 2026",stadium:"El Asador",motto:"Brazo firme, hambre de gloria.",colors:["#8fd8ff","#f8f8f8"],shirtImage:"assets/costitas_shirt.svg?v=116",crestImage:"assets/costitas_crest.svg?v=116",stadiumImage:"assets/stadium_ebdc.svg?v=125"},
+  Fede:{clubName:"El Millo FC",shortName:"MFC",description:"Camiseta blanca, vocación ofensiva y gusto por jugar siempre un poco mejor.",founded:"Mayo 2026",stadium:"El Monumentalito",motto:"Jugar, gustar y puntuar.",colors:["#ffffff","#d53131"],shirtImage:"assets/millo_shirt.svg?v=116",crestImage:"assets/millo_crest.svg?v=116",stadiumImage:"assets/stadium_millo.svg?v=125"},
+  Tanguita:{clubName:"Tano FC",shortName:"TFC",description:"Azul, carácter fuerte y un equipo hecho para competir en partidos cerrados.",founded:"Febrero 2026",stadium:"San Tano",motto:"Catenaccio y corazón.",colors:["#1f63e1","#ffffff"],shirtImage:"assets/tano_shirt.svg?v=116",crestImage:"assets/tano_crest.svg?v=116",stadiumImage:"assets/stadium_tano.svg?v=125"},
+  Doman:{clubName:"Doman",shortName:"DOM",description:"Minimalismo, lectura de partido y una apuesta constante por el detalle.",founded:"Junio 2026",stadium:"El Estudio",motto:"Sin ruido, con puntos.",colors:["#49525d","#f7f7f5"],shirtImage:"assets/doman_shirt.svg?v=116",crestImage:"assets/doman_crest.svg?v=116",stadiumImage:"assets/stadium_doman.svg?v=125"},
+  Jero:{clubName:"Borjista hasta el Final",shortName:"BHF",description:"Equipo de culto, intensidad alta y fe hasta la última pelota.",founded:"Febrero 2026",stadium:"La Fortaleza Borjista",motto:"Hasta el final, siempre.",colors:["#ff8a1f","#1f2328"],shirtImage:"assets/borjista_shirt.svg?v=116",crestImage:"assets/borjista_crest.svg?v=116",stadiumImage:"assets/stadium_borjista.svg?v=125"},
+  Vico:{clubName:"Container FC",shortName:"CFC",description:"Estructura, orden y golpe justo: cada pieza tiene su lugar.",founded:"Marzo 2026",stadium:"El Puerto",motto:"Todo entra, todo suma.",colors:["#d517ff","#1b1b22"],shirtImage:"assets/container_shirt.svg?v=116",crestImage:"assets/container_crest.svg?v=116",stadiumImage:"assets/stadium_container.svg?v=125"}
 };
 function loadClubViewerState(){
   loadClubLocalIdentityOverrides();
@@ -5348,7 +5391,8 @@ function defaultClubProfile(manager){
     motto:"Sin lema cargado.",
     colors:["#f5f9ff","#2f76c7"],
     shirtImage:"",
-    crestImage:""
+    crestImage:"",
+    stadiumImage:""
   };
   return {...base,...(CLUB_IDENTITY_PRESETS[manager]||{})};
 }
@@ -5367,6 +5411,7 @@ function ensureClubProfiles(){
     if(Array.isArray(preset.colors)&&preset.colors.length)state.clubProfiles[manager].colors=[...preset.colors];
     if(preset.crestImage)state.clubProfiles[manager].crestImage=preset.crestImage;else if(!state.clubProfiles[manager].crestImage)state.clubProfiles[manager].crestImage=defaultClubProfile(manager).crestImage;
     if(preset.shirtImage)state.clubProfiles[manager].shirtImage=preset.shirtImage;else if(!state.clubProfiles[manager].shirtImage)state.clubProfiles[manager].shirtImage=defaultClubProfile(manager).shirtImage;
+    if(preset.stadiumImage)state.clubProfiles[manager].stadiumImage=preset.stadiumImage;else if(!state.clubProfiles[manager].stadiumImage)state.clubProfiles[manager].stadiumImage=defaultClubProfile(manager).stadiumImage;
   });
   if(viewerManagerLocal&&!(state.participants||[]).includes(viewerManagerLocal))saveViewerManagerLocal("");
   if(clubPageManagerLocal&&!(state.participants||[]).includes(clubPageManagerLocal))saveClubPageManagerLocal("");
@@ -5710,6 +5755,7 @@ function updateTopBrand(){
 function clubHeroHtml(summary,manager){
   const p=summary.profile;
   const shirt=p.shirtImage?`<img class="club-hero-shirt" src="${esc(p.shirtImage)}" alt="Camiseta de ${esc(p.clubName)}">`:"";
+  const stadium=p.stadiumImage?`<img class="club-hero-stadium" src="${esc(p.stadiumImage)}" alt="Estadio ${esc(p.stadium)}">`:"";
   const shield=p.crestImage?`<img src="${esc(p.crestImage)}" alt="Escudo de ${esc(p.clubName)}">`:"";
   const editPill=canEditClubIdentity(manager)?`<button type="button" class="club-pill club-edit-pill" onclick="openClubIdentityEditor()">Editar identidad</button>`:"";
   const latestBadge=summary.latest?`<span class="club-pill">Fecha ${summary.latest.round} · ${summary.latest.points} pts</span><span class="club-pill">Posición actual · ${summary.overallPosition?summary.overallPosition+"°":"—"}</span><span class="club-pill">Capitán · ${esc(summary.captainName)}</span>${editPill}`:`<span class="club-pill">Sin fechas cargadas</span>${editPill}`;
@@ -5726,7 +5772,7 @@ function clubHeroHtml(summary,manager){
           <div class="club-pill-row">${latestBadge}</div>
         </div>
       </div>
-      ${shirt}
+      <div class="club-hero-visuals">${shirt}${stadium}</div>
     </div></div>`;
 }
 function clubPointsRound(manager){
@@ -7039,7 +7085,7 @@ function renderResults(){
 }
 function renderDb(){
   const rounds=allRounds(),teams=state.phase==="confirmed"?state.confirmedTeams:state.draftRosters,totalPicks=state.participants.reduce((s,m)=>s+(teams[m]?.picks.length||0),0);
-  $("dbStats").innerHTML=`<div class="metrics" style="padding:0"><div class="metric"><b>${state.players.length}</b><span>Jugadores activos</span></div><div class="metric"><b>${state.participants.length}</b><span>Participantes</span></div><div class="metric"><b>${rounds.length}</b><span>Fechas con datos</span></div></div><p class="muted">Estado: <b style="color:var(--text)">${state.phase==="draft"?"Draft en curso":state.phase==="confirmed"?"Equipos confirmados":state.phase==="setup"?"Configurando participantes":"Sin torneo iniciado"}</b></p><p class="muted">Última actualización de datos: ${formatDateTime24(state.updatedAt)}</p><p class="muted">Fuente oficial del torneo: <b style="color:var(--text)">Supabase · ${isCloudAdmin()?"Administrador":"Solo lectura"}</b></p><p class="muted">Base de jugadores sincronizada: <b style="color:var(--text)">04/10/2026</b></p><p class="base-version-mark">Base V124 · Formaciones por equipo</p><div style="margin-top:10px">${state.participants.map(m=>`<span class="badge" style="margin:2px">${esc(m)} · desde F${participantStartRound(m)}</span>`).join("")}</div>${officialBaseWarningHtml()}`;
+  $("dbStats").innerHTML=`<div class="metrics" style="padding:0"><div class="metric"><b>${state.players.length}</b><span>Jugadores activos</span></div><div class="metric"><b>${state.participants.length}</b><span>Participantes</span></div><div class="metric"><b>${rounds.length}</b><span>Fechas con datos</span></div></div><p class="muted">Estado: <b style="color:var(--text)">${state.phase==="draft"?"Draft en curso":state.phase==="confirmed"?"Equipos confirmados":state.phase==="setup"?"Configurando participantes":"Sin torneo iniciado"}</b></p><p class="muted">Última actualización de datos: ${formatDateTime24(state.updatedAt)}</p><p class="muted">Fuente oficial del torneo: <b style="color:var(--text)">Supabase · ${isCloudAdmin()?"Administrador":"Solo lectura"}</b></p><p class="muted">Base de jugadores sincronizada: <b style="color:var(--text)">04/10/2026</b></p><p class="base-version-mark">Base V125 · Estadios e identidad visual</p><div style="margin-top:10px">${state.participants.map(m=>`<span class="badge" style="margin:2px">${esc(m)} · desde F${participantStartRound(m)}</span>`).join("")}</div>${officialBaseWarningHtml()}`;
   const adminSection=$("playerAdminSection");
   if(adminSection)adminSection.style.display=isCloudAdmin()?"flex":"none";
   if(isCloudAdmin())renderAdminPlayersTable();

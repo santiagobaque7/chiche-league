@@ -1,19 +1,14 @@
-V124 · SUBIR A GITHUB
+V125 · SUBIR A GITHUB
 
-Reemplazar únicamente:
+Reemplazar/subir exactamente:
 - index.html
 - ChicheLeague_Clausura2026.html
+- carpeta assets/ incluida en este ZIP
 
-FORMACIONES
-- Al entrar normalmente desde menú o Home muestra por defecto el DT/equipo
-  seleccionado al iniciar la app.
-- Dentro de Formaciones se puede seguir cambiando manualmente de DT.
-- Si se sale de Formaciones y luego se vuelve a entrar, vuelve al equipo propio.
+Cambios:
+- HDC: nuevo escudo con un único pico superior central.
+- Swifties: escudo y camiseta actualizados; flyer pasa al nuevo rosa del escudo.
+- Mi Club: se agrega el estadio a la derecha, junto a la camiseta, para los 10 clubes.
+- Estadios con formas diferenciadas, colores del club y campo visible.
 
-MI CLUB > VER PUNTAJES
-- Si estás viendo tu Mi Club, abre tu formación.
-- Si estás viendo Mi Club de otro DT, abre temporalmente la formación de ese DT.
-- Usa la fecha actual o la última disponible según la lógica existente.
-- Esa visita temporal NO cambia el DT por defecto de Formaciones.
-
-No cambian assets.
+No se modifica API ni lógica de Formaciones. V126 anterior queda descartada.

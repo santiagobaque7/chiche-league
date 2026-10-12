@@ -1,14 +1,3 @@
-V125 · SUBIR A GITHUB
-
-Reemplazar/subir exactamente:
-- index.html
-- ChicheLeague_Clausura2026.html
-- carpeta assets/ incluida en este ZIP
-
-Cambios:
-- HDC: nuevo escudo con un único pico superior central.
-- Swifties: escudo y camiseta actualizados; flyer pasa al nuevo rosa del escudo.
-- Mi Club: se agrega el estadio a la derecha, junto a la camiseta, para los 10 clubes.
-- Estadios con formas diferenciadas, colores del club y campo visible.
-
-No se modifica API ni lógica de Formaciones. V126 anterior queda descartada.
+Subir esta carpeta completa a GitHub.
+Incluye index.html, ChicheLeague_Clausura2026.html y assets SVG corregidos (estadios + camiseta Swifties).
+Versión: v127 estadios SVG sin recorte + Swifties rosa corregido.

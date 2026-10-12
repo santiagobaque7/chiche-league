@@ -5760,18 +5760,7 @@ function clubHeroHtml(summary,manager){
   const editPill=canEditClubIdentity(manager)?`<button type="button" class="club-pill club-edit-pill" onclick="openClubIdentityEditor()">Editar identidad</button>`:"";
   const latestBadge=summary.latest?`<span class="club-pill">Fecha ${summary.latest.round} · ${summary.latest.points} pts</span><span class="club-pill">Posición actual · ${summary.overallPosition?summary.overallPosition+"°":"—"}</span><span class="club-pill">Capitán · ${esc(summary.captainName)}</span>${editPill}`:`<span class="club-pill">Sin fechas cargadas</span>${editPill}`;
   const c1=(p.colors||[])[0]||"#2f76c7",c2=(p.colors||[])[1]||"#ffffff";
-  const isSwifties=(p.shortName||"")==="SFC"||/swifties/i.test(p.clubName||"");
-  const theme=isSwifties
-  ? `--club-primary-rgb:${hexRgbString(c1)};
-     --club-secondary-rgb:${hexRgbString(c2)};
-     background:
-       radial-gradient(circle at 15% 18%,rgba(${hexRgbString(c1)},.48),transparent 34%),
-       radial-gradient(circle at 84% 18%,rgba(${hexRgbString(c1)},.34),transparent 30%),
-       linear-gradient(120deg,
-         rgba(24,7,15,.98) 0%,
-         rgba(68,10,35,.97) 42%,
-         rgba(${hexRgbString(c1)},.48) 100%)`
-    : `--club-primary-rgb:${hexRgbString(c1)};--club-secondary-rgb:${hexRgbString(c2)};background:radial-gradient(circle at 18% 18%,rgba(${hexRgbString(c1)},.26),transparent 28%),radial-gradient(circle at 82% 20%,rgba(${hexRgbString(c2)},.15),transparent 24%),linear-gradient(120deg,rgba(6,14,22,.98) 0%,rgba(6,14,22,.98) 46%,rgba(${hexRgbString(c1)},.12) 100%)`;
+  const theme=`--club-primary-rgb:${hexRgbString(c1)};--club-secondary-rgb:${hexRgbString(c2)};background:radial-gradient(circle at 18% 18%,rgba(${hexRgbString(c1)},.26),transparent 28%),radial-gradient(circle at 82% 20%,rgba(${hexRgbString(c2)},.15),transparent 24%),linear-gradient(120deg,rgba(6,14,22,.98) 0%,rgba(6,14,22,.98) 46%,rgba(${hexRgbString(c1)},.12) 100%)`;
   return `<div class="card club-hero-card"><div class="club-hero" style="${theme}">
       <div class="club-hero-main">
         <div class="club-crest">${shield}</div>

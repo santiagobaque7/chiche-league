@@ -5427,8 +5427,10 @@ function clubProfile(manager){
   // El override local siempre tiene prioridad para evitar que un re-render
   // vuelva a mostrar el nombre anterior. Si sos Admin, además el mismo cambio
   // se guarda en el estado compartido desde saveClubIdentity().
-  if(local)return {...shared,...local};
-  return shared;
+  const profile=local?{...shared,...local}:shared;
+  // Swifties: preservar el rosa institucional incluso ante colores guardados previamente.
+  if(manager==="Alva")profile.colors=["#e30c60",(profile.colors||[])[1]||"#f7f5f0"];
+  return profile;
 }
 function currentClubPageManager(){
   ensureClubProfiles();

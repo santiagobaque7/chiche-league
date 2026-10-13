@@ -250,6 +250,16 @@ td.name{font-weight:700}.owned{opacity:.48}.pos{font-size:9px;font-weight:900;pa
 
 
 /* Fixture y Resultados */
+/* Importación masiva de programación */
+.fixture-import-bar{display:flex;justify-content:flex-end;padding:9px 12px;border-bottom:1px solid var(--line)}
+.fixture-import-panel{padding:14px;margin-bottom:10px;border:1px solid #315676;border-radius:12px;background:#101e2c}
+.fixture-import-panel textarea{display:block;width:100%;min-height:160px;resize:vertical;background:#0b1722;color:var(--text);border:1px solid #36516a;border-radius:8px;padding:10px;font-size:13px;line-height:1.5}
+.fixture-import-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:9px 0}
+.fixture-import-review{max-height:330px;overflow:auto;border:1px solid #263a4f;border-radius:8px}
+.fixture-import-review table{width:100%;font-size:12px}.fixture-import-review th,.fixture-import-review td{padding:8px;white-space:normal}
+.fixture-import-good{color:#72dfad}.fixture-import-bad{color:#ffa4a4}.fixture-import-note{font-size:11px;color:var(--muted);line-height:1.45;margin:6px 0}
+@media(max-width:700px){.fixture-import-panel{padding:10px}.fixture-import-actions .btn{flex:1}.fixture-import-review{overflow-x:auto}.fixture-import-review table{min-width:520px}}
+
 .match-general-only-note{margin:0 0 10px;padding:10px 12px;border:1px solid #96703c;border-radius:9px;background:#282015;color:#f4d7a5;font-size:12px;line-height:1.4}
 .match-scores-head{margin-bottom:10px}
 .match-scores-page{display:grid;gap:12px}
@@ -3565,6 +3575,20 @@ textarea{font:inherit}
   <div id="matchScoresLocked" class="card emptybox" style="display:none">Primero tenés que finalizar el draft para cargar puntajes.</div>
 
   <div id="matchScoresArea" class="match-scores-page">
+    <div class="fixture-import-bar" id="fixtureImportBar" style="display:none"><button class="btn small" onclick="toggleFixtureImporter()">Importar programación</button></div>
+    <div class="fixture-import-panel" id="fixtureImportPanel" style="display:none">
+      <b>Importar días y horarios de la fecha seleccionada</b>
+      <p class="fixture-import-note">Pegá la programación (con encabezados de día y partidos) o seleccioná una captura. La app comparará los equipos con el fixture existente. Revisá las coincidencias antes de guardar.</p>
+      <textarea id="fixtureImportText" placeholder="Jueves 15 de octubre&#10;20.00 Huracán – Gimnasia (Zona B)&#10;Viernes 16 de octubre&#10;19.00 Defensa y Justicia – Instituto..."></textarea>
+      <div class="fixture-import-actions">
+        <input type="file" accept="image/*" id="fixtureImportImage" class="input" style="max-width:260px" onchange="readFixtureImage(this)">
+        <button class="btn small" onclick="previewFixtureImport()">Analizar texto</button>
+        <button class="btn small" id="fixtureImportApply" onclick="applyFixtureImport()" style="display:none">Confirmar y guardar</button>
+      </div>
+      <div id="fixtureImportInfo" class="fixture-import-note"></div>
+      <div id="fixtureImportReview" class="fixture-import-review" style="display:none"></div>
+    </div>
+
     <div class="card match-fixture-card">
       <div id="matchFixtureList" class="match-fixture-list"></div>
     </div>
@@ -6877,6 +6901,118 @@ function compareScheduledMatches(rk,a,b){
   return sa.index-sb.index;
 }
 
+
+// Importación segura: se comparan AMBOS clubes con el fixture de la fecha, nunca por orden de filas.
+let fixtureImportPreview=[];
+let fixtureImportRound=null;
+const FIXTURE_IMPORT_ALIASES={
+  'HURACAN':'HURACÁN','GIMNASIA':'GIMNASIA LP','GIMNASIA LP':'GIMNASIA LP','GIMNASIA MENDOZA':'GIMNASIA M.',
+  'GIMNASIA M':'GIMNASIA M.','GIMNASIA DE MENDOZA':'GIMNASIA M.','GIMNASIA MZA':'GIMNASIA M.',
+  'DEFENSA':'DEFENSA Y JUSTICIA','DEFENSA Y JUSTICIA':'DEFENSA Y JUSTICIA','BOCA':'BOCA JUNIORS',
+  'BOCA JRS':'BOCA JUNIORS','ARGENTINOS':'ARGENTINOS JRS.','ARGENTINOS JUNIORS':'ARGENTINOS JRS.',
+  'ARGENTINOS JRS':'ARGENTINOS JRS.','INDEPENDIENTE RIV':'IND. RIVADAVIA',
+  'INDEPENDIENTE RIVADAVIA':'IND. RIVADAVIA','IND RIVADAVIA':'IND. RIVADAVIA',
+  'IND RIVADAVIA MZA':'IND. RIVADAVIA','INDEPENDIENTE RIVADAVIA MZA':'IND. RIVADAVIA',
+  'ATL TUCUMAN':'ATL. TUCUMÁN','ATLETICO TUCUMAN':'ATL. TUCUMÁN',
+  'CENTRAL':'ROSARIO CENTRAL','ROSARIO CENTRAL':'ROSARIO CENTRAL',
+  'ESTUDIANTES':'ESTUDIANTES LP','ESTUDIANTES LP':'ESTUDIANTES LP',
+  'ESTUDIANTES RIO CUARTO':'ESTUDIANTES RC','ESTUDIANTES DE RIO CUARTO':'ESTUDIANTES RC',
+  'ESTUDIANTES RC':'ESTUDIANTES RC','RIVER':'RIVER PLATE','RIVER PLATE':'RIVER PLATE',
+  'SARMIENTO':'SARMIENTO','BARRACAS CENTRAL':'BARRACAS','DEPORTIVO RIESTRA':'RIESTRA',
+  'NEWELL S':'NEWELL\'S','NEWELLS':'NEWELL\'S','NEWELLS OLD BOYS':'NEWELL\'S','CENTRAL CORDOBA':'CENTRAL CÓRDOBA',
+  'VELEZ':'VÉLEZ','UNION':'UNIÓN','LANUS':'LANÚS','PLATENSE':'PLATENSE',
+  'INDEPENDIENTE':'INDEPENDIENTE','RACING':'RACING','TIGRE':'TIGRE',
+  'TALLERES':'TALLERES','INSTITUTO':'INSTITUTO','BELGRANO':'BELGRANO',
+  'ALDOSIVI':'ALDOSIVI','BANFIELD':'BANFIELD','SAN LORENZO':'SAN LORENZO'
+};
+function fixtureImportNorm(x){
+  return String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase()
+    .replace(/[()]/g,' ').replace(/[^A-Z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+}
+function fixtureImportClub(raw){
+  const k=fixtureImportNorm(raw);
+  return FIXTURE_IMPORT_ALIASES[k]||null;
+}
+function toggleFixtureImporter(){
+  const el=$('fixtureImportPanel');if(!el)return;
+  el.style.display=el.style.display==='none'?'block':'none';
+  fixtureImportPreview=[];
+  $('fixtureImportApply').style.display='none';
+  $('fixtureImportReview').style.display='none';
+}
+function fixtureImportParse(text,rk){
+  const games=FIXTURE_2026[rk]||[];
+  let currentDate='';const entries=[],errors=[];
+  const monthList={enero:1,febrero:2,marzo:3,abril:4,mayo:5,junio:6,julio:7,agosto:8,septiembre:9,octubre:10,noviembre:11,diciembre:12};
+  const dayNames='lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo|lun|mar|mi[eé]|jue|vie|s[aá]b|dom';
+  for(const raw of String(text||'').split(/\r?\n/)){
+    const line=raw.replace(/^\s*[-•*]\s*/,'').trim();if(!line||/^#+\s*fecha\b/i.test(line)||/^fecha\s*\d+/i.test(line))continue;
+    let heading=line.match(new RegExp('^(?:\\*\\*)?(?:'+dayNames+')\\.?\\s+(\\d{1,2})(?:\\s+de\\s+|\\s*\\/\\s*)([A-Za-záéíóúñ]+|\\d{1,2})','i'));
+    if(heading){
+      const day=Number(heading[1]),month=Number(heading[2])||monthList[fixtureImportNorm(heading[2]).toLowerCase()]||monthList[heading[2].toLowerCase()];
+      const y=2026, dt=new Date(y,(month||1)-1,day);
+      if(!month||dt.getMonth()!==month-1||dt.getDate()!==day){errors.push('Fecha inválida: '+line);currentDate='';}
+      else currentDate=`${y}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      continue;
+    }
+    const m=line.match(/^(\d{1,2})[.:](\d{2})\s+(.+?)\s+(?:–|—|\s-\s|\svs\.?\s|\scontra\s)\s*(.+?)\s*$/i);
+    if(!m){if(/\d{1,2}[.:]\d{2}/.test(line))errors.push('No se reconoció: '+line);continue;}
+    const hour=Number(m[1]),minute=Number(m[2]);
+    if(hour>23||minute>59){errors.push('Hora inválida: '+line);continue;}
+    const homeRaw=m[3],awayRaw=m[4].replace(/\s*\((?:Zona\s+[AB]|Interzonal)\)\s*$/i,'').trim();
+    const home=fixtureImportClub(homeRaw),away=fixtureImportClub(awayRaw);
+    const matches=games.map((g,index)=>({...g,index})).filter(g=>g.home===home&&g.away===away);
+    const duplicate=entries.some(e=>e.index===matches[0]?.index);
+    const good=!!currentDate&&matches.length===1&&!duplicate;
+    const problem=!currentDate?'Falta encabezado de día':!home||!away?'Equipo no identificado':matches.length!==1?'Cruce no encontrado en fecha '+rk:duplicate?'Partido repetido':'';
+    entries.push({line,date:currentDate,time:`${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`,home:home||homeRaw,away:away||awayRaw,index:good?matches[0].index:null,good,problem});
+  }
+  return {entries,errors};
+}
+function previewFixtureImport(){
+  if(!isCloudAdmin())return;
+  const rk=matchScoresRoundKey(),parsed=fixtureImportParse($('fixtureImportText').value,rk);
+  fixtureImportPreview=parsed.entries;fixtureImportRound=rk;
+  const good=parsed.entries.filter(e=>e.good).length;
+  $('fixtureImportInfo').textContent=`Fecha ${rk}: ${good} coincidencias listas; ${parsed.entries.length-good} líneas para revisar. No se aplicó ningún cambio.`;
+  $('fixtureImportApply').style.display=good?'inline-flex':'none';
+  const box=$('fixtureImportReview');box.style.display='block';
+  box.innerHTML='<table><thead><tr><th>Estado</th><th>Partido</th><th>Día</th><th>Hora</th></tr></thead><tbody>'+parsed.entries.map(e=>`<tr><td class="${e.good?'fixture-import-good':'fixture-import-bad'}">${e.good?'Listo':esc(e.problem)}</td><td>${esc(e.home+' – '+e.away)}</td><td>${esc(e.date||'—')}</td><td>${esc(e.time)}</td></tr>`).join('')+parsed.errors.map(e=>`<tr><td colspan="4" class="fixture-import-bad">${esc(e)}</td></tr>`).join('')+'</tbody></table>';
+}
+function applyFixtureImport(){
+  if(!isCloudAdmin())return;
+  const entries=fixtureImportPreview.filter(e=>e.good);
+  if(!entries.length)return;
+  const rk=matchScoresRoundKey();
+  if(fixtureImportRound!==rk){alert("Cambiaste de fecha después de analizar. Volvé a analizar el texto.");return;}
+  if(!confirm(`Se actualizarán ${entries.length} partidos de la fecha ${rk}. ¿Confirmás?`))return;
+  state.matchSchedules ||= {};state.matchSchedules[rk] ||= {};
+  for(const e of entries)state.matchSchedules[rk][e.index]={date:e.date,time:e.time};
+  persist();
+  const panel=$('fixtureImportPanel');
+  // Renderiza sin destruir la confirmación, deja claro cuántos se importaron.
+  renderMatchScores();
+  panel.style.display='block';
+  $('fixtureImportInfo').textContent=`Guardados ${entries.length} partidos de la fecha ${rk}. Se están sincronizando con Supabase.`;
+  $('fixtureImportApply').style.display='none';fixtureImportPreview=[];
+}
+async function readFixtureImage(input){
+  const file=input.files?.[0];if(!file)return;
+  const info=$('fixtureImportInfo');
+  if(!('TextDetector' in window)){
+    info.textContent='Este navegador no admite lectura automática de imágenes. Pegá el texto de la programación para importarlo con vista previa.';
+    return;
+  }
+  try{
+    const bmp=await createImageBitmap(file),detector=new TextDetector(),lines=await detector.detect(bmp);
+    if(!lines?.length)throw Error('No se detectó texto.');
+    // Orden espacial aproximado. Siempre requiere revisión manual en la vista previa.
+    lines.sort((a,b)=>(a.boundingBox?.y||0)-(b.boundingBox?.y||0));
+    $('fixtureImportText').value=lines.map(x=>x.rawValue).join('\n');
+    info.textContent='Texto extraído de la captura. Revisá los nombres y horarios antes de analizarlo.';
+  }catch(err){info.textContent='No se pudo leer la captura automáticamente. Pegá el texto para continuar.';}
+}
+
 function renderMatchScores(){
   const locked=state.phase!=="confirmed";
   if($("matchScoresLocked"))$("matchScoresLocked").style.display=locked?"block":"none";
@@ -6884,6 +7020,8 @@ function renderMatchScores(){
   if(locked)return;
 
   updateMatchScoresRoundOptions();
+  if($("fixtureImportBar"))$("fixtureImportBar").style.display=isCloudAdmin()?"flex":"none";
+  if(!isCloudAdmin()&&$("fixtureImportPanel"))$("fixtureImportPanel").style.display="none";
   const rk=matchScoresRoundKey(),games=FIXTURE_2026[rk]||[];
   populateMatchFilters(rk,games);
   const managerFilter=$("matchManagerFilter")?.value||"";

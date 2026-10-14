@@ -3581,7 +3581,7 @@ textarea{font:inherit}
       <p class="fixture-import-note">Pegá el texto completo de UNA publicación diaria, con las secciones «A continuación las fichas con calificaciones de Clarín» y «A continuación los puntajes finales para Gran DT». Se comparan nombre y club con los jugadores de tus planteles. Los s/c se importan como NO JUEGA. También se proponen como NO JUEGA los jugadores sin puntuación de clubes incluidos en esta publicación (no de otros partidos). Revisá la vista previa antes de guardar.</p>
       <div class="fixture-import-actions"><input id="scoresImportPdf" type="file" accept="application/pdf,.pdf" class="input" style="flex:1;min-width:200px" onchange="readScoresImportPdf(this)"/><span class="fixture-import-note">O descargá la página en PDF y seleccioná el archivo.</span></div>
       <textarea id="scoresImportText" placeholder="Pegá aquí el texto de la página de Planeta Gran DT..."></textarea>
-      <div class="fixture-import-actions"><button class="btn small" onclick="previewScoresImport()">Analizar puntajes</button><button class="btn small primary" id="scoresImportApply" style="display:none" onclick="applyScoresImport()">Confirmar y guardar los seleccionados</button></div>
+      <div class="fixture-import-actions"><button class="btn small" onclick="previewScoresImport()">Analizar puntajes</button><button class="btn small" type="button" onclick="clearScoresImportText()" title="Vaciar el texto y la vista previa sin borrar los puntajes guardados">Borrar texto</button><button class="btn small primary" id="scoresImportApply" style="display:none" onclick="applyScoresImport()">Confirmar y guardar los seleccionados</button></div>
       <div id="scoresImportInfo" class="fixture-import-note"></div><div id="scoresImportReview" class="fixture-import-review"></div>
     </div>
     <div class="fixture-import-panel" id="fixtureImportPanel" style="display:none">
@@ -6946,6 +6946,15 @@ function scoresImportClub(s){
     "DEPORTIVO RIESTRA":"RIESTRA"
   };
   return aliases[n]||fixtureImportClub(s)||null;
+}
+function clearScoresImportText(){
+  $('scoresImportText').value='';
+  $('scoresImportPdf').value='';
+  scoresImportPreview=[];
+  $('scoresImportApply').style.display='none';
+  $('scoresImportInfo').textContent='';
+  $('scoresImportReview').innerHTML='';
+  $('scoresImportText').focus();
 }
 function toggleScoresImporter(){const e=$('scoresImportPanel');e.style.display=e.style.display==='none'?'block':'none';scoresImportPreview=[];$('scoresImportApply').style.display='none';}
 function scoresImportClean(raw){return String(raw||'').replace(/\\\s*$/,'').replace(/\*\*/g,'').replace(/^\s*[-•]\s*/,'').replace(/\\/g,'').replace(/\s+/g,' ').trim();}

@@ -6915,7 +6915,30 @@ function scoresNorm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u
 function scoresPlayerNorm(name){const a=String(name||'').split(',');return scoresNorm(a.length>1?a.slice(1).join(' ')+' '+a[0]:name);}
 function scoresImportClub(s){
   const n=scoresNorm(s);
-  return fixtureImportClub(s)||({"GIMNASIA LA PLATA":"GIMNASIA LP","GIMNASIA Y ESGRIMA LA PLATA":"GIMNASIA LP","ATLETICO TUCUMAN":"ATL. TUCUMÁN","UNION DE SANTA FE":"UNIÓN","BOCA JUNIORS":"BOCA JUNIORS","VELEZ SARSFIELD":"VÉLEZ","LANUS":"LANÚS","NEWELLS OLD BOYS":"NEWELL'S","GIMNASIA DE MENDOZA":"GIMNASIA M.","DEPORTIVO RIESTRA":"RIESTRA"}[n]||null);
+  if(!n)return null;
+  // Primero aceptar los nombres CANÓNICOS del fixture. Antes se omitía,
+  // por ejemplo, DEFENSA Y JUSTICIA y se descartaba el equipo completo.
+  for(const games of Object.values(FIXTURE_2026)){
+    for(const game of games){
+      for(const club of [game.home,game.away])if(scoresNorm(club)===n)return club;
+    }
+  }
+  const aliases={
+    "GIMNASIA LA PLATA":"GIMNASIA LP",
+    "GIMNASIA Y ESGRIMA LA PLATA":"GIMNASIA LP",
+    "ATLETICO TUCUMAN":"ATL. TUCUMÁN",
+    "UNION DE SANTA FE":"UNIÓN",
+    "UNION SANTA FE":"UNIÓN",
+    "BOCA":"BOCA JUNIORS",
+    "BOCA JUNIORS":"BOCA JUNIORS",
+    "DEFENSA Y JUSTICIA":"DEFENSA Y JUSTICIA",
+    "VELEZ SARSFIELD":"VÉLEZ",
+    "LANUS":"LANÚS",
+    "NEWELLS OLD BOYS":"NEWELL'S",
+    "GIMNASIA DE MENDOZA":"GIMNASIA M.",
+    "DEPORTIVO RIESTRA":"RIESTRA"
+  };
+  return aliases[n]||fixtureImportClub(s)||null;
 }
 function toggleScoresImporter(){const e=$('scoresImportPanel');e.style.display=e.style.display==='none'?'block':'none';scoresImportPreview=[];$('scoresImportApply').style.display='none';}
 function scoresImportClean(raw){return String(raw||'').replace(/\\\s*$/,'').replace(/\*\*/g,'').replace(/^\s*[-•]\s*/,'').replace(/\\/g,'').replace(/\s+/g,' ').trim();}
@@ -6926,25 +6949,48 @@ function scoresImportSections(text){
   if(b<0)return {error:'No se encontró el bloque «A continuación los puntajes finales para Gran DT». Pegá toda la publicación.'};
   return {main:raw.slice(b).split(/\n/).slice(1),clarin:a>=0&&a<b?raw.slice(a,b):''};
 }
+function scoresImportSplitGluedHeadings(lines,teams){
+  const expanded=[];
+  for(const raw of lines){
+    let part=String(raw||'');
+    // Detectar: nombre + nota numérica / s/c + encabezado de otro equipo + goles.
+    // No asumir un club por coincidencia parcial: validar contra el fixture.
+    for(let attempts=0;attempts<3;attempts++){
+      const line=scoresImportClean(part);
+      const m=line.match(/^(.*?\S)\s+(s\s*\/\s*c|NO\s+JUEGA|NJ|-?\d+(?:[.,]\d+)?)([^\d\n]+?)\s+(\d{1,2})\s*$/i);
+      if(!m)break;
+      const nextClub=scoresImportClub(m[3]);
+      if(!nextClub||!teams.has(nextClub))break;
+      expanded.push(`${m[1]} ${m[2]}`);
+      part=`${m[3].trim()} ${m[4]}`;
+    }
+    expanded.push(part);
+  }
+  return expanded;
+}
 function scoresImportParse(text,rk){
   const parts=scoresImportSections(text);if(parts.error)return {rows:[],warnings:[parts.error],clubs:[]};
   const fixtures=FIXTURE_2026[rk]||[],teams=new Set(fixtures.flatMap(g=>[g.home,g.away]));
   const assigned=Object.fromEntries([...teams].map(t=>[t,matchAssignedPlayers(rk,t)]));
-  const results=[],warnings=[],seen=new Set(),clubs=new Set();let team=null;
-  for(const raw of parts.main){
+  const results=[],warnings=[],seen=new Set(),clubs=new Set(),publishedCounts=new Map();let team=null;
+  // Separar casos reales del texto copiado: "Dadín s/cSarmiento 3",
+  // "Ojeda s/cAtlético Tucumán 1", "Sanseviero s/cBoca 2", etc.
+  // Se verifica el club contra el fixture de la fecha antes de separar.
+  for(const raw of scoresImportSplitGluedHeadings(parts.main,teams)){
     const line=scoresImportClean(raw);if(!line)continue;
     if(/^Suplentes\s*:/i.test(line))continue;
     // Los encabezados tienen goles: "Sarmiento 3"; excluir líneas individuales y los marcadores dobles.
     const header=line.match(/^(.+?)\s+(\d{1,2})\s*$/);
     const club=header?scoresImportClub(header[1]):null;
     if(club&&teams.has(club)){
-      team=club;clubs.add(club);continue;
+      team=club;clubs.add(club);if(!publishedCounts.has(club))publishedCounts.set(club,0);continue;
     }
     if(/^(?:Clar[ií]n no|VER FICHA|Puntajes Gran DT|La figura|Comentarios|Periodista)/i.test(line)){team=null;continue;}
     if(!team)continue;
     const m=line.match(/^(.+?)\s+(-?\d+(?:[.,]\d+)?|s\s*\/\s*c|¿[^?]+\?|NJ|NO JUEGA)\s*$/i);
     if(!m)continue;
     const name=scoresNorm(m[1]),scoreText=m[2];
+    publishedCounts.set(team,(publishedCounts.get(team)||0)+1);
     const matches=(assigned[team]||[]).filter(row=>scoresPlayerNorm(row.p.name)===name);
     if(matches.length!==1){if(matches.length>1)warnings.push('Nombre ambiguo: '+line+' ('+team+')');continue;}
     const row=matches[0],id=row.p.id,key=String(id);
@@ -6953,8 +6999,14 @@ function scoresImportParse(text,rk){
     const value=numeric?Number(scoreText.replace(',','.')):sc?'NO JUEGA':null;
     results.push({id,name:row.p.name,team,raw:scoreText,value,manager:row.m,cap:String(row.r.captain)===String(id),bonus:null,apply:value!==null,comment:sc?'s/c → NO JUEGA':value===null?'Nota dudosa; revisar manualmente':''});
   }
-  // El ausencia se determina SOLO para jugadores pertenecientes a un club de un partido publicado.
+  // Ausencias solo en clubes publicados y con al menos una alineación legible.
+  // Si el texto está incompleto/mal separado NO marcar todo el equipo como NJ.
   for(const team of clubs){
+    const published=publishedCounts.get(team)||0;
+    if(published<9){
+      warnings.push(`${team}: se leyeron solo ${published} puntajes; no se asigna NO JUEGA a ausentes de este club hasta revisar el texto.`);
+      continue;
+    }
     for(const row of assigned[team]||[]){
       const key=String(row.p.id);if(seen.has(key))continue;seen.add(key);
       results.push({id:row.p.id,name:row.p.name,team,raw:'No figura',value:'NO JUEGA',manager:row.m,cap:String(row.r.captain)===String(row.p.id),bonus:null,apply:true,comment:'Ausente de la lista del club: revisar antes de guardar'});
@@ -6980,7 +7032,7 @@ function scoresImportParse(text,rk){
   }
   if(!parts.clarin)warnings.push('No se encontró sección Clarín; los bonus quedan pendientes.');
   if(!clubs.size)warnings.push('No se reconocieron encabezados de clubes que correspondan a esta fecha.');
-  return {rows:results,warnings,clubs:[...clubs]};
+  return {rows:results,warnings,clubs:[...clubs],publishedCounts:Object.fromEntries(publishedCounts)};
 }
 function previewScoresImport(){
   if(!isCloudAdmin())return;

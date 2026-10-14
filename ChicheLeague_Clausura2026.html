@@ -3575,13 +3575,21 @@ textarea{font:inherit}
   <div id="matchScoresLocked" class="card emptybox" style="display:none">Primero tenés que finalizar el draft para cargar puntajes.</div>
 
   <div id="matchScoresArea" class="match-scores-page">
-    <div class="fixture-import-bar" id="fixtureImportBar" style="display:none"><button class="btn small" onclick="toggleFixtureImporter()">Importar programación</button></div>
+    <div class="fixture-import-bar" id="fixtureImportBar" style="display:none"><button class="btn small" onclick="toggleFixtureImporter()">Importar programación</button><button class="btn small" onclick="toggleScoresImporter()">Importar puntajes Gran DT</button></div>
+    <div class="fixture-import-panel" id="scoresImportPanel" style="display:none">
+      <b>Importar puntajes de Planeta Gran DT · Fecha seleccionada</b>
+      <p class="fixture-import-note">Pegá el texto completo de UNA publicación diaria, con las secciones «A continuación las fichas con calificaciones de Clarín» y «A continuación los puntajes finales para Gran DT». Se comparan nombre y club con los jugadores de tus planteles. No se cargan automáticamente los jugadores ausentes ni los valores s/c o dudosos.</p>
+      <div class="fixture-import-actions"><input id="scoresImportUrl" class="input" type="url" placeholder="URL de Planeta Gran DT (intento sujeto a permisos del sitio)" style="flex:1;min-width:220px"/><button class="btn small" onclick="loadScoresImportUrl()">Intentar leer enlace</button></div>
+      <div class="fixture-import-actions"><input id="scoresImportPdf" type="file" accept="application/pdf,.pdf" class="input" style="flex:1;min-width:200px" onchange="readScoresImportPdf(this)"/><span class="fixture-import-note">O descargá la página en PDF y seleccioná el archivo.</span></div>
+      <textarea id="scoresImportText" placeholder="Pegá aquí el texto de la página de Planeta Gran DT..."></textarea>
+      <div class="fixture-import-actions"><button class="btn small" onclick="previewScoresImport()">Analizar puntajes</button><button class="btn small primary" id="scoresImportApply" style="display:none" onclick="applyScoresImport()">Confirmar y guardar los seleccionados</button></div>
+      <div id="scoresImportInfo" class="fixture-import-note"></div><div id="scoresImportReview" class="fixture-import-review"></div>
+    </div>
     <div class="fixture-import-panel" id="fixtureImportPanel" style="display:none">
       <b>Importar días y horarios de la fecha seleccionada</b>
-      <p class="fixture-import-note">Pegá la programación (con encabezados de día y partidos) o seleccioná una captura. La app comparará los equipos con el fixture existente. Revisá las coincidencias antes de guardar.</p>
+      <p class="fixture-import-note">Pegá la programación (con encabezados de día y partidos). La app comparará los equipos con el fixture existente. Revisá las coincidencias antes de guardar.</p>
       <textarea id="fixtureImportText" placeholder="Jueves 15 de octubre&#10;20.00 Huracán – Gimnasia (Zona B)&#10;Viernes 16 de octubre&#10;19.00 Defensa y Justicia – Instituto..."></textarea>
       <div class="fixture-import-actions">
-        <input type="file" accept="image/*" id="fixtureImportImage" class="input" style="max-width:260px" onchange="readFixtureImage(this)">
         <button class="btn small" onclick="previewFixtureImport()">Analizar texto</button>
         <button class="btn small" id="fixtureImportApply" onclick="applyFixtureImport()" style="display:none">Confirmar y guardar</button>
       </div>
@@ -6902,6 +6910,118 @@ function compareScheduledMatches(rk,a,b){
 }
 
 
+// Importador Gran DT: matching exacto de nombre normalizado + club; no se adivinan valores.
+let scoresImportPreview=[],scoresImportRound=null;
+function scoresNorm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/[^A-Z0-9 ]/g,' ').replace(/\s+/g,' ').trim();}
+function scoresPlayerNorm(name){const a=String(name||'').split(',');return scoresNorm(a.length>1?a.slice(1).join(' ')+' '+a[0]:name);}
+function scoresImportClub(s){const n=scoresNorm(s);return fixtureImportClub(s)||({"VELEZ SARSFIELD":"VÉLEZ","LANUS":"LANÚS","NEWELLS OLD BOYS":"NEWELL'S","GIMNASIA DE MENDOZA":"GIMNASIA M.","DEPORTIVO RIESTRA":"RIESTRA"}[n]||null);}
+function toggleScoresImporter(){const e=$('scoresImportPanel');e.style.display=e.style.display==='none'?'block':'none';scoresImportPreview=[];$('scoresImportApply').style.display='none';}
+function scoresImportSections(text){
+  const raw=String(text||'').replace(/\r/g,'');
+  const a=raw.search(/A continuaci[oó]n las fichas con calificaciones de Clar[ií]n\s*:/i);
+  const b=raw.search(/A continuaci[oó]n los puntajes finales para Gran DT\s*:/i);
+  if(b<0)return {error:'No se encontró el encabezado «A continuación los puntajes finales para Gran DT:». Copiá toda la publicación, no una vista previa del buscador.'};
+  const main=raw.slice(b).split(/\n/).slice(1);
+  const clarin=a>=0&&a<b?raw.slice(a,b):'';
+  return {main,clarin};
+}
+function scoresImportParse(text,rk){
+  const parts=scoresImportSections(text);if(parts.error)return {rows:[],warnings:[parts.error]};
+  const fixtures=FIXTURE_2026[rk]||[];
+  const teams=new Set(fixtures.flatMap(g=>[g.home,g.away]));
+  const assigned=Object.fromEntries([...teams].map(t=>[t,matchAssignedPlayers(rk,t)]));
+  const results=[],warnings=[],seen=new Set();let team=null,section='';
+  for(const raw of parts.main){
+    const line=raw.trim().replace(/^[-•]\s*/,'');if(!line)continue;
+    if(/^Suplentes\s*:/i.test(line)){section='bench';continue;}
+    if(/^(?:Errores|Clar[ií]n no|VER FICHA|Fixture|Jugadores ideales|Continuar leyendo|Puntajes Gran DT)/i.test(line)) {team=null;continue;}
+    const header=line.match(/^(.+?)\s+(\d{1,2})\s*$/);
+    if(header&&scoresImportClub(header[1])&&teams.has(scoresImportClub(header[1]))){team=scoresImportClub(header[1]);section='starter';continue;}
+    if(!team)continue;
+    const m=line.match(/^(.+?)\s+(-?\d+(?:[.,]\d+)?|s\/c|¿[^?]+\?|NJ|NO JUEGA)\s*$/i);
+    if(!m)continue;
+    const name=scoresNorm(m[1]);const scoreText=m[2];
+    const matches=(assigned[team]||[]).filter(row=>scoresPlayerNorm(row.p.name)===name);
+    if(matches.length!==1){if(matches.length>1)warnings.push('Ambiguo: '+line+' ('+team+')');continue;}
+    const row=matches[0],id=row.p.id,key=String(id);
+    if(seen.has(key)){warnings.push('Jugador repetido: '+row.p.name);continue;}seen.add(key);
+    const val=/^-?\d+(?:[.,]\d+)?$/.test(scoreText)?Number(scoreText.replace(',','.')):null;
+    results.push({id,name:row.p.name,team,raw:scoreText,value:val,manager:row.m,cap:row.r.captain===id,bonus:null,apply:val!==null,comment:val===null?'s/c o nota dudosa: revisión manual':''});
+  }
+  // Clarín: only explicit numeric ratings next to the player's name, inside the appropriate team line.
+  const lines=parts.clarin.split(/\n/);let clarinTeam=null;
+  const ratings=new Map();
+  for(const raw of lines){
+    const line=raw.trim();
+    const mt=line.match(/^([^:]+):\s*(.+)$/);if(!mt)continue;
+    const t=scoresImportClub(mt[1]);if(!t||!teams.has(t))continue;clarinTeam=t;
+    const ratingsRegex=/([^;,]+?)\s*\((\d+(?:[.,]\d+)?)\)/g;let m;
+    while((m=ratingsRegex.exec(mt[2]))){
+      const piece=m[1].replace(/^(?:y|e)\s+/i,'').trim();
+      const rated=Number(m[2].replace(',','.'));
+      for(const r of results.filter(x=>x.team===t&&x.cap)){
+        const n=scoresNorm(piece),target=scoresPlayerNorm(r.name);
+        if(n===target||n.endsWith(' '+target))ratings.set(String(r.id),rated);
+      }
+    }
+  }
+  for(const r of results)if(r.cap){r.bonus=ratings.get(String(r.id))??null;if(r.bonus===null)r.comment+=(r.comment?' · ':'')+'Bonus Clarín no identificado';}
+  if(!parts.clarin)warnings.push('No se encontró la sección Clarín: los bonus de capitán quedan pendientes.');
+  if(!results.length)warnings.push('No se encontraron coincidencias exactas entre la publicación y los jugadores asignados a los partidos de esta fecha.');
+  return {rows:results,warnings};
+}
+function previewScoresImport(){
+  if(!isCloudAdmin())return;
+  const rk=matchScoresRoundKey(),res=scoresImportParse($('scoresImportText').value,rk);
+  scoresImportRound=rk;scoresImportPreview=res.rows;
+  const ready=res.rows.filter(r=>r.apply).length;
+  $('scoresImportInfo').textContent=`Fecha ${rk}: ${ready} puntajes numéricos reconocidos; ${res.rows.length-ready} pendientes. ${res.warnings.join(' | ')} No se guardó nada.`;
+  $('scoresImportApply').style.display=ready?'inline-flex':'none';
+  const body=res.rows.map((r,i)=>`<tr><td><input type="checkbox" ${r.apply?'checked':''} ${r.value===null?'disabled':''} onchange="scoresImportPreview[${i}].apply=this.checked"></td><td>${esc(r.team)}</td><td>${esc(r.name)}</td><td>${esc(r.manager)}</td><td>${esc(r.raw)}</td><td>${r.cap?(r.bonus===null?'Pendiente':esc(r.bonus)):'—'}</td><td>${esc(r.comment)}</td></tr>`).join('');
+  $('scoresImportReview').innerHTML=`<table><thead><tr><th>Aplicar</th><th>Club</th><th>Jugador</th><th>DT</th><th>Gran DT</th><th>Clarín cap.</th><th>Revisión</th></tr></thead><tbody>${body}</tbody></table>`;
+}
+function applyScoresImport(){
+  if(!isCloudAdmin())return;
+  const rk=matchScoresRoundKey();if(rk!==scoresImportRound){alert('Volvé a analizar: cambiaste de fecha.');return;}
+  const rows=scoresImportPreview.filter(r=>r.apply&&typeof r.value==='number');if(!rows.length)return;
+  const existing=rows.filter(r=>state.rounds?.[rk]?.[r.id]!==undefined).length;
+  if(!confirm(`Cargar ${rows.length} puntajes de fecha ${rk} (${existing} ya tenían valor y serán reemplazados). Los bonus Clarín reconocidos se cargarán solo para capitanes. ¿Confirmar?`))return;
+  state.rounds ||= {};state.rounds[rk] ||= {};ensureRoundSnapshot(rk);ensureCaptainBonusState();
+  for(const r of rows){state.rounds[rk][r.id]=r.value;if(r.cap&&r.bonus!==null){state.captainBonuses[rk] ||= {};state.captainBonuses[rk][r.id]=r.bonus;state.captainBonusMigrated[captainBonusKey(rk,r.id)]=true;}}
+  persist();scoresImportPreview=[];$('scoresImportApply').style.display='none';
+  $('scoresImportInfo').textContent=`Guardados ${rows.length} puntajes en la fecha ${rk}. Sincronización con Supabase solicitada.`;
+  renderScores(false);renderResults();renderFormations();renderMatchScores();
+}
+async function loadScoresImportUrl(){
+  const url=$('scoresImportUrl').value.trim();const info=$('scoresImportInfo');
+  if(!/^https:\/\/www\.planetagrandt\.com\.ar\//i.test(url)){info.textContent='Ingresá una URL HTTPS de www.planetagrandt.com.ar.';return;}
+  try{
+    info.textContent='Intentando acceder al contenido público del enlace...';
+    const res=await fetch(url,{redirect:'follow'});if(!res.ok)throw Error('HTTP '+res.status);
+    const html=await res.text(),doc=new DOMParser().parseFromString(html,'text/html');
+    const article=doc.querySelector('.post-body,.entry-content,article');if(!article)throw Error('No se encontró el cuerpo del artículo');
+    article.querySelectorAll('script,style,iframe').forEach(el=>el.remove());
+    $('scoresImportText').value=article.innerText||article.textContent||'';
+    info.textContent='Contenido extraído. Revisá el texto y hacé clic en Analizar puntajes.';
+  }catch(e){info.textContent='El sitio no permitió la lectura directa desde este navegador (CORS u otra restricción). Abrí el enlace, copiá el texto de la publicación y pegalo abajo, o cargá un PDF.';}
+}
+async function readScoresImportPdf(input){
+  const file=input.files?.[0],info=$('scoresImportInfo');if(!file)return;
+  info.textContent='Leyendo PDF...';
+  try{
+    if(!window.pdfjsLib){
+      await new Promise((resolve,reject)=>{const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';sc.onload=resolve;sc.onerror=reject;document.head.appendChild(sc);});
+    }
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const pdf=await pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
+    const lines=[];for(let n=1;n<=pdf.numPages;n++){
+      const page=await pdf.getPage(n),items=(await page.getTextContent()).items;
+      let last=null,line=[];for(const item of items){const y=Math.round(item.transform[5]);if(last!==null&&Math.abs(y-last)>3){lines.push(line.join(' '));line=[];}line.push(item.str);last=y;}if(line.length)lines.push(line.join(' '));
+    }
+    $('scoresImportText').value=lines.join('\n');
+    info.textContent='PDF leído. Revisá las secciones y los nombres antes de analizar. Los PDFs escaneados sin texto no son compatibles.';
+  }catch(e){info.textContent='No se pudo extraer el texto del PDF. Probá copiar y pegar el texto desde la página (o verificá la conexión para cargar el lector PDF).';}
+}
 // Importación segura: se comparan AMBOS clubes con el fixture de la fecha, nunca por orden de filas.
 let fixtureImportPreview=[];
 let fixtureImportRound=null;
@@ -6996,23 +7116,6 @@ function applyFixtureImport(){
   $('fixtureImportInfo').textContent=`Guardados ${entries.length} partidos de la fecha ${rk}. Se están sincronizando con Supabase.`;
   $('fixtureImportApply').style.display='none';fixtureImportPreview=[];
 }
-async function readFixtureImage(input){
-  const file=input.files?.[0];if(!file)return;
-  const info=$('fixtureImportInfo');
-  if(!('TextDetector' in window)){
-    info.textContent='Este navegador no admite lectura automática de imágenes. Pegá el texto de la programación para importarlo con vista previa.';
-    return;
-  }
-  try{
-    const bmp=await createImageBitmap(file),detector=new TextDetector(),lines=await detector.detect(bmp);
-    if(!lines?.length)throw Error('No se detectó texto.');
-    // Orden espacial aproximado. Siempre requiere revisión manual en la vista previa.
-    lines.sort((a,b)=>(a.boundingBox?.y||0)-(b.boundingBox?.y||0));
-    $('fixtureImportText').value=lines.map(x=>x.rawValue).join('\n');
-    info.textContent='Texto extraído de la captura. Revisá los nombres y horarios antes de analizarlo.';
-  }catch(err){info.textContent='No se pudo leer la captura automáticamente. Pegá el texto para continuar.';}
-}
-
 function renderMatchScores(){
   const locked=state.phase!=="confirmed";
   if($("matchScoresLocked"))$("matchScoresLocked").style.display=locked?"block":"none";

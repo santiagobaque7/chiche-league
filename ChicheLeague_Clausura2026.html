@@ -3874,10 +3874,11 @@ textarea{font:inherit}
     <div class="cardhead">
       <div>
         <h2>Administrar jugadores</h2>
-        <div class="muted" style="font-size:10px">Cambiar club o eliminar jugadores libres de la base.</div>
+        <div class="muted" style="font-size:10px">Crear jugadores, cambiarles el club aunque estén seleccionados o eliminar jugadores libres.</div>
       </div>
       <span class="badge">Solo Admin</span>
     </div>
+    <div style="padding:12px 14px 0"><button class="btn primary" type="button" onclick="adminOpenCreatePlayer()">+ Crear jugador</button></div>
     <div class="player-admin-filters">
       <input id="adminPlayerSearch" class="input" placeholder="Buscar jugador o club..." oninput="renderAdminPlayersTable()">
       <select id="adminPlayerTeamFilter" class="select" onchange="renderAdminPlayersTable()">
@@ -4045,6 +4046,7 @@ function scrollToAdminPlayers(){
 
 function ensurePlayerAdminState(){
   if(!state.playerTeamOverrides||typeof state.playerTeamOverrides!=="object")state.playerTeamOverrides={};
+  if(!Array.isArray(state.adminCreatedPlayers))state.adminCreatedPlayers=[];
   if(!Array.isArray(state.adminDeletedPlayerIds))state.adminDeletedPlayerIds=[];
   state.adminDeletedPlayerIds=[...new Set(state.adminDeletedPlayerIds.map(Number).filter(Number.isFinite))];
 }
@@ -4065,21 +4067,26 @@ function adminChangePlayerTeam(id,newTeam){
   if(!p)return alert("No se encontró el jugador.");
 
   const owners=adminPlayerOwners(id);
-  if(owners.length){
-    alert(`No se puede modificar a ${p.name}: lo tiene ${owners.join(", ")}.`);
-    renderAdminPlayersTable();
-    return;
-  }
-
   newTeam=String(newTeam||"").trim();
   if(!newTeam||newTeam===p.team)return;
 
   const oldTeam=p.team;
-  if(!confirm(`¿Cambiar a ${p.name} de ${oldTeam} a ${newTeam}?`)){
+  const conflicts=[];
+  for(const manager of owners){
+    const otherIds=rosterIdsForManager(manager).filter(otherId=>Number(otherId)!==id&&player(otherId)?.team===newTeam);
+    if(otherIds.length)conflicts.push(`${manager}: ${otherIds.map(otherId=>player(otherId)?.name||otherId).join(", ")}`);
+  }
+  const message=conflicts.length
+    ? `ATENCIÓN: ${p.name} ya pertenece al plantel de ${owners.join(", ")}.\n\nAl cambiarlo a ${newTeam} se repetirá ese club en las siguientes formaciones:\n${conflicts.join("\n")}\n\nLa app mantendrá a todos los jugadores existentes y registrará esta excepción, pero no permitirá sumar otro futbolista del mismo club.\n\n¿Confirmás cambiar ${oldTeam} por ${newTeam}?`
+    : `¿Cambiar a ${p.name} de ${oldTeam} a ${newTeam}?${owners.length?`\n\nEl jugador seguirá en el plantel de ${owners.join(", ")}.`:""}`;
+  if(!confirm(message)){
     renderAdminPlayersTable();
     return;
   }
 
+  // Actualizar también las altas manuales para que persistan al sincronizar.
+  const created=state.adminCreatedPlayers?.find(x=>Number(x.id)===id);
+  if(created)created.team=newTeam;
   state.playerTeamOverrides[id]=newTeam;
   state.adminDeletedPlayerIds=state.adminDeletedPlayerIds.filter(x=>Number(x)!==id);
   syncOfficialPlayerBase();
@@ -4102,11 +4109,52 @@ function adminDeletePlayer(id){
   if(!confirm(`¿Eliminar a ${p.name} de la base de jugadores?\n\nSi aparece en fechas históricas, la app conservará esa referencia para no romper el historial.`))return;
 
   if(!state.adminDeletedPlayerIds.includes(id))state.adminDeletedPlayerIds.push(id);
+  state.adminCreatedPlayers=state.adminCreatedPlayers.filter(x=>Number(x.id)!==id);
   delete state.playerTeamOverrides[id];
 
   syncOfficialPlayerBase();
   persist();
   renderAllCloudAware();
+}
+function adminOpenCreatePlayer(){
+  if(!isCloudAdmin())return;
+  const teams=adminPlayerTeams();
+  $("modalTitle").textContent="Crear jugador";
+  $("modalBody").innerHTML=`<div style="display:grid;gap:12px;padding:8px 0">
+    <label>Nombre completo (Apellido, Nombre)<input class="input" id="newPlayerName" placeholder="Pérez, Juan" autocomplete="off"></label>
+    <label>Club<select class="select" id="newPlayerTeam">${teams.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join("")}</select></label>
+    <label>Posición<select class="select" id="newPlayerPosition"><option value="ARQ">Arquero</option><option value="DEF">Defensor</option><option value="VOL">Volante</option><option value="DEL">Delantero</option></select></label>
+    <label>Precio en pesos<input class="input" type="number" min="0" step="100000" id="newPlayerPrice" placeholder="300000"></label>
+    <p class="muted" style="font-size:12px">El jugador quedará disponible en la base para el draft y los cambios, y se guardará en Supabase.</p>
+  </div>`;
+  $("modalConfirm").style.display="";
+  $("modalConfirm").textContent="Crear jugador";
+  $("modalConfirm").onclick=adminCreatePlayer;
+  $("modalBack").classList.add("show");
+  $("newPlayerName")?.focus();
+}
+function adminCreatePlayer(){
+  if(!isCloudAdmin())return;
+  ensurePlayerAdminState();
+  const name=String($("newPlayerName")?.value||"").trim();
+  const team=String($("newPlayerTeam")?.value||"");
+  const position=String($("newPlayerPosition")?.value||"");
+  const priceRaw=String($("newPlayerPrice")?.value||"").trim();
+  const price=Number(priceRaw);
+  if(!name||!name.includes(","))return alert("Ingresá el nombre en formato Apellido, Nombre.");
+  if(!team||!["ARQ","DEF","VOL","DEL"].includes(position))return alert("Seleccioná club y posición válidos.");
+  if(!priceRaw||!Number.isFinite(price)||price<0)return alert("Ingresá un precio válido (puede ser 0).");
+  const key=low(name.normalize("NFD").replace(/[\u0300-\u036f]/g,""));
+  if((state.players||[]).some(p=>low(p.name.normalize("NFD").replace(/[\u0300-\u036f]/g,""))===key&&p.team===team))return alert("Ya existe un jugador con ese nombre y club.");
+  const ids=[...(ORIGINAL_DATA.players||[]),...(state.players||[]),...(state.adminCreatedPlayers||[]),...(state.retiredPlayers||[])].map(p=>Number(p.id)).filter(Number.isFinite);
+  const id=Math.max(100000,...ids)+1;
+  state.adminCreatedPlayers.push({id,name,team,position,price,slot:"",captain:false,score:"",owner:""});
+  syncOfficialPlayerBase();
+  persist();
+  $("modalBack").classList.remove("show");
+  $("modalConfirm").style.display="none";
+  renderAllCloudAware();
+  alert(`${name} fue creado correctamente en ${team}.`);
 }
 function renderAdminPlayersTable(){
   if(!$("adminPlayersBody"))return;
@@ -4146,7 +4194,7 @@ function renderAdminPlayersTable(){
       <td class="name"><b>${esc(p.name)}</b></td>
       <td><span class="pos pos-${p.position}">${p.position}</span></td>
       <td>
-        <select class="select player-admin-team" ${locked?"disabled":""} onchange="adminChangePlayerTeam(${p.id},this.value)">
+        <select class="select player-admin-team" onchange="adminChangePlayerTeam(${p.id},this.value)">
           ${options}
         </select>
       </td>
@@ -4201,7 +4249,7 @@ function syncOfficialPlayerBase(){
 
   // Base oficial + modificaciones manuales del Admin.
   // Un jugador eliminado manualmente no se vuelve a agregar al recargar.
-  state.players=ORIGINAL_DATA.players
+  state.players=[...ORIGINAL_DATA.players,...(state.adminCreatedPlayers||[]) ]
     .filter(op=>!adminDeleted.has(Number(op.id)))
     .map(op=>{
       const overrideTeam=state.playerTeamOverrides?.[Number(op.id)];
@@ -4235,7 +4283,13 @@ function syncOfficialPlayerBase(){
   state.retiredPlayers=newRetired;
   state.officialBaseWarnings=warnings;
   state.officialMoveWarnings=moveWarnings;
-  state.officialClubAnomalies=deriveOfficialClubAnomalies(moveWarnings);
+  // También preservar las anomalías de cambios manuales en cada sincronización.
+  const adminMoves=[];
+  for(const [id,team] of Object.entries(state.playerTeamOverrides||{})){
+    const p=state.players.find(x=>Number(x.id)===Number(id));
+    if(p&&adminPlayerOwners(id).length)adminMoves.push({id:Number(id),name:p.name,to:team,owners:adminPlayerOwners(id)});
+  }
+  state.officialClubAnomalies=deriveOfficialClubAnomalies([...moveWarnings,...adminMoves]);
   state.officialBaseRevision=OFFICIAL_BASE_REVISION;
 }
 function officialBaseWarningHtml(){

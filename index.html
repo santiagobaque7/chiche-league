@@ -5156,6 +5156,7 @@ async function initCloud(){
     cloudStateNeedsMigrationSave=false;
     await pushCloudState();
   }
+  startClubIdentityUpdates();
   clearInterval(cloudPollingTimer);
   cloudPollingTimer=setInterval(async()=>{
     if(!isCloudAdmin()&&!document.hidden)await pullCloudState({quiet:true});
@@ -5163,7 +5164,10 @@ async function initCloud(){
   if(!window.__chicheVisibilitySyncBound){
     window.__chicheVisibilitySyncBound=true;
     document.addEventListener("visibilitychange",()=>{
-      if(!document.hidden&&!isCloudAdmin())pullCloudState({force:true,quiet:true});
+      if(!document.hidden){
+        if(!isCloudAdmin())pullCloudState({force:true,quiet:true});
+        fetchPublishedClubProfiles();
+      }
     });
   }
 }
@@ -5456,6 +5460,82 @@ const CLUB_PAGE_STORAGE="chiche_league_club_page_manager_v2";
 let viewerManagerLocal="";
 let clubPageManagerLocal="";
 
+// Las identidades son independientes de la partida: los DT no necesitan permisos de administrador.
+const CLUB_IDENTITY_API="/api/chiche-identity";
+let publishedClubProfiles={};
+let clubIdentityPollingTimer=null;
+let clubIdentityFetchPending=false;
+let clubIdentityRequestVersion=0;
+let clubIdentitySaving=false;
+
+function identityFields(profile){
+  return {
+    clubName:String(profile?.clubName||"").trim().slice(0,40),
+    description:String(profile?.description||"").trim().slice(0,1200),
+    founded:String(profile?.founded||"").trim().slice(0,100),
+    stadium:String(profile?.stadium||"").trim().slice(0,100),
+    motto:String(profile?.motto||"").trim().slice(0,240)
+  };
+}
+function repaintPublishedClubProfiles(){
+  renderClubChooser();
+  renderClubPage();
+  renderHome();
+  updateTopBrand();
+}
+async function fetchPublishedClubProfiles({silent=true}={}){
+  if(clubIdentityFetchPending||clubIdentitySaving)return false;
+  clubIdentityFetchPending=true;
+  const version=++clubIdentityRequestVersion;
+  try{
+    const response=await fetch(`${CLUB_IDENTITY_API}?league_id=${encodeURIComponent(CLOUD_LEAGUE_ID)}`,{
+      cache:"no-store",signal:AbortSignal.timeout(12000)
+    });
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(result.message||`Error HTTP ${response.status}`);
+    if(!Array.isArray(result.items))throw new Error("Respuesta de identidades inválida.");
+    if(version!==clubIdentityRequestVersion)return false;
+    const next={};
+    for(const item of result.items){
+      if(item&&typeof item.manager==="string"&&item.profile&&typeof item.profile==="object"){
+        next[item.manager]=identityFields(item.profile);
+      }
+    }
+    const changed=JSON.stringify(next)!==JSON.stringify(publishedClubProfiles);
+    publishedClubProfiles=next;
+    if(changed)repaintPublishedClubProfiles();
+    return true;
+  }catch(error){
+    if(!silent)console.error("No se pudieron obtener las identidades compartidas:",error);
+    return false;
+  }finally{
+    clubIdentityFetchPending=false;
+  }
+}
+async function publishClubProfile(manager,profile){
+  // Descarta cualquier lectura GET iniciada antes de este guardado.
+  clubIdentityRequestVersion++;
+  const response=await fetch(CLUB_IDENTITY_API,{
+    method:"PATCH",
+    headers:{"Content-Type":"application/json"},
+    cache:"no-store",
+    signal:AbortSignal.timeout(12000),
+    body:JSON.stringify({league_id:CLOUD_LEAGUE_ID,manager,profile:identityFields(profile)})
+  });
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok||!result.item)throw new Error(result.message||`No se pudo publicar (HTTP ${response.status}).`);
+  const published=identityFields(result.item.profile);
+  publishedClubProfiles[manager]=published;
+  return published;
+}
+function startClubIdentityUpdates(){
+  fetchPublishedClubProfiles({silent:false});
+  clearInterval(clubIdentityPollingTimer);
+  clubIdentityPollingTimer=setInterval(()=>{
+    if(!document.hidden)fetchPublishedClubProfiles();
+  },10000);
+}
+
 const CLUB_LOCAL_IDENTITY_STORAGE="chiche_league_club_identity_local_v1";
 let clubLocalIdentityOverrides={};
 function loadClubLocalIdentityOverrides(){
@@ -5546,13 +5626,10 @@ function ensureClubProfiles(){
 }
 function clubProfile(manager){
   ensureClubProfiles();
-  const shared={...defaultClubProfile(manager),...(state.clubProfiles?.[manager]||{})};
-  const local=clubLocalIdentityOverrides?.[manager]||null;
-
-  // El override local siempre tiene prioridad para evitar que un re-render
-  // vuelva a mostrar el nombre anterior. Si sos Admin, además el mismo cambio
-  // se guarda en el estado compartido desde saveClubIdentity().
-  const profile=local?{...shared,...local}:shared;
+  // Prioridad: identidad publicada por cada DT > partida oficial > preset.
+  // Nunca leer un override de este navegador al mostrar un equipo: ocultaba
+  // los cambios reales a otros visitantes, incluso al administrador.
+  const profile={...defaultClubProfile(manager),...(state.clubProfiles?.[manager]||{}),...(publishedClubProfiles[manager]||{})};
   // Swifties: preservar el rosa institucional incluso ante colores guardados previamente.
   if(manager==="Alva")profile.colors=["#e30c60",(profile.colors||[])[1]||"#f7f5f0"];
   return profile;
@@ -5803,7 +5880,10 @@ function clubRosterRows(manager,role){
 }
 function clubIdentityHtml(summary,manager){
   const p=summary.profile;
-  return `<div class="club-admin-form club-admin-only"><div class="club-info-note">Editá el nombre del equipo y su identidad.</div>
+  const legacy=clubLocalIdentityOverrides?.[manager];
+  const legacyDifferent=legacy&&["clubName","description","founded","stadium","motto"].some(k=>String(legacy[k]??"")!==String(p[k]??""));
+  return `<div class="club-admin-form club-admin-only"><div class="club-info-note">Los cambios se publican para todos los participantes al guardar.</div>
+    ${legacyDifferent?`<div class="club-info-note" style="margin-top:6px">Hay una edición anterior guardada solo en este dispositivo. <button type="button" class="btn small" onclick="recoverLocalClubIdentity()">Recuperarla</button></div>`:""}
     <label class="club-admin-field"><span>Nombre del equipo</span><input id="clubEditName" maxlength="40" value="${esc(p.clubName)}"></label>
     <div class="club-admin-field"><span>Texto debajo del DT</span><textarea id="clubEditDescription">${esc(p.description)}</textarea></div>
     <div class="club-admin-grid">
@@ -5811,7 +5891,8 @@ function clubIdentityHtml(summary,manager){
       <label class="club-admin-field"><span>Estadio</span><input id="clubEditStadium" value="${esc(p.stadium)}"></label>
     </div>
     <label class="club-admin-field"><span>Lema</span><input id="clubEditMotto" value="${esc(p.motto)}"></label>
-    <div class="club-admin-actions"><button type="button" class="btn primary" onclick="saveClubIdentity()">Guardar identidad</button></div>
+    <div id="clubIdentitySyncFeedback" role="status" aria-live="polite" style="font-size:12px;line-height:1.4"></div>
+    <div class="club-admin-actions"><button type="button" id="clubIdentitySaveButton" class="btn primary" onclick="saveClubIdentity()">Guardar identidad</button></div>
   </div>`;
 }
 function openClubIdentityEditor(){
@@ -5829,45 +5910,52 @@ function closeClubIdentityEditor(){
   modal.classList.remove("open");
   modal.setAttribute("aria-hidden","true");
 }
-function saveClubIdentity(){
+function recoverLocalClubIdentity(){
   const manager=currentClubPageManager();
-  if(!canEditClubIdentity(manager))return;
-  ensureClubProfiles();
+  const local=clubLocalIdentityOverrides?.[manager];
+  if(!local)return;
+  const fields={clubEditName:local.clubName,clubEditDescription:local.description,clubEditFounded:local.founded,clubEditStadium:local.stadium,clubEditMotto:local.motto};
+  for(const [id,val] of Object.entries(fields))if($(id)&&val!==undefined)$(id).value=val;
+  if($("clubIdentitySyncFeedback"))$("clubIdentitySyncFeedback").textContent="Edición anterior recuperada. Presioná Guardar identidad para publicarla a todos.";
+}
 
+async function saveClubIdentity(){
+  const manager=currentClubPageManager();
+  if(!canEditClubIdentity(manager)||clubIdentitySaving)return;
+  ensureClubProfiles();
+  const defaults=defaultClubProfile(manager);
   const newName=String($("clubEditName")?.value||"").trim().slice(0,40);
   const edited={
-    ...clubProfile(manager),
-    clubName:newName||defaultClubProfile(manager).clubName,
-    description:String($("clubEditDescription")?.value||"").trim()||defaultClubProfile(manager).description,
-    founded:String($("clubEditFounded")?.value||"").trim()||defaultClubProfile(manager).founded,
-    stadium:String($("clubEditStadium")?.value||"").trim()||defaultClubProfile(manager).stadium,
-    motto:String($("clubEditMotto")?.value||"").trim()||defaultClubProfile(manager).motto
+    clubName:newName||defaults.clubName,
+    description:String($("clubEditDescription")?.value||"").trim().slice(0,1200)||defaults.description,
+    founded:String($("clubEditFounded")?.value||"").trim().slice(0,100)||defaults.founded,
+    stadium:String($("clubEditStadium")?.value||"").trim().slice(0,100)||defaults.stadium,
+    motto:String($("clubEditMotto")?.value||"").trim().slice(0,240)||defaults.motto
   };
-
-  // 1) Actualización inmediata en memoria.
-  state.clubProfiles[manager]={...(state.clubProfiles[manager]||{}),...edited};
-
-  // 2) Persistencia local para que el DT vea siempre su nombre editado,
-  // incluso después de un pull automático de la partida oficial.
-  saveClubLocalIdentityOverride(manager,edited);
-
-  // 3) Si es Admin, además se publica en la partida compartida.
-  if(isCloudAdmin()){
-    persist();
-  }else{
-    // Guardamos también el estado local sin intentar publicar a la nube.
-    try{
-      state.updatedAt=new Date().toISOString();
-      localStorage.setItem(STORAGE,JSON.stringify(state));
-    }catch(e){}
+  const message=$("clubIdentitySyncFeedback");
+  const saveBtn=$("clubIdentitySaveButton");
+  clubIdentitySaving=true;
+  if(saveBtn){saveBtn.disabled=true;saveBtn.textContent="Publicando…";}
+  if(message){message.textContent="Guardando la identidad compartida…";message.style.color="";}
+  try{
+    const published=await publishClubProfile(manager,edited);
+    // Reflejo local, sin PATCH de toda la liga: la identidad ya se guardó en Supabase.
+    state.clubProfiles[manager]={...(state.clubProfiles[manager]||{}),...published};
+    try{localStorage.setItem(STORAGE,JSON.stringify(state));}catch(e){}
+    // Los viejos overrides locales no deben ocultar datos publicados por otros DT.
+    delete clubLocalIdentityOverrides[manager];
+    try{localStorage.setItem(CLUB_LOCAL_IDENTITY_STORAGE,JSON.stringify(clubLocalIdentityOverrides));}catch(e){}
+    closeClubIdentityEditor();
+    repaintPublishedClubProfiles();
+  }catch(error){
+    console.error("Error guardando identidad de club:",error);
+    if(message){message.textContent="No se publicó el cambio: "+(error.message||"falló la conexión")+". Los datos siguen en el formulario para reintentar.";message.style.color="#ff9a92";}
+  }finally{
+    clubIdentitySaving=false;
+    if(saveBtn){saveBtn.disabled=false;saveBtn.textContent="Guardar identidad";}
   }
-
-  closeClubIdentityEditor();
-  renderClubChooser();
-  renderClubPage();
-  renderHome();
-  updateTopBrand();
 }
+
 function updateTopBrand(){
   const el=$("topBrand");
   if(!el)return;

@@ -3,7 +3,7 @@
 // Vercel Serverless Function: /api/chiche-identity
 // El perfil se guarda aparte de la partida oficial para que un DT no tenga
 // permiso de sobrescribir formaciones, puntajes o resultados.
-const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').replace(/\/$/, '');
+const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim();
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || '';
 const LEAGUE_ID = 'clausura-2026';
 const TABLE = 'chiche_club_identities';
@@ -26,8 +26,23 @@ function safeProfile(input) {
   }
   return out;
 }
+// Supabase entrega dos URLs habituales: la URL del proyecto y la de la Data API.
+// Ambas deben conducir a /rest/v1 exactamente una vez.
+function supabaseApiBase() {
+  const supplied=SUPABASE_URL.replace(/^['"]|['"]$/g,'').replace(/\/+$/,'');
+  let parsed;
+  try {parsed=new URL(supplied);} catch {
+    throw new Error('SUPABASE_URL inválida. Usá https://TU_PROYECTO.supabase.co (sin otras rutas).');
+  }
+  const path=parsed.pathname.replace(/\/+$/,'');
+  if(parsed.protocol!=='https:' || parsed.username || parsed.password || parsed.search || parsed.hash ||
+    (path!=='' && path!=='/rest/v1')){
+    throw new Error('SUPABASE_URL tiene una ruta incorrecta. Usá https://TU_PROYECTO.supabase.co (sin otras rutas).');
+  }
+  return `${parsed.origin}/rest/v1`;
+}
 async function supabaseRest(query, {method = 'GET', body} = {}) {
-  const url = `${SUPABASE_URL}/rest/v1/${TABLE}?${query}`;
+  const url = `${supabaseApiBase()}/${TABLE}?${query}`;
   const response = await fetch(url, {
     method,
     headers: {
@@ -81,9 +96,13 @@ module.exports = async function handler(req, res) {
     console.error('[chiche-identity]',error);
     const msg=error?.message||'Error de servidor.';
     const invalid=/^(Perfil inválido|El campo|DT inválido)/.test(msg);
+    const invalidUrl=/^SUPABASE_URL (inválida|tiene una ruta incorrecta)/.test(msg);
     const missingTable=/Could not find the table|relation .* does not exist|PGRST205/.test(msg);
-    return respond(res,invalid?400:missingTable?503:502,{
-      message:missingTable?'Falta crear la tabla chiche_club_identities en Supabase (ver SQL incluido).':invalid?msg:'Error al consultar o guardar la identidad en Supabase.'
+    const invalidPath=/Invalid path specified in request URL|PGRST125/.test(msg);
+    return respond(res,invalid?400:invalidUrl||missingTable||invalidPath?503:502,{
+      message:invalidUrl?msg:missingTable?'Falta crear la tabla chiche_club_identities en Supabase (ver SQL incluido).':
+        invalidPath?'Supabase rechazó la ruta REST. Verificá SUPABASE_URL en Vercel: debe ser la URL del proyecto, sin rutas adicionales.':
+        invalid?msg:'Error al consultar o guardar la identidad en Supabase.'
     });
   }
 };

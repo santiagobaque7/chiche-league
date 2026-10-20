@@ -9938,10 +9938,22 @@ function previewRemoveParticipant(idx){
 let v12Tournaments=[{id:'clausura-2026',name:'Clausura 2026',year:2026,participants:[]}];
 const V12_TOURNAMENTS_API='/api/chiche-tournaments';
 async function v12Request(method='GET',data=null){
-  const token=method==='GET'?null:await validAdminToken();
-  if(method!=='GET'&&!token)throw Error('Iniciá sesión como administrador.');
-  const res=await fetch(V12_TOURNAMENTS_API,{method,cache:'no-store',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},...(data?{body:JSON.stringify(data)}:{})});
-  const r=await res.json().catch(()=>({}));if(!res.ok)throw Error(r.message||`Error HTTP ${res.status}`);return r;
+  const attempt=async(retry=false)=>{
+    const token=method==='GET'?null:await validAdminToken();
+    if(method!=='GET'&&!token)throw Error('Iniciá sesión como administrador.');
+    const res=await fetch(V12_TOURNAMENTS_API,{
+      method,cache:'no-store',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},
+      ...(data?{body:JSON.stringify(data)}:{})
+    });
+    const r=await res.json().catch(()=>({}));
+    if(res.status===401&&method!=='GET'&&!retry){
+      const renewed=await refreshCloudSession();
+      if(renewed)return attempt(true);
+    }
+    if(!res.ok)throw Error(r.message||`Error HTTP ${res.status}`);
+    return r;
+  };
+  return attempt();
 }
 async function v12FetchTournaments(){
   try{const r=await v12Request();v12Tournaments=Array.isArray(r.items)&&r.items.length?r.items:v12Tournaments;}

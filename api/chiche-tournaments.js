@@ -90,8 +90,10 @@ module.exports=async(req,res)=>{
   if(b.id==='clausura-2026')return reply(res,403,{message:'El Clausura 2026 está protegido.'});
   if(b.confirmName!==target.name)return reply(res,400,{message:'La confirmación no coincide con el nombre.'});
   // Borrado confirmado por nombre; no afecta otras ediciones.
-  await call(`/rest/v1/chiche_club_identities?league_id=eq.${encodeURIComponent(b.id)}`,{method:'DELETE'});
-  await call(`/rest/v1/${TABLE}?id=eq.${encodeURIComponent(b.id)}`,{method:'DELETE'});
-  await save(items.filter(t=>t.id!==b.id));return reply(res,200,{ok:true});
+  // Baja lógica: la tabla permite crear/editar, pero el rol de servidor no dispone
+  // del permiso DELETE. No se eliminan datos ni identidades; el torneo deja de estar
+  // disponible en la lista de ediciones y queda conservado para eventual recuperación.
+  await save(items.filter(t=>t.id!==b.id));
+  return reply(res,200,{ok:true,archived:true,message:'Torneo retirado de la lista. Sus datos permanecen conservados.'});
  }catch(e){console.error('[chiche-tournaments]',e);const denied=/permission denied|42501/i.test(e.message||'');return reply(res,e.status>=400&&e.status<500?e.status:502,{message:denied?'Supabase no permite modificar chiche_league_state. El administrador debe aplicar una sola vez el SQL de permisos incluido en la entrega.':(e.message||'Error de torneos.')})}
 };

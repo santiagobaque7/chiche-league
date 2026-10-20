@@ -4170,6 +4170,42 @@ body.home-active .top>.nav{display:none!important}
   #matchScores #uxFixtureRoundNav .ux-round-choice{height:36px!important;}
 }
 </style>
+
+<style id="chicheMobileRankTablesFix">
+/* Corrección específica para las tablas de Fixture y Tablas en pantallas móviles. */
+@media (max-width: 650px) {
+  #matchScores .ux-fixture-tables .scores-rank-card table {
+    table-layout: auto !important;
+    width: 100% !important;
+  }
+  /* Nunca separar el puesto 10 en dos líneas. */
+  #matchScores .ux-fixture-tables .scores-rank-card th:first-child,
+  #matchScores .ux-fixture-tables .scores-rank-card td:first-child {
+    width: 32px !important;
+    min-width: 32px !important;
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+    word-break: keep-all !important;
+    text-align: left !important;
+  }
+  /* Mantener SUPLENTES en una sola línea, sin alterar la tipografía general. */
+  #matchScores .ux-fixture-tables #scoresRoundCard th:nth-child(4),
+  #matchScores .ux-fixture-tables #scoresRoundCard td:nth-child(4) {
+    min-width: 78px !important;
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+    word-break: keep-all !important;
+  }
+  #matchScores .ux-fixture-tables .scores-rank-card th {
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+    word-break: keep-all !important;
+  }
+  #matchScores .ux-fixture-tables .scores-rank-card .tablewrap {
+    min-width: 0 !important;
+  }
+}
+</style>
 </head>
 <body class="app-booting">
 

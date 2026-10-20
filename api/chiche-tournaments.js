@@ -11,10 +11,20 @@ async function call(path,opts={}){
   const raw=await r.text();let j;try{j=raw?JSON.parse(raw):null}catch{j={message:raw.slice(0,300)}}
   if(!r.ok){const e=new Error(j?.message||j?.error||`Supabase HTTP ${r.status}`);e.status=r.status;throw e}return j;
 }
+// Validar el JWT con el mismo proyecto y la misma clave pública que el login oficial.
+// La service_role se reserva exclusivamente para acceder a la tabla desde el servidor.
+const AUTH_URL='https://nhncljaqxhlapfsjqrql.supabase.co';
+const AUTH_PUBLIC_KEY='sb_publishable_GaMB23nh1tEtytzPS2c3gA_S_4YwYr3';
 async function admin(req){
-  const jwt=String(req.headers.authorization||'').replace(/^Bearer\s+/i,'').trim();if(!jwt)return false;
-  const r=await fetch(`${url}/auth/v1/user`,{headers:{apikey:key,Authorization:`Bearer ${jwt}`},signal:AbortSignal.timeout(10000)});
-  if(!r.ok)return false;const u=await r.json();return u?.id===owner;
+  const jwt=String(req.headers.authorization||'').replace(/^Bearer\s+/i,'').trim();
+  if(!jwt)return false;
+  const r=await fetch(`${AUTH_URL}/auth/v1/user`,{
+    headers:{apikey:AUTH_PUBLIC_KEY,Authorization:`Bearer ${jwt}`},
+    signal:AbortSignal.timeout(10000)
+  });
+  if(!r.ok){console.warn('[chiche-tournaments] JWT rechazado por Auth:',r.status);return false;}
+  const u=await r.json();
+  return u?.id===owner;
 }
 function validateId(id){return typeof id==='string'&&/^[a-z0-9-]{3,80}$/.test(id)}
 function validateName(name){return typeof name==='string'&&name.trim().length>=3&&name.trim().length<=70}

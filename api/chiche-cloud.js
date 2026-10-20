@@ -1,5 +1,6 @@
 const SUPABASE_URL = "https://nhncljaqxhlapfsjqrql.supabase.co";
 const SUPABASE_KEY = "sb_publishable_GaMB23nh1tEtytzPS2c3gA_S_4YwYr3";
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || "";
 const OWNER_UID = "b9a49f4d-5e26-4f0e-8892-b6b958e4a59b";
 
 function authHeaders() {
@@ -80,7 +81,9 @@ module.exports = async function handler(req, res) {
         `&select=state,updated_at`;
 
       const response = await fetchTimed(url, {
-        headers: restHeaders(),
+        headers: leagueId !== 'clausura-2026' && SERVICE_KEY ? {
+          ...restHeaders(), apikey:SERVICE_KEY, Authorization:`Bearer ${SERVICE_KEY}`
+        } : restHeaders(),
         cache: "no-store"
       });
       const rows = await parseSupabase(response);
@@ -156,12 +159,20 @@ module.exports = async function handler(req, res) {
         return res.status(400).json({ message: "Faltan datos de la partida." });
       }
 
+      // Las ediciones nuevas usan la misma tabla. La API comprueba al administrador
+      // antes de aplicar la escritura con la clave de servidor que ya está configurada.
+      if (league_id !== 'clausura-2026') {
+        if (!SERVICE_KEY) return res.status(503).json({message:'Falta la clave de servidor ya utilizada por identidades.'});
+        const who = await fetchTimed(`${SUPABASE_URL}/auth/v1/user`,{headers:restHeaders(token)});
+        const adminUser=await parseSupabase(who);
+        if (adminUser?.id !== OWNER_UID) return res.status(403).json({message:'Solo el administrador puede guardar una edición.'});
+      }
       const response = await fetchTimed(
         `${SUPABASE_URL}/rest/v1/chiche_league_state?id=eq.${encodeURIComponent(league_id)}`,
         {
           method: "PATCH",
           headers: {
-            ...restHeaders(token),
+            ...(league_id !== 'clausura-2026' ? { ...restHeaders(),apikey:SERVICE_KEY, Authorization:`Bearer ${SERVICE_KEY}` } : restHeaders(token)),
             Prefer: "return=minimal"
           },
           body: JSON.stringify({

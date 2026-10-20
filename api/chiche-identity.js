@@ -5,7 +5,7 @@
 // permiso de sobrescribir formaciones, puntajes o resultados.
 const SUPABASE_URL = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim();
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || '';
-const LEAGUE_ID = 'clausura-2026';
+// Ediciones independientes; conservar la misma edición que solicita el cliente.
 const TABLE = 'chiche_club_identities';
 const LIMITS = {clubName:40,description:1200,founded:100,stadium:100,motto:240};
 
@@ -77,10 +77,10 @@ module.exports = async function handler(req, res) {
   try {body=typeof req.body==='string'?JSON.parse(req.body):req.body||{};}
   catch {return respond(res,400,{message:'JSON inválido.'});}
   const league=(req.method==='GET'?req.query?.league_id:body?.league_id)||'';
-  if(league!==LEAGUE_ID)return respond(res,400,{message:'Torneo inválido.'});
+  if(typeof league!=='string'||!(/^[a-z0-9-]{3,80}$/).test(league))return respond(res,400,{message:'Torneo inválido.'});
   try {
     if (req.method==='GET') {
-      const items=await supabaseRest(`league_id=eq.${encodeURIComponent(LEAGUE_ID)}&select=manager,profile,updated_at&order=manager.asc`);
+      const items=await supabaseRest(`league_id=eq.${encodeURIComponent(league)}&select=manager,profile,updated_at&order=manager.asc`);
       return respond(res,200,{items:Array.isArray(items)?items:[]});
     }
     const manager=body.manager;
@@ -89,9 +89,9 @@ module.exports = async function handler(req, res) {
     const profile=safeProfile(body.profile);
     const now=new Date().toISOString();
     const items=await supabaseRest('on_conflict=league_id,manager',{
-      method:'POST',body:[{league_id:LEAGUE_ID,manager,profile,updated_at:now}]
+      method:'POST',body:[{league_id:league,manager,profile,updated_at:now}]
     });
-    return respond(res,200,{item:items?.[0]||{league_id:LEAGUE_ID,manager,profile,updated_at:now}});
+    return respond(res,200,{item:items?.[0]||{league_id:league,manager,profile,updated_at:now}});
   }catch(error){
     console.error('[chiche-identity]',error);
     const msg=error?.message||'Error de servidor.';

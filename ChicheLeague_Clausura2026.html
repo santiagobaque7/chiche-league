@@ -9635,8 +9635,8 @@ document.querySelectorAll("[data-best-sort]").forEach(b=>b.onclick=()=>setBestSo
 $("startTransferRound").onclick=startTransferRound;$("drawTransferClub").onclick=drawTransferClub;$("passTransfer").onclick=passTransfer;$("transferSearch").oninput=renderTransferPlayers;$("transferClubFilter").onchange=renderTransferPlayers;$("transferAvailability").onchange=renderTransferPlayers;
 $("backupBtn").onclick=backup;
 $("pullCloudBtn").onclick=()=>alert("Esta versión es local y no consulta Supabase. Para trasladar datos usá Restaurar JSON desde un respaldo, en esta copia de prueba.");
-$("adminLoginBtn").onclick=()=>alert("Modo administrador local: no necesitás iniciar sesión.");
-$("adminLogoutBtn").onclick=()=>alert("Esta versión no tiene sesión en Supabase.");$("restoreBtn").onclick=()=>$("restoreFile").click();$("addLateParticipantBtn").onclick=openLateParticipant;$("resetTournamentBtn").onclick=resetTournament;$("restoreFile").onchange=e=>e.target.files[0]&&restore(e.target.files[0]);$("csvBtn").onclick=exportCsv;
+$("adminLoginBtn").onclick=showAdminLogin;
+$("adminLogoutBtn").onclick=cloudLogout;$("restoreBtn").onclick=()=>$("restoreFile").click();$("addLateParticipantBtn").onclick=openLateParticipant;$("resetTournamentBtn").onclick=resetTournament;$("restoreFile").onchange=e=>e.target.files[0]&&restore(e.target.files[0]);$("csvBtn").onclick=exportCsv;
 
 document.addEventListener("keydown",e=>{
   if(e.code!=="Space")return;
@@ -9844,6 +9844,7 @@ function previewRenderTournamentsLegacy(){ return renderProductionTournamentNoti
   members.innerHTML=state.participants.length?state.participants.map((m,i)=>`<div class="preview-member-row"><div><strong>${esc(m)}</strong><small>${state.draftRosters?.[m]?.picks?.length||state.confirmedTeams?.[m]?.picks?.length||0} jugadores · Desde fecha ${participantStartRound(m)}</small></div><div class="preview-member-actions"><button type="button" class="btn small" onclick="previewRenameParticipant(${i})">Editar nombre</button>${state.phase!=='confirmed'?`<button type="button" class="btn small danger" onclick="previewRemoveParticipant(${i})">Quitar</button>`:''}</div></div>`).join(''):'<div class="preview-empty-members">Todavía no hay participantes. Agregá al menos dos para poder empezar el draft.</div>';
 }
 function previewAddParticipant(){
+  if(!isCloudAdmin())return alert('Solo el administrador puede modificar participantes.');
   if(state.phase==='confirmed')return openLateParticipant();
   const name=prompt('Nombre del nuevo participante:');if(name===null)return;
   const value=name.trim();if(!value)return alert('Completá el nombre.');
@@ -9855,12 +9856,13 @@ function previewAddParticipant(){
   persist();previewRefresh();previewRenderTournaments();
 }
 function previewRenameParticipant(idx){
+  if(!isCloudAdmin())return alert('Solo el administrador puede modificar participantes.');
   const old=state.participants[idx];if(!old)return;
   const input=prompt('Nuevo nombre para el DT:',old);if(input===null)return;
   const name=input.trim();if(!name||name.length>36)return alert('Ingresá un nombre entre 1 y 36 caracteres.');
   if(state.participants.some(m=>m!==old&&low(m)===low(name)))return alert('Ya existe ese nombre.');
   if(name===old)return;
-  if(state.phase==='confirmed'&&(Object.keys(state.rounds||{}).length||Object.keys(state.transferRounds||{}).length))return alert('Para proteger el historial, no se puede renombrar un DT con puntajes ya cargados. Hacé una copia JSON y revisemos la migración.');
+  // Renombrar no borra puntajes: se migran las claves y referencias del DT, preservando los ID de jugadores y las fechas.
   state.participants[idx]=name;
   state.draftOrder=(state.draftOrder||[]).map(x=>x===old?name:x);
   ['draftRosters','confirmedTeams','participantStartRounds','clubProfiles'].forEach(k=>{
@@ -9868,9 +9870,22 @@ function previewRenameParticipant(idx){
   });
   for(const snapshot of Object.values(state.rosterHistory||{}))if(snapshot[old]){snapshot[name]=snapshot[old];delete snapshot[old];}
   if(state.draftTurn?.manager===old)state.draftTurn.manager=name;
+  const renameRefs=(node)=>{
+    if(Array.isArray(node)){for(let i=0;i<node.length;i++){if(node[i]===old)node[i]=name;else if(node[i]&&typeof node[i]==='object')renameRefs(node[i]);}return;}
+    if(!node||typeof node!=='object')return;
+    for(const [k,v] of Object.entries(node)){
+      if(k===old){node[name]=v;delete node[k];}
+      else if(v===old)node[k]=name;
+      else if(v&&typeof v==='object')renameRefs(v);
+    }
+  };
+  for(const key of ['transferRounds','clubIdentityOverrides','clubProfiles','clubIdentityHistory','rosterHistory','participantStartRounds','draftRosters','confirmedTeams'])renameRefs(state[key]);
+  if(state.lateJoin)renameRefs(state.lateJoin);
+  if(viewerManagerLocal===old)saveViewerManagerLocal(name);
   persist();previewRefresh();previewRenderTournaments();
 }
 function previewRemoveParticipant(idx){
+  if(!isCloudAdmin())return alert('Solo el administrador puede modificar participantes.');
   const m=state.participants[idx];if(!m)return;
   if(state.phase==='confirmed')return alert('No se puede quitar directamente un DT que tiene un plantel confirmado; corresponde revisar qué hacer con su historial.');
   if(!confirm(`¿Quitar a ${m} del torneo de prueba? Se liberarán los jugadores que eligió.`))return;
@@ -9894,14 +9909,14 @@ async function v12Request(method='GET',data=null){
 }
 async function v12FetchTournaments(){
   try{const r=await v12Request();v12Tournaments=Array.isArray(r.items)&&r.items.length?r.items:v12Tournaments;}
-  catch(e){console.warn('Lista de torneos:',e)}
+  catch(e){console.warn('Lista de torneos:',e);if(!v12Tournaments.some(t=>t.id==='clausura-2026'))v12Tournaments.unshift({id:'clausura-2026',name:'Clausura 2026',year:2026,participants:[...(state?.participants||[])]});}
   if(!v12Tournaments.some(t=>t.id===CLOUD_LEAGUE_ID)){
     CLOUD_LEAGUE_ID='clausura-2026';localStorage.setItem('chiche_v12_active_league',CLOUD_LEAGUE_ID);
   }
   STORAGE='chiche_prod_v12_cache_'+CLOUD_LEAGUE_ID;
   return v12Tournaments;
 }
-function v12Accessible(t){return isCloudAdmin()||(!viewerManagerLocal||t.participants?.includes(viewerManagerLocal))}
+function v12Accessible(t){return isCloudAdmin()||!viewerManagerLocal||(t.participants||[]).includes(viewerManagerLocal)||(t.id==='clausura-2026'&&(state.participants||[]).includes(viewerManagerLocal))}
 function v12SelectedTour(){return v12Tournaments.find(t=>t.id===CLOUD_LEAGUE_ID)}
 async function previewSwitchTournament(id){
   const t=v12Tournaments.find(t=>t.id===id);if(!t)return alert('No se encontró el torneo.');
@@ -9967,6 +9982,7 @@ async function previewDeleteTournament(id){
 function previewRenderTournaments(){
  const list=$('previewTournamentList');if(!list)return;
  const available=v12Tournaments.filter(v12Accessible);
+ if(!available.some(t=>t.id==='clausura-2026'))available.unshift({id:'clausura-2026',name:'Clausura 2026',year:2026,participants:state.participants||[]});
  list.innerHTML=available.map(t=>`<article class="preview-tournament-row ${t.id===CLOUD_LEAGUE_ID?'selected':''}">
  <div class="preview-tournament-mark">${t.id===CLOUD_LEAGUE_ID?'●':'○'}</div>
  <div class="preview-tournament-main"><div class="preview-tournament-name">${esc(t.name)} ${t.id===CLOUD_LEAGUE_ID?'<span class="preview-current-badge">ACTUAL</span>':''}</div><p>${(t.participants||[]).length} DT · Torneo compartido</p></div>
@@ -9987,6 +10003,16 @@ function previewRenderTournaments(){
  page.querySelectorAll('.preview-warn,.preview-tournament-footnote,.preview-original-restore').forEach(el=>el.style.display='none');}
 }
 
+function v13UpdateHomeSession(){
+ const home=document.querySelector('#home .home-status-row')||document.querySelector('#home .home-status');
+ if(!home)return;
+ let actions=document.getElementById('v13HomeSession');
+ if(!actions){actions=document.createElement('div');actions.id='v13HomeSession';home.appendChild(actions)}
+ const admin=isCloudAdmin();
+ actions.innerHTML=admin?'<span class="v13-admin-indicator">Administrador conectado</span><button type="button" class="btn small" onclick="cloudLogout()">Cerrar sesión</button>':'<button type="button" class="btn small" onclick="showAdminLogin()">Ingresar como administrador</button>';
+ // Centro de Gestión exclusivo del administrador también desde Home.
+ document.querySelectorAll('#home .home-module-card[data-home-page="database"]').forEach(x=>{x.style.display=admin?'':'none'});
+}
 function v12ConfigureFixture(){
  if(!isCloudAdmin()||CLOUD_LEAGUE_ID==='clausura-2026')return;
  const clubs=[...new Set((state.players||[]).map(p=>p.team))].filter(Boolean).sort();
@@ -10022,11 +10048,8 @@ async function v12RefreshTournamentOptions(){
  await v12FetchTournaments();
  const host=document.querySelector('#home .home-status-row')||document.querySelector('#home .home-status');
  if(!host)return;
- let select=document.getElementById('v12MyTournaments');
- if(!select){select=document.createElement('select');select.id='v12MyTournaments';select.className='select';select.setAttribute('aria-label','Seleccionar torneo');host.appendChild(select)}
- const allowed=v12Tournaments.filter(v12Accessible);
- select.innerHTML=allowed.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join('');select.value=CLOUD_LEAGUE_ID;
- select.onchange=()=>previewSwitchTournament(select.value);
+ const select=document.getElementById('v12MyTournaments');if(select)select.remove();
+ // El selector único de ediciones es el botón «Cambiar torneo» del Home.
 }
 
 loadClubViewerState();loadState();cloudSession=getCloudSession();sanitizeLegacyState();syncNavAvailability();renderParticipantInputs(state.phase==="setup"?(state.setupDraftNames||["",""]):state.setupDraftNames);fillStatic();bindSortHeaders();setTimeout(()=>{document.querySelectorAll(".sorthead").forEach(btn=>{const mark=btn.querySelector(".sortmark");if(mark)mark.textContent=btn.dataset.sort==="name"?"↑":"↕"})},0);
@@ -11387,6 +11410,35 @@ main{min-width:0}
   head.insertBefore(intro,head.firstChild);
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addTransferTitle);else addTransferTitle();
+})();
+</script>
+
+<style id="chicheV13Corrections">
+/* Menú de torneos en Home: una sola acción, sin selector desplegable. */
+#home #v12MyTournaments{display:none!important}
+#home .home-status-row{display:flex!important;align-items:center!important;gap:9px!important;flex-wrap:wrap!important}
+#v13HomeSession{display:inline-flex;gap:7px;align-items:center;flex-wrap:wrap}
+.v13-admin-indicator{font-size:11px;color:#a9d8f7}
+#home .home-module-card[data-home-page="database"].public-hidden{display:none!important}
+/* Las tablas de escritorio: ajustar únicamente espaciado, nunca tipografía. */
+@media(min-width:1050px){
+ #matchScores .ux-fixture-tables{gap:5px!important}
+ #matchScores .ux-fixture-tables>.scores-rank-card .cardhead{min-height:24px!important;padding:3px 9px!important}
+ #matchScores .ux-fixture-tables>.scores-rank-card th,
+ #matchScores .ux-fixture-tables>.scores-rank-card td{padding-top:3px!important;padding-bottom:3px!important;line-height:1.08!important}
+ #matchScores .ux-fixture-tables>.scores-rank-card .scores-general-detail-row td{padding:7px!important;line-height:1.25!important}
+}
+</style>
+<script id="chicheV13Corrections">
+(()=>{
+ const update=()=>{try{v13UpdateHomeSession()}catch(e){console.warn('Home session:',e)}};
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',update);else update();
+ // Se actualiza al cambiar de pantalla o al volver de la autenticación.
+ document.addEventListener('click',e=>{if(e.target.closest('.top button,#home button,#modalConfirm,#modalClose,#adminLoginBtn,#adminLogoutBtn'))setTimeout(update,250)},true);
+ const original=window.previewRenderTournaments;
+ if(typeof original==='function')window.previewRenderTournaments=function(){const result=original.apply(this,arguments);update();return result};
+ const originalHome=window.renderHome;
+ if(typeof originalHome==='function')window.renderHome=function(){const result=originalHome.apply(this,arguments);update();return result};
 })();
 </script>
 </body></html>

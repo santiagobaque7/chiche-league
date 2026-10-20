@@ -59,7 +59,7 @@ async function manifest(){
   }
   return {items:known.map(t=>({...t,participants:participantsById.get(t.id)||[]}))};
 }
-async function save(items){await call(`/rest/v1/${TABLE}?on_conflict=id`,{method:'POST',body:JSON.stringify([{id:MANIFEST,state:{items:items.map(({participants,...t})=>t)},updated_at:new Date().toISOString()}])})}
+async function save(items){await call(`/rest/v1/${TABLE}?on_conflict=id`,{method:'POST',body:JSON.stringify([{id:MANIFEST,owner_id:owner,state:{items:items.map(({participants,...t})=>t)},updated_at:new Date().toISOString()}])})}
 module.exports=async(req,res)=>{
  try{
   if(!url.startsWith('https://')||!key)return reply(res,503,{message:'La conexión actual de Supabase no está disponible.'});
@@ -75,7 +75,7 @@ module.exports=async(req,res)=>{
    if(items.some(t=>t.name.toLowerCase()===b.name.trim().toLowerCase()))return reply(res,409,{message:'Ya existe esa edición.'});
    const s=b.initialState;if(!s||!Array.isArray(s.players)||!Array.isArray(s.participants)||!s.rounds||!s.confirmedTeams)return reply(res,400,{message:'Estado inicial inválido.'});
    const id='torneo-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8);
-   await call(`/rest/v1/${TABLE}?on_conflict=id`,{method:'POST',body:JSON.stringify([{id,state:s,updated_at:new Date().toISOString()}])});
+   await call(`/rest/v1/${TABLE}?on_conflict=id`,{method:'POST',body:JSON.stringify([{id,owner_id:owner,state:s,updated_at:new Date().toISOString()}])});
    items.push({id,name:b.name.trim(),year:Number(b.year)});
    try{await save(items)}catch(e){await call(`/rest/v1/${TABLE}?id=eq.${id}`,{method:'DELETE'});throw e}
    return reply(res,201,{item:{id,name:b.name.trim(),year:Number(b.year)}});

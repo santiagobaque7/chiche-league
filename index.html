@@ -6023,12 +6023,13 @@ function applyCloudAccessMode(){
   const admin=isCloudAdmin();
   if($("adminLoginBtn"))$("adminLoginBtn").style.display=admin?"none":"";
   if($("adminLogoutBtn"))$("adminLogoutBtn").style.display=admin?"":"none";
-  document.querySelectorAll('.nav button[data-page="draft"],.nav button[data-page="database"]').forEach(b=>b.style.display=admin?"":"none");
+  document.querySelectorAll('.nav button[data-page="database"]').forEach(b=>b.style.display=admin?"":"none");
+  document.querySelectorAll('.nav button[data-page="draft"]').forEach(b=>b.style.display='');
   document.querySelectorAll('.nav button[data-page="transfers"],.nav button[data-page="bestPlayers"],.nav button[data-page="rules"]').forEach(b=>b.style.display="");
   document.querySelectorAll(".home-module-card.admin-only").forEach(card=>{
-    card.classList.toggle("public-hidden",!admin);
-    card.setAttribute("aria-hidden",admin?"false":"true");
-    card.tabIndex=admin?0:-1;
+    card.classList.toggle("public-hidden",!admin && card.dataset.homePage!=="draft");
+    card.setAttribute("aria-hidden",admin||card.dataset.homePage==="draft"?"false":"true");
+    card.tabIndex=admin||card.dataset.homePage==="draft"?0:-1;
   });
   if(!admin){
     document.querySelectorAll('.nav button[data-page="welcome"],.nav button[data-page="setup"]').forEach(b=>b.style.display="none");
@@ -6256,9 +6257,9 @@ function renderHome(){
   {
     const admin=isCloudAdmin();
     document.querySelectorAll(".home-module-card.admin-only").forEach(card=>{
-      card.classList.toggle("public-hidden",!admin);
-      card.setAttribute("aria-hidden",admin?"false":"true");
-      card.tabIndex=admin?0:-1;
+      card.classList.toggle("public-hidden",!admin && card.dataset.homePage!=="draft");
+      card.setAttribute("aria-hidden",admin||card.dataset.homePage==="draft"?"false":"true");
+      card.tabIndex=admin||card.dataset.homePage==="draft"?0:-1;
     });
   }
 }
@@ -7028,7 +7029,7 @@ function filterRules(){
 }
 
 function setPage(id){
-  if(!isCloudAdmin()&&["draft","database","setup","welcome"].includes(id))id="home";
+  if(!isCloudAdmin()&&["database","setup","welcome"].includes(id))id="home";
   if(needsClubChooser()&&!isCloudAdmin()&&!["clubChooser","welcome","setup"].includes(id))id="clubChooser";
   if(needsClubChooser()&&isCloudAdmin()&&!["clubChooser","welcome","setup"].includes(id))id="clubChooser";
   if(isCloudAdmin()&&state.phase==="welcome"&&id!=="welcome")id="welcome";
@@ -7040,6 +7041,7 @@ function setPage(id){
   if(id==="clubChooser")renderClubChooser();
   if(id==="home")renderHome();
   if(id==="formations")renderFormations();
+  if(id==="draft")renderDraft();
   if(id==="scores")renderScores();
   if(id==="matchScores")renderMatchScores();
   if(id==="transfers")renderTransferPage();
@@ -7535,6 +7537,11 @@ function renderDraft(){
   $("cancelLateJoin").style.display=late?"":"none";
   $("reopenDraft").style.display=state.phase==="confirmed"&&!late?"":"none";
   renderProgress();renderPlayers();renderRosterOnly();
+  if(!isCloudAdmin()){
+    const blocked=['randomOrder','nextManager','resetDraft','finalizeDraft','cancelLateJoin','reopenDraft','drawDraftClubList','formation'];
+    blocked.forEach(id=>{const b=$(id);if(b){b.disabled=true;b.title='Solo el administrador puede modificar el draft';}});
+    document.querySelectorAll('#draft #picks button, #draft #playersBody button:not(.sorthead), #draft .progress button').forEach(b=>{b.disabled=true;b.title='Consulta pública: solo el administrador puede editar';});
+  }
 }
 function finalizeDraft(){
   if(state.lateJoin)return finalizeLateJoin();
@@ -11560,6 +11567,19 @@ main{min-width:0}
  #formations.page > .preview-section-lead.v16-formation-heading > .v15-formation-controls{
   flex:1 1 100%!important;max-width:100%!important;width:100%!important;flex-wrap:wrap!important;
  }
+}
+</style>
+
+<style id="chicheV17MobileDraftAndFormations">
+@media(max-width:650px){
+ #formations.ux-roster-focus .formations-layout{height:auto!important;min-height:0!important;max-height:none!important}
+ #formations.ux-roster-focus .formations-layout>.card:first-child{height:auto!important;max-height:none!important;overflow:visible!important}
+ #formations.ux-roster-focus #formationRosterList{height:auto!important;max-height:none!important;overflow:visible!important;flex:0 0 auto!important;padding-bottom:9px!important}
+ #formations.ux-roster-focus #formationRosterList .form-row{flex:0 0 auto!important;min-height:36px!important;height:36px!important}
+ #formations.ux-roster-focus #formationRosterList .sectiontitle{flex:0 0 auto!important;min-height:18px!important}
+ #formations.ux-field-focus .formations-layout{height:auto!important;min-height:0!important;max-height:none!important}
+ #formations.ux-field-focus .formations-layout>.card:last-child{height:auto!important;max-height:none!important;overflow:visible!important}
+ #formations.ux-field-focus .formations-layout .field-wrap{height:clamp(490px,calc(100dvh - 270px),660px)!important;min-height:490px!important;max-height:none!important;grid-template-rows:20px minmax(0,1fr) 105px!important}
 }
 </style>
 </body></html>

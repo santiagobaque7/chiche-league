@@ -18,13 +18,21 @@ async function admin(req){
 }
 function validateId(id){return typeof id==='string'&&/^[a-z0-9-]{3,80}$/.test(id)}
 function validateName(name){return typeof name==='string'&&name.trim().length>=3&&name.trim().length<=70}
-async function rows(){return await call(`/rest/v1/${TABLE}?select=id,state&order=id.asc`)}
+async function rows(){return await call(`/rest/v1/${TABLE}?id=in.(clausura-2026,${MANIFEST})&select=id,state`)}
 async function manifest(){
   const all=await rows();const m=all.find(x=>x.id===MANIFEST)?.state;
   const items=Array.isArray(m?.items)?m.items:[];
   if(!items.some(i=>i.id==='clausura-2026'))items.unshift({id:'clausura-2026',name:'Clausura 2026',year:2026,protected:true});
   // Los participantes se leen desde el estado oficial, no desde una copia vieja de los metadatos.
-  return {items:items.filter(t=>all.some(r=>r.id===t.id)).map(t=>({...t,participants:all.find(r=>r.id===t.id)?.state?.participants||[]}))};
+  const known=items.map(t=>({...t}));
+  if(!known.some(t=>t.id==='clausura-2026'))known.unshift({id:'clausura-2026',name:'Clausura 2026',year:2026,protected:true});
+  const participantsById=new Map(all.map(r=>[r.id,r.state?.participants||[]]));
+  const missing=known.filter(t=>!participantsById.has(t.id));
+  if(missing.length){
+   const checks=await Promise.all(missing.map(async t=>{try{const r=await call(`/rest/v1/${TABLE}?id=eq.${encodeURIComponent(t.id)}&select=id,state`);return [t.id,r[0]?.state?.participants||[]]}catch{return [t.id,[]]}}));
+   for(const [id,ps] of checks)participantsById.set(id,ps);
+  }
+  return {items:known.map(t=>({...t,participants:participantsById.get(t.id)||[]}))};
 }
 async function save(items){await call(`/rest/v1/${TABLE}?on_conflict=id`,{method:'POST',body:JSON.stringify([{id:MANIFEST,state:{items:items.map(({participants,...t})=>t)},updated_at:new Date().toISOString()}])})}
 module.exports=async(req,res)=>{
@@ -59,5 +67,5 @@ module.exports=async(req,res)=>{
   await call(`/rest/v1/chiche_club_identities?league_id=eq.${encodeURIComponent(b.id)}`,{method:'DELETE'});
   await call(`/rest/v1/${TABLE}?id=eq.${encodeURIComponent(b.id)}`,{method:'DELETE'});
   await save(items.filter(t=>t.id!==b.id));return reply(res,200,{ok:true});
- }catch(e){console.error('[chiche-tournaments]',e);return reply(res,e.status>=400&&e.status<500?e.status:502,{message:e.message||'Error de torneos.'})}
+ }catch(e){console.error('[chiche-tournaments]',e);const denied=/permission denied|42501/i.test(e.message||'');return reply(res,e.status>=400&&e.status<500?e.status:502,{message:denied?'Supabase no permite modificar chiche_league_state. El administrador debe aplicar una sola vez el SQL de permisos incluido en la entrega.':(e.message||'Error de torneos.')})}
 };

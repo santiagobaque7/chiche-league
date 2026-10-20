@@ -11489,4 +11489,50 @@ main{min-width:0}
  if(typeof originalHome==='function')window.renderHome=function(){const result=originalHome.apply(this,arguments);update();return result};
 })();
 </script>
+
+<style id="chicheV15Formaciones">
+/* Encabezado único: título y filtros en la misma fila */
+#formations>.preview-section-lead{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;flex-wrap:wrap!important;min-height:52px!important;padding:6px 0 10px!important;margin-bottom:9px!important;border-bottom:1px solid #294056!important}
+#formations>.preview-section-lead h2{margin:0!important;flex:0 0 auto!important}
+#formations>.preview-section-lead .v15-formation-controls{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:8px!important;margin-left:auto!important;min-width:0!important}
+#formations .v15-formation-controls .toolbar{display:flex!important;align-items:center!important;gap:7px!important;flex:0 0 auto!important}
+#formations .v15-formation-controls .toolbar .select{max-width:145px!important}
+#formations .v15-formation-controls .ux-formation-modes{display:flex!important;align-items:center!important;margin:0!important;flex:0 0 auto!important;width:auto!important}
+#formations>.v15-former-filters{display:none!important}
+/* Misma altura del bonus (+6) para todos los controles de cada jugador */
+#formations #formationRosterList .form-row .formation-captain-btn{height:26px!important;min-height:26px!important;width:26px!important;min-width:26px!important;box-sizing:border-box!important}
+#formations #formationRosterList .form-row .score-pill{height:26px!important;min-height:26px!important;box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;padding-top:0!important;padding-bottom:0!important}
+#formations #formationRosterList .form-row .formation-bonus-pill,#formations #formationRosterList .form-row .formation-bonus-spacer{height:26px!important;min-height:26px!important;box-sizing:border-box!important}
+#formations #formationRosterList .form-row .badge.formation-role,#formations #formationRosterList .form-row .role-btn,#formations #formationRosterList .form-row .role-pill{height:26px!important;min-height:26px!important;box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;justify-content:center!important}
+/* Legibilidad extra sin alterar la altura de las filas */
+@media(min-width:851px){
+#formations #formationRosterList .form-row>span:nth-child(2)>b{font-size:13px!important;line-height:1.09!important}
+#formations #formationRosterList .form-row>span:nth-child(2)>small{font-size:10px!important;line-height:1.08!important;margin-top:2px!important}
+}
+@media(max-width:850px){
+#formations>.preview-section-lead{align-items:flex-start!important;gap:7px!important}
+#formations>.preview-section-lead .v15-formation-controls{flex-wrap:wrap!important;width:100%!important;justify-content:flex-end!important}
+#formations .v15-formation-controls .ux-formation-modes{flex:1 1 100%!important;width:100%!important;justify-content:center!important}
+#formations .v15-formation-controls .ux-formation-modes button{flex:1 1 0!important}
+#formations #formationRosterList .form-row .formation-captain-btn{width:23px!important;min-width:23px!important}
+}
+@media(max-width:390px){#formations .v15-formation-controls .toolbar{gap:4px!important}#formations .v15-formation-controls .toolbar .select{max-width:115px!important}}
+</style>
+<script id="chicheV15FormacionesScript">
+(function(){
+ function install(){
+  const root=document.getElementById('formations');if(!root)return;
+  const lead=root.querySelector('.preview-section-lead');
+  const oldCard=root.querySelector(':scope > .card:has(#formationRound)');
+  if(!lead||!oldCard||lead.querySelector('.v15-formation-controls'))return;
+  const controls=document.createElement('div');controls.className='v15-formation-controls';
+  const toolbar=oldCard.querySelector('.toolbar');if(toolbar)controls.appendChild(toolbar);
+  const modes=root.querySelector('.ux-formation-modes');if(modes)controls.appendChild(modes);
+  lead.appendChild(controls);
+  oldCard.classList.add('v15-former-filters');
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(install,0));else setTimeout(install,0);
+})();
+</script>
+
 </body></html>

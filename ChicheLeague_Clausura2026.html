@@ -4388,7 +4388,7 @@ body.home-active .top>.nav{display:none!important}
 
 
 <section id="formations" class="page">
-  <div class="preview-section-lead"><span class="preview-eyebrow">ALINEACIONES</span><h2>Formaciones</h2><p>Titulares, suplentes y capitanes de cada participante.</p></div>
+  <div class="preview-section-lead v16-formation-heading"><h2>Formaciones</h2></div>
   <div class="card" style="margin-bottom:4px">
     <div class="cardhead" style="padding-top:6px;padding-bottom:6px">
       <h2 class="ux-visually-hidden">Seleccionar formación</h2>
@@ -4764,7 +4764,7 @@ body.home-active .top>.nav{display:none!important}
   <div class="preview-section-lead"><span class="preview-eyebrow">ADMINISTRACIÓN</span><h2>Centro de gestión</h2><p>Acciones explicadas y organizadas para operar sobre la edición que seleccionaste.</p></div>
   <div class="resultsgrid database-top-grid preview-base-grid">
     <div class="card preview-actions-card">
-      <div class="cardhead"><div><h2>Jugadores y respaldos</h2><div class="muted">Datos de esta edición, guardados únicamente en tu navegador.</div></div></div>
+      <div class="cardhead"><div><h2>Jugadores y respaldos</h2><div class="muted">Jugadores y respaldos de la edición seleccionada.</div></div></div>
       <div class="preview-actions-list">
         <div class="preview-action-row"><div><b>Administrar jugadores</b><span>Crear, editar, cambiar de club y gestionar la base de futbolistas.</span></div><button class="btn primary" type="button" onclick="scrollToAdminPlayers()">Abrir jugadores</button></div>
         <div class="preview-action-row"><div><b>Descargar copia de seguridad</b><span>Genera un JSON con los planteles, puntajes, resultados y datos de este torneo para guardar fuera del navegador.</span></div><button id="backupBtn" class="btn" type="button">Descargar JSON</button></div>
@@ -4776,10 +4776,10 @@ body.home-active .top>.nav{display:none!important}
     <div class="card preview-actions-card">
       <div class="cardhead"><div><h2>Torneo y participantes</h2><div class="muted">Crea ediciones sin borrar las anteriores.</div></div></div>
       <div class="preview-actions-list">
-        <div class="preview-action-row"><div><b>Administrar torneos</b><span>Elegir edición, cambiar el nombre, crear otra o eliminar una copia de prueba con confirmación.</span></div><button class="btn primary" type="button" onclick="setPage('tournaments')">Ver torneos</button></div>
+        <div class="preview-action-row"><div><b>Administrar torneos</b><span>Crear, abrir, renombrar o eliminar torneos compartidos con confirmación.</span></div><button class="btn primary" type="button" onclick="setPage('tournaments')">Ver torneos</button></div>
         <div class="preview-action-row"><div><b>Agregar participantes</b><span>Si ya terminó el draft, inicia el mini-draft de incorporación de nuevos DT. Si todavía no empezó, usá Administrar torneos.</span></div><button id="addLateParticipantBtn" class="btn" type="button">Agregar DT</button></div>
         <div class="preview-action-row"><div><b>Reiniciar esta edición</b><span>Borra draft, puntajes y resultados <strong>solo del torneo abierto</strong>. No modifica otras ediciones.</span></div><button id="resetTournamentBtn" class="btn danger" type="button">Reiniciar</button></div>
-        <div class="preview-action-row"><div><b>Sincronización oficial</b><span>Deshabilitada en esta prueba local; ningún cambio se envía a Supabase ni a Vercel.</span></div><button id="pullCloudBtn" class="btn" type="button">¿Cómo funciona?</button></div>
+        
       </div>
       <div class="preview-db-status"><h3>Estado de esta edición</h3><div id="dbStats"></div></div>
     </div>
@@ -9670,7 +9670,7 @@ if($("bestSortMobile"))$("bestSortMobile").onchange=applyBestMobileSort;
 document.querySelectorAll("[data-best-sort]").forEach(b=>b.onclick=()=>setBestSort(b.dataset.bestSort));
 $("startTransferRound").onclick=startTransferRound;$("drawTransferClub").onclick=drawTransferClub;$("passTransfer").onclick=passTransfer;$("transferSearch").oninput=renderTransferPlayers;$("transferClubFilter").onchange=renderTransferPlayers;$("transferAvailability").onchange=renderTransferPlayers;
 $("backupBtn").onclick=backup;
-$("pullCloudBtn").onclick=()=>alert("Esta versión es local y no consulta Supabase. Para trasladar datos usá Restaurar JSON desde un respaldo, en esta copia de prueba.");
+
 $("adminLoginBtn").onclick=showAdminLogin;
 $("adminLogoutBtn").onclick=cloudLogout;$("restoreBtn").onclick=()=>$("restoreFile").click();$("addLateParticipantBtn").onclick=openLateParticipant;$("resetTournamentBtn").onclick=resetTournament;$("restoreFile").onchange=e=>e.target.files[0]&&restore(e.target.files[0]);$("csvBtn").onclick=exportCsv;
 
@@ -11535,4 +11535,31 @@ main{min-width:0}
 })();
 </script>
 
+<style id="chicheV16Correcciones">
+/* Formaciones: título a la izquierda, filtros a la derecha, una sola fila desktop. */
+#formations.page > .preview-section-lead.v16-formation-heading{
+  display:flex!important;flex-direction:row!important;align-items:center!important;
+  justify-content:space-between!important;flex-wrap:nowrap!important;
+  text-align:left!important;padding:5px 0 12px!important;margin:0 0 9px!important;
+  border-bottom:1px solid #294056!important;width:100%!important;min-height:50px!important;
+}
+#formations.page > .preview-section-lead.v16-formation-heading > h2{
+  position:static!important;float:none!important;display:block!important;
+  text-align:left!important;align-self:center!important;flex:0 0 auto!important;
+  font-size:24px!important;line-height:1.1!important;margin:0!important;padding:0!important;
+}
+#formations.page > .preview-section-lead.v16-formation-heading > .v15-formation-controls{
+  position:static!important;float:none!important;display:flex!important;align-items:center!important;
+  justify-content:flex-end!important;flex-direction:row!important;gap:8px!important;
+  margin:0 0 0 auto!important;width:auto!important;max-width:calc(100% - 180px)!important;
+  flex:0 1 auto!important;
+}
+#formations.page > .v15-former-filters{display:none!important}
+@media(max-width:850px){
+ #formations.page > .preview-section-lead.v16-formation-heading{flex-wrap:wrap!important;gap:8px!important}
+ #formations.page > .preview-section-lead.v16-formation-heading > .v15-formation-controls{
+  flex:1 1 100%!important;max-width:100%!important;width:100%!important;flex-wrap:wrap!important;
+ }
+}
+</style>
 </body></html>

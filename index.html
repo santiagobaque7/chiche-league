@@ -4778,11 +4778,13 @@ body.home-active .top>.nav{display:none!important}
 
 
 <section id="tournaments" class="page">
- <div class="preview-section-lead"><h2>Torneos</h2></div>
- <div class="card" style="padding:20px;max-width:100%">
-  <h3>Clausura 2026 <span class="badge">Torneo activo</span></h3>
-  <p class="muted">Esta edición conserva sus participantes, planteles, resultados y puntajes sincronizados con Supabase.</p>
-  <div class="callout">La creación y eliminación de torneos compartidos está reservada para una actualización posterior del servidor. Por seguridad, esta versión no modifica ni elimina otras ediciones.</div>
+ <div class="preview-tournaments-shell">
+  <div class="preview-page-hero"><div><h1>Torneos</h1></div><button type="button" class="btn primary" onclick="previewOpenCreateTournament()">+ Crear torneo</button></div>
+  <div id="previewTournamentList" class="preview-tournament-list"></div>
+  <div class="card preview-member-card">
+   <div class="cardhead"><h3>Participantes de la edición seleccionada</h3><button type="button" class="btn primary" onclick="previewAddParticipant()">+ Agregar DT</button></div>
+   <div id="previewParticipantList" class="preview-participant-list"></div>
+  </div>
  </div>
 </section>
 
@@ -4801,15 +4803,19 @@ const ORIGINAL_DATA={"players":[{"id":5,"name":"Castro, Lucas","team":"ALDOSIVI"
 const BUDGET=65000000;
 const FIXTURE_2026={"5":[{"dateLabel":"Viernes 14 de agosto","time":"20:30","home":"RACING","away":"BANFIELD","result":"0-1","date":"2026-08-14"},{"dateLabel":"Sábado 15 de agosto","time":"14:30","home":"ALDOSIVI","away":"TIGRE","result":"0-0","date":"2026-08-15"},{"dateLabel":"Sábado 15 de agosto","time":"14:30","home":"SAN LORENZO","away":"UNIÓN","result":"1-0","date":"2026-08-15"},{"dateLabel":"Sábado 15 de agosto","time":"16:45","home":"ESTUDIANTES LP","away":"GIMNASIA LP","result":"4-0","date":"2026-08-15"},{"dateLabel":"Sábado 15 de agosto","time":"19:00","home":"NEWELL'S","away":"RIESTRA","result":"2-0","date":"2026-08-15"},{"dateLabel":"Sábado 15 de agosto","time":"19:00","home":"BELGRANO","away":"IND. RIVADAVIA","result":"2-0","date":"2026-08-15"},{"dateLabel":"Sábado 15 de agosto","time":"21:15","home":"PLATENSE","away":"BOCA JUNIORS","result":"1-1","date":"2026-08-15"},{"dateLabel":"Domingo 16 de agosto","time":"15:00","home":"SARMIENTO","away":"HURACÁN","result":"2-0","date":"2026-08-16"},{"dateLabel":"Domingo 16 de agosto","time":"18:00","home":"RIVER PLATE","away":"ARGENTINOS JRS.","result":"2-0","date":"2026-08-16"},{"dateLabel":"Domingo 16 de agosto","time":"20:15","home":"BARRACAS","away":"ROSARIO CENTRAL","result":"0-1","date":"2026-08-16"},{"dateLabel":"Domingo 16 de agosto","time":"20:15","home":"CENTRAL CÓRDOBA","away":"INSTITUTO","result":"0-1","date":"2026-08-16"},{"dateLabel":"Lunes 17 de agosto","time":"14:45","home":"ESTUDIANTES RC","away":"ATL. TUCUMÁN","result":"0-1","date":"2026-08-17"},{"dateLabel":"Lunes 17 de agosto","time":"17:00","home":"LANÚS","away":"INDEPENDIENTE","result":"1-3","date":"2026-08-17"},{"dateLabel":"Lunes 17 de agosto","time":"19:15","home":"VÉLEZ","away":"DEFENSA Y JUSTICIA","result":"1-1","date":"2026-08-17"},{"dateLabel":"Lunes 17 de agosto","time":"21:30","home":"GIMNASIA M.","away":"TALLERES","result":"3-1","date":"2026-08-17"}],"6":[{"home":"ALDOSIVI","away":"UNIÓN","dateLabel":"Viernes 21 de agosto","time":"14:30","date":"2026-08-21"},{"home":"ESTUDIANTES RC","away":"SAN LORENZO","dateLabel":"Viernes 21 de agosto","time":"20:00","date":"2026-08-21"},{"home":"GIMNASIA LP","away":"GIMNASIA M.","dateLabel":"Sábado 22 de agosto","time":"16:00","date":"2026-08-22"},{"home":"ATL. TUCUMÁN","away":"INSTITUTO","dateLabel":"Sábado 22 de agosto","time":"16:00","date":"2026-08-22"},{"home":"INDEPENDIENTE","away":"IND. RIVADAVIA","dateLabel":"Sábado 22 de agosto","time":"18:30","date":"2026-08-22"},{"home":"NEWELL'S","away":"BANFIELD","dateLabel":"Sábado 22 de agosto","time":"21:00","date":"2026-08-22"},{"home":"HURACÁN","away":"RIESTRA","dateLabel":"Sábado 22 de agosto","time":"21:00","date":"2026-08-22"},{"home":"SARMIENTO","away":"ESTUDIANTES LP","dateLabel":"Domingo 23 de agosto","time":"14:45","date":"2026-08-23"},{"home":"BARRACAS","away":"PLATENSE","dateLabel":"Domingo 23 de agosto","time":"14:45","date":"2026-08-23"},{"home":"BELGRANO","away":"DEFENSA Y JUSTICIA","dateLabel":"Domingo 23 de agosto","time":"17:00","date":"2026-08-23"},{"home":"RIVER PLATE","away":"VÉLEZ","dateLabel":"Domingo 23 de agosto","time":"19:15","date":"2026-08-23"},{"home":"RACING","away":"BOCA JUNIORS","dateLabel":"Domingo 23 de agosto","time":"21:30","date":"2026-08-23"},{"home":"TIGRE","away":"CENTRAL CÓRDOBA","dateLabel":"Lunes 24 de agosto","time":"19:00","date":"2026-08-24"},{"home":"LANÚS","away":"ARGENTINOS JRS.","dateLabel":"Lunes 24 de agosto","time":"21:15","date":"2026-08-24"},{"home":"TALLERES","away":"ROSARIO CENTRAL","dateLabel":"Lunes 24 de agosto","time":"21:15","date":"2026-08-24"}],"7":[{"home":"HURACÁN","away":"ESTUDIANTES RC","dateLabel":"Viernes 28 de agosto","time":"19:00","date":"2026-08-28"},{"home":"UNIÓN","away":"SARMIENTO","dateLabel":"Viernes 28 de agosto","time":"21:15","date":"2026-08-28"},{"home":"RIESTRA","away":"VÉLEZ","dateLabel":"Sábado 29 de agosto","time":"14:45","date":"2026-08-29"},{"home":"ROSARIO CENTRAL","away":"GIMNASIA LP","dateLabel":"Sábado 29 de agosto","time":"17:00","date":"2026-08-29"},{"home":"BOCA JUNIORS","away":"LANÚS","dateLabel":"Sábado 29 de agosto","time":"19:00","date":"2026-08-29"},{"home":"TALLERES","away":"CENTRAL CÓRDOBA","dateLabel":"Sábado 29 de agosto","time":"21:30","date":"2026-08-29"},{"home":"ATL. TUCUMÁN","away":"BELGRANO","dateLabel":"Sábado 29 de agosto","time":"21:30","date":"2026-08-29"},{"home":"BANFIELD","away":"RIVER PLATE","dateLabel":"Domingo 30 de agosto","time":"15:00","date":"2026-08-30"},{"home":"ARGENTINOS JRS.","away":"ALDOSIVI","dateLabel":"Domingo 30 de agosto","time":"17:00","date":"2026-08-30"},{"home":"INDEPENDIENTE","away":"GIMNASIA M.","dateLabel":"Domingo 30 de agosto","time":"19:15","date":"2026-08-30"},{"home":"IND. RIVADAVIA","away":"RACING","dateLabel":"Domingo 30 de agosto","time":"21:30","date":"2026-08-30"},{"home":"DEFENSA Y JUSTICIA","away":"PLATENSE","dateLabel":"Lunes 31 de agosto","time":"19:00","date":"2026-08-31"},{"home":"ESTUDIANTES LP","away":"NEWELL'S","dateLabel":"Lunes 31 de agosto","time":"19:00","date":"2026-08-31"},{"home":"TIGRE","away":"BARRACAS","dateLabel":"Lunes 31 de agosto","time":"21:15","date":"2026-08-31"},{"home":"INSTITUTO","away":"SAN LORENZO","dateLabel":"Lunes 31 de agosto","time":"21:15","date":"2026-08-31"}],"8":[{"home":"GIMNASIA M.","away":"BOCA JUNIORS"},{"home":"CENTRAL CÓRDOBA","away":"INDEPENDIENTE"},{"home":"SAN LORENZO","away":"TALLERES"},{"home":"ROSARIO CENTRAL","away":"NEWELL'S"},{"home":"BARRACAS","away":"ARGENTINOS JRS."},{"home":"UNIÓN","away":"INSTITUTO"},{"home":"LANÚS","away":"DEFENSA Y JUSTICIA"},{"home":"GIMNASIA LP","away":"TIGRE"},{"home":"ALDOSIVI","away":"BANFIELD"},{"home":"PLATENSE","away":"RIESTRA"},{"home":"VÉLEZ","away":"ESTUDIANTES LP"},{"home":"RIVER PLATE","away":"IND. RIVADAVIA"},{"home":"BELGRANO","away":"HURACÁN"},{"home":"ESTUDIANTES RC","away":"SARMIENTO"},{"home":"RACING","away":"ATL. TUCUMÁN"}],"9":[{"home":"BANFIELD","away":"BARRACAS","date":"2026-09-14","time":"19:00","dateLabel":""},{"home":"RIESTRA","away":"LANÚS","date":"2026-09-14","time":"19:00","dateLabel":""},{"home":"BOCA JUNIORS","away":"CENTRAL CÓRDOBA","date":"2026-09-12","time":"19:15","dateLabel":""},{"home":"INDEPENDIENTE","away":"SAN LORENZO","date":"2026-09-13","time":"19:15","dateLabel":""},{"home":"TALLERES","away":"UNIÓN","date":"2026-09-12","time":"21:30","dateLabel":""},{"home":"ESTUDIANTES LP","away":"PLATENSE","date":"2026-09-12","time":"14:45","dateLabel":""},{"home":"IND. RIVADAVIA","away":"ALDOSIVI","date":"2026-09-12","time":"14:45","dateLabel":""},{"home":"TIGRE","away":"ROSARIO CENTRAL","date":"2026-09-13","time":"14:45","dateLabel":""},{"home":"HURACÁN","away":"RACING","date":"2026-09-13","time":"21:30","dateLabel":""},{"home":"ARGENTINOS JRS.","away":"GIMNASIA LP","date":"2026-09-13","time":"17:00","dateLabel":""},{"home":"SARMIENTO","away":"BELGRANO","date":"2026-09-13","time":"14:45","dateLabel":""},{"home":"ATL. TUCUMÁN","away":"RIVER PLATE","date":"2026-09-12","time":"17:00","dateLabel":""},{"home":"DEFENSA Y JUSTICIA","away":"GIMNASIA M.","date":"2026-09-11","time":"20:00","dateLabel":""},{"home":"NEWELL'S","away":"VÉLEZ","date":"2026-09-11","time":"19:00","dateLabel":""},{"home":"INSTITUTO","away":"ESTUDIANTES RC","date":"2026-09-14","time":"21:15","dateLabel":""}],"10":[{"home":"VÉLEZ","away":"TIGRE","date":"2026-09-20","time":"21:30","dateLabel":""},{"home":"UNIÓN","away":"INDEPENDIENTE","date":"2026-09-19","time":"16:45","dateLabel":""},{"home":"PLATENSE","away":"NEWELL'S","date":"2026-09-20","time":"17:00","dateLabel":""},{"home":"RACING","away":"SARMIENTO","date":"2026-09-18","time":"21:15","dateLabel":""},{"home":"GIMNASIA LP","away":"BANFIELD","date":"2026-09-19","time":"14:30","dateLabel":""},{"home":"ROSARIO CENTRAL","away":"ARGENTINOS JRS.","date":"2026-09-20","time":"17:00","dateLabel":""},{"home":"SAN LORENZO","away":"BOCA JUNIORS","date":"2026-09-20","time":"14:45","dateLabel":""},{"home":"BARRACAS","away":"IND. RIVADAVIA","date":"2026-09-21","time":"19:00","dateLabel":""},{"home":"ALDOSIVI","away":"ATL. TUCUMÁN","date":"2026-09-21","time":"14:30","dateLabel":""},{"home":"GIMNASIA M.","away":"RIESTRA","date":"2026-09-19","time":"14:30","dateLabel":""},{"home":"CENTRAL CÓRDOBA","away":"DEFENSA Y JUSTICIA","date":"2026-09-18","time":"19:00","dateLabel":""},{"home":"INSTITUTO","away":"TALLERES","date":"2026-09-19","time":"21:15","dateLabel":""},{"home":"BELGRANO","away":"ESTUDIANTES RC","date":"2026-09-20","time":"19:15","dateLabel":""},{"home":"RIVER PLATE","away":"HURACÁN","date":"2026-09-19","time":"19:00","dateLabel":""},{"home":"LANÚS","away":"ESTUDIANTES LP","date":"2026-09-21","time":"21:15","dateLabel":""}],"11":[{"home":"VÉLEZ","away":"PLATENSE","date":"2026-10-05","time":"19:00","dateLabel":""},{"home":"BANFIELD","away":"ROSARIO CENTRAL","date":"2026-10-05","time":"21:15","dateLabel":""},{"home":"IND. RIVADAVIA","away":"GIMNASIA LP","date":"2026-10-02","time":"21:30","dateLabel":""},{"home":"TALLERES","away":"BELGRANO","date":"2026-10-04","time":"17:00","dateLabel":""},{"home":"SARMIENTO","away":"RIVER PLATE","date":"2026-10-04","time":"14:45","dateLabel":"","status":"SOLO_GENERAL"},{"home":"BOCA JUNIORS","away":"UNIÓN","date":"2026-10-04","time":"19:15","dateLabel":""},{"home":"ARGENTINOS JRS.","away":"TIGRE","date":"2026-10-03","time":"19:15","dateLabel":""},{"home":"ATL. TUCUMÁN","away":"BARRACAS","date":"2026-10-03","time":"17:00","dateLabel":""},{"home":"HURACÁN","away":"ALDOSIVI","date":"2026-10-03","time":"21:30","dateLabel":""},{"home":"DEFENSA Y JUSTICIA","away":"SAN LORENZO","date":"2026-10-03","time":"14:45","dateLabel":""},{"home":"ESTUDIANTES RC","away":"RACING","date":"2026-10-04","time":"21:30","dateLabel":""},{"home":"INDEPENDIENTE","away":"INSTITUTO","date":"2026-10-02","time":"19:15","dateLabel":""},{"home":"NEWELL'S","away":"LANÚS","date":"2026-10-03","time":"17:00","dateLabel":""},{"home":"RIESTRA","away":"CENTRAL CÓRDOBA","date":"2026-10-05","time":"16:45","dateLabel":""},{"home":"ESTUDIANTES LP","away":"GIMNASIA M.","date":"2026-10-05","time":"19:00","dateLabel":""}],"12":[{"home":"TIGRE","away":"BANFIELD"},{"home":"GIMNASIA LP","away":"ATL. TUCUMÁN"},{"home":"LANÚS","away":"VÉLEZ"},{"home":"GIMNASIA M.","away":"NEWELL'S"},{"home":"UNIÓN","away":"DEFENSA Y JUSTICIA"},{"home":"TALLERES","away":"INDEPENDIENTE"},{"home":"RACING","away":"BELGRANO"},{"home":"ALDOSIVI","away":"SARMIENTO"},{"home":"RIVER PLATE","away":"ESTUDIANTES RC"},{"home":"INSTITUTO","away":"BOCA JUNIORS"},{"home":"ROSARIO CENTRAL","away":"IND. RIVADAVIA"},{"home":"PLATENSE","away":"ARGENTINOS JRS."},{"home":"CENTRAL CÓRDOBA","away":"ESTUDIANTES LP"},{"home":"BARRACAS","away":"HURACÁN"},{"home":"SAN LORENZO","away":"RIESTRA"}],"13":[{"home":"PLATENSE","away":"LANÚS"},{"home":"SARMIENTO","away":"BARRACAS"},{"home":"IND. RIVADAVIA","away":"TIGRE"},{"home":"BOCA JUNIORS","away":"TALLERES"},{"home":"VÉLEZ","away":"GIMNASIA M."},{"home":"RIESTRA","away":"UNIÓN"},{"home":"ESTUDIANTES LP","away":"SAN LORENZO"},{"home":"ESTUDIANTES RC","away":"ALDOSIVI"},{"home":"RACING","away":"INDEPENDIENTE"},{"home":"ATL. TUCUMÁN","away":"ROSARIO CENTRAL"},{"home":"HURACÁN","away":"GIMNASIA LP"},{"home":"BELGRANO","away":"RIVER PLATE"},{"home":"NEWELL'S","away":"CENTRAL CÓRDOBA"},{"home":"BANFIELD","away":"ARGENTINOS JRS."},{"home":"DEFENSA Y JUSTICIA","away":"INSTITUTO"}],"14":[{"home":"ALDOSIVI","away":"BELGRANO"},{"home":"INSTITUTO","away":"RIESTRA"},{"home":"ARGENTINOS JRS.","away":"IND. RIVADAVIA"},{"home":"UNIÓN","away":"ESTUDIANTES LP"},{"home":"INDEPENDIENTE","away":"BOCA JUNIORS"},{"home":"BARRACAS","away":"ESTUDIANTES RC"},{"home":"SAN LORENZO","away":"NEWELL'S"},{"home":"GIMNASIA M.","away":"PLATENSE"},{"home":"TIGRE","away":"ATL. TUCUMÁN"},{"home":"ROSARIO CENTRAL","away":"HURACÁN"},{"home":"RIVER PLATE","away":"RACING"},{"home":"GIMNASIA LP","away":"SARMIENTO"},{"home":"TALLERES","away":"DEFENSA Y JUSTICIA"},{"home":"BANFIELD","away":"LANÚS"},{"home":"CENTRAL CÓRDOBA","away":"VÉLEZ"}],"15":[{"home":"NEWELL'S","away":"UNIÓN"},{"home":"ESTUDIANTES RC","away":"GIMNASIA LP"},{"home":"ESTUDIANTES LP","away":"INSTITUTO"},{"home":"DEFENSA Y JUSTICIA","away":"INDEPENDIENTE"},{"home":"ATL. TUCUMÁN","away":"ARGENTINOS JRS."},{"home":"RACING","away":"ALDOSIVI"},{"home":"BOCA JUNIORS","away":"RIVER PLATE"},{"home":"SARMIENTO","away":"ROSARIO CENTRAL"},{"home":"RIESTRA","away":"TALLERES"},{"home":"BELGRANO","away":"BARRACAS"},{"home":"PLATENSE","away":"CENTRAL CÓRDOBA"},{"home":"IND. RIVADAVIA","away":"BANFIELD"},{"home":"VÉLEZ","away":"SAN LORENZO"},{"home":"LANÚS","away":"GIMNASIA M."},{"home":"HURACÁN","away":"TIGRE"}],"16":[{"home":"BOCA JUNIORS","away":"DEFENSA Y JUSTICIA"},{"home":"INDEPENDIENTE","away":"RIESTRA"},{"home":"ROSARIO CENTRAL","away":"ESTUDIANTES RC"},{"home":"CENTRAL CÓRDOBA","away":"LANÚS"},{"home":"BARRACAS","away":"RACING"},{"home":"SAN LORENZO","away":"PLATENSE"},{"home":"TALLERES","away":"ESTUDIANTES LP"},{"home":"TIGRE","away":"SARMIENTO"},{"home":"ALDOSIVI","away":"RIVER PLATE"},{"home":"GIMNASIA M.","away":"IND. RIVADAVIA"},{"home":"INSTITUTO","away":"NEWELL'S"},{"home":"GIMNASIA LP","away":"BELGRANO"},{"home":"BANFIELD","away":"ATL. TUCUMÁN"},{"home":"UNIÓN","away":"VÉLEZ"},{"home":"ARGENTINOS JRS.","away":"HURACÁN"}]};
 
+function firstRound(){return CLOUD_LEAGUE_ID==='clausura-2026'?5:1}
+function activeFixture(){return CLOUD_LEAGUE_ID==='clausura-2026'?FIXTURE_2026:(state?.fixtureByRound||{})}
+
 const FORMATIONS={"4-4-2":{ARQ:1,DEF:4,VOL:4,DEL:2},"4-3-3":{ARQ:1,DEF:4,VOL:3,DEL:3},"3-4-3":{ARQ:1,DEF:3,VOL:4,DEL:3},"4-5-1":{ARQ:1,DEF:4,VOL:5,DEL:1},"3-5-2":{ARQ:1,DEF:3,VOL:5,DEL:2},"5-3-2":{ARQ:1,DEF:5,VOL:3,DEL:2},"3-3-4":{ARQ:1,DEF:3,VOL:3,DEL:4},"4-2-4":{ARQ:1,DEF:4,VOL:2,DEL:4},"5-2-3":{ARQ:1,DEF:5,VOL:2,DEL:3}};
 // Entorno de prueba: cada edición tiene su propia copia independiente en este navegador.
 const PREVIEW_INDEX_KEY="chiche_preview_real_tournaments_v1";
 const PREVIEW_ACTIVE_KEY="chiche_preview_real_active_v1";
 let previewActiveId="clausura-2026-snapshot";
-const STORAGE="chicheLeagueDB_v25";
+let STORAGE="chicheLeagueDB_v25";
 
 const CLOUD_API="/api/chiche-cloud";
-const CLOUD_LEAGUE_ID="clausura-2026";
+let CLOUD_LEAGUE_ID="clausura-2026";
+STORAGE="chiche_cloud_cache_"+CLOUD_LEAGUE_ID;
 const CLOUD_OWNER_UID="b9a49f4d-5e26-4f0e-8892-b6b958e4a59b";
 const CLOUD_SESSION_KEY="chicheLeagueCloudSession_v1";
 let cloudSession=null,cloudSaveTimer=null,cloudPollingTimer=null,cloudLastUpdatedAt=null,cloudBooting=true,cloudStateNeedsMigrationSave=false;
@@ -5777,21 +5783,18 @@ function normalizeCloudState(){
   if(!state.matchSchedules)state.matchSchedules={};
   ensureCaptainBonusState();
   state.participants.forEach(m=>{
-    if(state.participantStartRounds[m]===undefined)state.participantStartRounds[m]=5;
+    if(state.participantStartRounds[m]===undefined)state.participantStartRounds[m]=firstRound();
     if(!state.draftRosters[m])state.draftRosters[m]=emptyRoster();
   });
   sanitizeLegacyState();
-  patchSolariNewellsOfficial();
-  syncOfficialPlayerBase();
-  patchHistoricalTransferFacts();
-  patchDomanMaroniFecha8();
-  patchDomanFecha8Roles();
-  patchTanguitaFernandezAldosivi();
-  patchFedeFecha9OviedoTitular();
-  patchTotaFecha10AguerreTitular();
-  patchFecha11Alineaciones();
-  patchFecha11RiverSarmientoPostergado();
-  patchAlvaFecha8Captain();
+  // Los parches históricos solo se aplican al Clausura 2026.
+  // Nunca insertar planteles, jugadores o marcadores históricos en otra edición.
+  if(CLOUD_LEAGUE_ID==='clausura-2026'){
+    patchSolariNewellsOfficial();syncOfficialPlayerBase();patchHistoricalTransferFacts();
+    patchDomanMaroniFecha8();patchDomanFecha8Roles();patchTanguitaFernandezAldosivi();
+    patchFedeFecha9OviedoTitular();patchTotaFecha10AguerreTitular();
+    patchFecha11Alineaciones();patchFecha11RiverSarmientoPostergado();patchAlvaFecha8Captain();
+  }
 }
 
 function setCloudStatus(text,kind=""){
@@ -5951,11 +5954,13 @@ async function cloudHealth(){
 }
 
 function cloudStateUsable(s){
-  return !!(s&&typeof s==="object"&&Array.isArray(s.participants)&&s.participants.length>=2&&s.confirmedTeams);
+  return !!(s&&typeof s==="object"&&Array.isArray(s.participants)&&Array.isArray(s.players)&&s.confirmedTeams&&s.rounds);
 }
 async function pullCloudState({force=false,quiet=false}={}){
+  const requestedLeague=CLOUD_LEAGUE_ID;
   try{
     const row=await fetchCloudRow();
+    if(requestedLeague!==CLOUD_LEAGUE_ID)return false;
     if(!row||!cloudStateUsable(row.state)){
       if(!quiet)setCloudStatus(isCloudAdmin()?"Admin · nube vacía":"Sin publicación todavía",isCloudAdmin()?"admin":"");
       return false;
@@ -6021,6 +6026,7 @@ function finishAppBoot(){
 }
 
 async function initCloud(){
+  await v12FetchTournaments();
   cloudSession=getCloudSession();
   if(cloudSession&&cloudSession.expires_at&&cloudSession.expires_at-Date.now()<60000)await refreshCloudSession();
   applyCloudAccessMode();
@@ -6051,6 +6057,7 @@ async function initCloud(){
     await pushCloudState();
   }
   startClubIdentityUpdates();
+  v12RefreshTournamentOptions().catch(console.warn);
   clearInterval(cloudPollingTimer);
   cloudPollingTimer=setInterval(async()=>{
     if(!isCloudAdmin()&&!document.hidden)await pullCloudState({quiet:true});
@@ -6069,8 +6076,9 @@ async function initCloud(){
 function loadState(){
   try{state=JSON.parse(localStorage.getItem(STORAGE)||"null")}catch(e){state=null}
   if(!state||state.version!==25)state=initialState();
-  patchSolariNewellsOfficial();
-  syncOfficialPlayerBase();
+  if(CLOUD_LEAGUE_ID==='clausura-2026'){
+    patchSolariNewellsOfficial();syncOfficialPlayerBase();
+  }
   state.participants.forEach(m=>{
     if(!state.draftRosters[m])state.draftRosters[m]=emptyRoster();
     const r=state.draftRosters[m];
@@ -6084,7 +6092,7 @@ function loadState(){
     }
   });if(!Array.isArray(state.draftOrder))state.draftOrder=[];if(!state.draftTurn)state.draftTurn={manager:null,club:null};if(!state.transferRounds)state.transferRounds={};if(!state.setupDraftNames)state.setupDraftNames=["",""];
   if(!state.participantStartRounds)state.participantStartRounds={};
-  state.participants.forEach(m=>{if(state.participantStartRounds[m]===undefined)state.participantStartRounds[m]=5});
+  state.participants.forEach(m=>{if(state.participantStartRounds[m]===undefined)state.participantStartRounds[m]=firstRound()});
   if(!state.rosterHistory)state.rosterHistory={};
   state.generalOnlyScores ||= {};
   state.generalOnlyCaptainBonuses ||= {};
@@ -6095,14 +6103,11 @@ function loadState(){
     }
   });
   if(state.lateJoin===undefined)state.lateJoin=null;
-  patchDomanMaroniFecha8();
-  patchDomanFecha8Roles();
-  patchTanguitaFernandezAldosivi();
-  patchFedeFecha9OviedoTitular();
-  patchTotaFecha10AguerreTitular();
-  patchFecha11Alineaciones();
-  patchFecha11RiverSarmientoPostergado();
-  patchAlvaFecha8Captain();
+  if(CLOUD_LEAGUE_ID==='clausura-2026'){
+    patchDomanMaroniFecha8();patchDomanFecha8Roles();patchTanguitaFernandezAldosivi();
+    patchFedeFecha9OviedoTitular();patchTotaFecha10AguerreTitular();
+    patchFecha11Alineaciones();patchFecha11RiverSarmientoPostergado();patchAlvaFecha8Captain();
+  }
     if(state.lateJoin){
       if(!Array.isArray(state.lateJoin.names)){
         const oldNames=[state.lateJoin.manager,...(state.lateJoin.queue||[]),...(state.lateJoin.completed||[])].filter(Boolean);
@@ -6287,7 +6292,7 @@ function bestPlayerOwnerForRound(id,rk){
   return "";
 }
 function bestPlayerFixtureInfo(p,rk){
-  const team=bestPlayerTeamForRound(p,rk),games=FIXTURE_2026[String(rk)]||[],index=games.findIndex(g=>g.home===team||g.away===team);
+  const team=bestPlayerTeamForRound(p,rk),games=activeFixture()[String(rk)]||[],index=games.findIndex(g=>g.home===team||g.away===team);
   if(index<0)return {team,opponent:"—",date:""};
   const g=games[index],s=getMatchSchedule(String(rk),index,g),opponent=g.home===team?g.away:g.home;
   let date="";if(s.date){const [y,m,d]=String(s.date).split("-");if(y&&m&&d)date=`${d}/${m}`}
@@ -6377,16 +6382,35 @@ function repaintPublishedClubProfiles(){
   renderHome();
   updateTopBrand();
 }
-async function fetchPublishedClubProfiles(){return false;} // No hay sincronización en vista local.
+async function fetchPublishedClubProfiles(){
+ if(clubIdentityFetchPending)return false;
+ const requestedLeague=CLOUD_LEAGUE_ID;
+ clubIdentityFetchPending=true;
+ try{
+  const r=await fetch(`${CLUB_IDENTITY_API}?league_id=${encodeURIComponent(CLOUD_LEAGUE_ID)}`,{cache:'no-store'});
+  const data=await r.json();if(!r.ok)throw Error(data.message||'No se pudieron leer las identidades.');
+  if(requestedLeague!==CLOUD_LEAGUE_ID)return false;
+  const profiles={};for(const item of data.items||[])profiles[item.manager]=identityFields(item.profile);
+  publishedClubProfiles=profiles;repaintPublishedClubProfiles();return true;
+ }catch(e){console.warn('Identidades:',e);return false}
+ finally{clubIdentityFetchPending=false}
+}
 
 async function publishClubProfile(manager,profile){
-  // Ediciones de identidad dentro del navegador de prueba, sin servicio Vercel.
-  const clean=identityFields(profile);
-  state.clubProfiles ||= {};
-  state.clubProfiles[manager]={...(state.clubProfiles[manager]||{}),...clean};
-  publishedClubProfiles[manager]=clean;
-  persist();
-  return clean;
+  // Descarta cualquier lectura GET iniciada antes de este guardado.
+  clubIdentityRequestVersion++;
+  const response=await fetch(CLUB_IDENTITY_API,{
+    method:"PATCH",
+    headers:{"Content-Type":"application/json"},
+    cache:"no-store",
+    signal:AbortSignal.timeout(12000),
+    body:JSON.stringify({league_id:CLOUD_LEAGUE_ID,manager,profile:identityFields(profile)})
+  });
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok||!result.item)throw new Error(result.message||`No se pudo publicar (HTTP ${response.status}).`);
+  const published=identityFields(result.item.profile);
+  publishedClubProfiles[manager]=published;
+  return published;
 }
 
 function startClubIdentityUpdates(){
@@ -6797,7 +6821,7 @@ async function saveClubIdentity(){
   const saveBtn=$("clubIdentitySaveButton");
   clubIdentitySaving=true;
   if(saveBtn){saveBtn.disabled=true;saveBtn.textContent="Guardando…";}
-  if(message){message.textContent="Guardando identidad en esta copia local…";message.style.color="";}
+  if(message){message.textContent="Publicando identidad para todos los participantes…";message.style.color="";}
   try{
     const published=await publishClubProfile(manager,edited);
     // Reflejo local, sin PATCH de toda la liga: la identidad ya se guardó en Supabase.
@@ -6810,7 +6834,7 @@ async function saveClubIdentity(){
     repaintPublishedClubProfiles();
   }catch(error){
     console.error("Error guardando identidad de club:",error);
-    if(message){message.textContent="No se guardó el cambio local: "+(error.message||"falló la conexión")+". Los datos siguen en el formulario para reintentar.";message.style.color="#ff9a92";}
+    if(message){message.textContent="No se publicó el cambio: "+(error.message||"falló la conexión")+". Los datos siguen en el formulario para reintentar.";message.style.color="#ff9a92";}
   }finally{
     clubIdentitySaving=false;
     if(saveBtn){saveBtn.disabled=false;saveBtn.textContent="Guardar identidad";}
@@ -6972,7 +6996,7 @@ function setPage(id){
   if(needsClubChooser()&&!isCloudAdmin()&&!["clubChooser","welcome","setup"].includes(id))id="clubChooser";
   if(needsClubChooser()&&isCloudAdmin()&&!["clubChooser","welcome","setup"].includes(id))id="clubChooser";
   if(isCloudAdmin()&&state.phase==="welcome"&&id!=="welcome")id="welcome";
-  if(isCloudAdmin()&&state.phase==="setup"&&id!=="setup")id="setup";
+  if(isCloudAdmin()&&state.phase==="setup"&&id!=="setup"&&(CLOUD_LEAGUE_ID==="clausura-2026"||!["home","tournaments"].includes(id)))id="setup";
   document.querySelector(".top").style.display=["welcome","clubChooser"].includes(id)?"none":"flex";
   document.body.classList.toggle("home-active",id==="home");
   document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===id));
@@ -6986,7 +7010,7 @@ function setPage(id){
   if(id==="myClub")renderClubPage();
   if(id==="bestPlayers")renderBestPlayers();
   if(id==="database")renderDb();
-  if(id==="tournaments")renderProductionTournamentNotice();
+  if(id==="tournaments"){v12FetchTournaments().then(()=>previewRenderTournaments()).catch(e=>console.warn(e));}
 }
 document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>{
   if(b.dataset.page==="formations")return openDefaultFormations();
@@ -7101,7 +7125,7 @@ function drawDraftClub(){
 function nextJoinRound(){
   const rounds=allRounds().map(Number);
   if(rounds.length)return Math.max(...rounds)+1;
-  return Math.max(5,parseInt($("roundInput")?.value)||5);
+  return Math.max(firstRound(),parseInt($("roundInput")?.value)||firstRound());
 }
 
 
@@ -7147,7 +7171,7 @@ function openLateParticipant(){
     "Comenzar mini-draft",
     ()=>{
       const names=[...document.querySelectorAll(".latejoin-name")].map(x=>x.value.trim());
-      const start=Math.max(5,parseInt($("lateJoinRound")?.value)||minRound);
+      const start=Math.max(firstRound(),parseInt($("lateJoinRound")?.value)||minRound);
       if(!names.length||names.some(x=>!x))return alert("Completá el nombre de todos los participantes.");
       const norm=names.map(x=>low(x));
       if(new Set(norm).size!==names.length)return alert("No puede haber nombres repetidos dentro del grupo.");
@@ -7501,7 +7525,7 @@ function normalizeScore(v){
 }
 let lastAutoCompetitionRound=null;
 function competitionActiveRound(){
-  let target=5;
+  let target=firstRound();
   const scored=allRounds().map(Number).filter(Number.isFinite);
   if(scored.length)target=Math.max(target,...scored);
   const completedTransfers=Object.entries(state.transferRounds||{})
@@ -7524,7 +7548,7 @@ function syncCompetitionRoundContext(force=false){
 function transferTargetRoundLabel(baseRound){
   return `Fecha ${Number(baseRound)+1}`;
 }
-function roundKey(){return String(Math.max(5,parseInt($("roundInput").value)||5))}
+function roundKey(){return String(Math.max(firstRound(),parseInt($("roundInput").value)||firstRound()))}
 function setScore(id,val,rkOverride=null,keepFixtureOpen=false){
   if(state.phase!=="confirmed"||!isCloudAdmin())return;
   const norm=normalizeScore(val);
@@ -7596,11 +7620,11 @@ function getConfirmedPlayerRows(rk=roundKey()){
 }
 
 function fixtureRounds(){
-  return Object.keys(FIXTURE_2026).sort((a,b)=>Number(a)-Number(b));
+  return Object.keys(activeFixture()).sort((a,b)=>Number(a)-Number(b));
 }
 function matchScoresRoundKey(){
   const el=$("matchScoresRound");
-  return String(Math.max(5,parseInt(el?.value)||competitionActiveRound()));
+  return String(Math.max(firstRound(),parseInt(el?.value)||competitionActiveRound()));
 }
 function updateMatchScoresRoundOptions(){
   const sel=$("matchScoresRound");if(!sel)return;
@@ -7609,7 +7633,7 @@ function updateMatchScoresRoundOptions(){
   sel.innerHTML=rounds.map(r=>`<option value="${r}">Fecha ${r}</option>`).join("");
   if(previous&&rounds.includes(previous))sel.value=previous;
   else if(rounds.includes(active))sel.value=active;
-  else sel.value=rounds[0]||"5";
+  else sel.value=rounds[0]||String(firstRound());
 }
 function matchAssignedPlayers(rk,team){
   const rows=[];
@@ -7639,7 +7663,7 @@ function roundHasStarted(rk){
 }
 function startedRounds(){
   return Object.keys(state.rounds||{})
-    .filter(r=>Number(r)>=5&&roundHasStarted(r))
+    .filter(r=>Number(r)>=firstRound()&&roundHasStarted(r))
     .sort((a,b)=>Number(a)-Number(b));
 }
 function latestStartedRound(){
@@ -7688,7 +7712,7 @@ function updateFixtureScoreInput(input,value){
 }
 function updateMatchGameCounters(rk){
   document.querySelectorAll(`.match-game[data-round="${rk}"]`).forEach(card=>{
-    const index=Number(card.dataset.index),g=(FIXTURE_2026[rk]||[])[index];
+    const index=Number(card.dataset.index),g=(activeFixture()[rk]||[])[index];
     if(!g)return;
     const assigned=[...matchAssignedPlayers(rk,g.home),...matchAssignedPlayers(rk,g.away)];
     const vals=isGeneralOnlyFixture(rk,g)?(state.generalOnlyScores?.[rk]||{}):(state.rounds[rk]||{});
@@ -7877,7 +7901,7 @@ function autoSaveMatchResult(rk,index){
 }
 function updateMatchResultHeading(rk,index){
  const el=document.querySelector(`.match-game[data-round="${rk}"][data-index="${index}"]`);
- const g=FIXTURE_2026[rk]?.[index];if(!el||!g)return;
+ const g=activeFixture()[rk]?.[index];if(!el||!g)return;
  const res=getMatchResult(rk,index,g),title=el.querySelector('.match-game-title'),status=el.querySelector('.match-game-status');
  if(title)title.textContent=res?`${g.home} ${res.home} - ${res.away} ${g.away}`:`${g.home} - ${g.away}`;
  if(status){status.textContent=res?'Final':'A confirmar';status.classList.toggle('final',!!res);}
@@ -7924,7 +7948,8 @@ function scoresImportClub(s){
   if(!n)return null;
   // Primero aceptar los nombres CANÓNICOS del fixture. Antes se omitía,
   // por ejemplo, DEFENSA Y JUSTICIA y se descartaba el equipo completo.
-  for(const games of Object.values(FIXTURE_2026)){
+  for(const club of new Set((state.players||[]).map(p=>p.team))){if(scoresNorm(club)===n)return club;}
+  for(const games of Object.values(activeFixture())){
     for(const game of games){
       for(const club of [game.home,game.away])if(scoresNorm(club)===n)return club;
     }
@@ -7991,7 +8016,7 @@ function scoresImportSplitGluedHeadings(lines,teams){
 }
 function scoresImportParse(text,rk){
   const parts=scoresImportSections(text);if(parts.error)return {rows:[],warnings:[parts.error],clubs:[]};
-  const fixtures=FIXTURE_2026[rk]||[],teams=new Set(fixtures.flatMap(g=>[g.home,g.away]));
+  const fixtures=activeFixture()[rk]||[],teams=new Set(fixtures.flatMap(g=>[g.home,g.away]));
   const assigned=Object.fromEntries([...teams].map(t=>[t,matchAssignedPlayers(rk,t)]));
   const results=[],warnings=[],seen=new Set(),clubs=new Set(),publishedCounts=new Map();let team=null;
   // Separar casos reales del texto copiado: "Dadín s/cSarmiento 3",
@@ -8124,7 +8149,7 @@ function toggleFixtureImporter(){
   $('fixtureImportReview').style.display='none';
 }
 function fixtureImportParse(text,rk){
-  const games=FIXTURE_2026[rk]||[];
+  const games=activeFixture()[rk]||[];
   let currentDate='';const entries=[],errors=[];
   const monthList={enero:1,febrero:2,marzo:3,abril:4,mayo:5,junio:6,julio:7,agosto:8,septiembre:9,octubre:10,noviembre:11,diciembre:12};
   const dayNames='lunes|martes|mi[eé]rcoles|jueves|viernes|s[aá]bado|domingo|lun|mar|mi[eé]|jue|vie|s[aá]b|dom';
@@ -8188,7 +8213,7 @@ function renderMatchScores(){
   updateMatchScoresRoundOptions();
   if($("fixtureImportBar"))$("fixtureImportBar").style.display=isCloudAdmin()?"flex":"none";
   if(!isCloudAdmin()&&$("fixtureImportPanel"))$("fixtureImportPanel").style.display="none";
-  const rk=matchScoresRoundKey(),games=FIXTURE_2026[rk]||[];
+  const rk=matchScoresRoundKey(),games=activeFixture()[rk]||[];
   populateMatchFilters(rk,games);
   const managerFilter=$("matchManagerFilter")?.value||"";
   const teamFilter=$("matchTeamFilter")?.value||"";
@@ -8478,7 +8503,7 @@ function renderResults(){
 }
 function renderDb(){
   const rounds=allRounds(),teams=state.phase==="confirmed"?state.confirmedTeams:state.draftRosters,totalPicks=state.participants.reduce((s,m)=>s+(teams[m]?.picks.length||0),0);
-  $("dbStats").innerHTML=`<div class="metrics" style="padding:0"><div class="metric"><b>${state.players.length}</b><span>Jugadores activos</span></div><div class="metric"><b>${state.participants.length}</b><span>Participantes</span></div><div class="metric"><b>${rounds.length}</b><span>Fechas con datos</span></div></div><p class="muted">Estado: <b style="color:var(--text)">${state.phase==="draft"?"Draft en curso":state.phase==="confirmed"?"Equipos confirmados":state.phase==="setup"?"Configurando participantes":"Sin torneo iniciado"}</b></p><p class="muted">Última actualización de datos: ${formatDateTime24(state.updatedAt)}</p><p class="muted">Origen de datos: <b style="color:var(--text)">Prueba local · almacenamiento del navegador</b></p><p class="muted">Base de jugadores: <b style="color:var(--text)">Referencia de 2026 · actualizar antes del nuevo torneo</b></p><p class="base-version-mark">Base V125 · Estadios e identidad visual</p><div style="margin-top:10px">${state.participants.map(m=>`<span class="badge" style="margin:2px">${esc(m)} · desde F${participantStartRound(m)}</span>`).join("")}</div>${officialBaseWarningHtml()}`;
+  $("dbStats").innerHTML=`<div class="metrics" style="padding:0"><div class="metric"><b>${state.players.length}</b><span>Jugadores activos</span></div><div class="metric"><b>${state.participants.length}</b><span>Participantes</span></div><div class="metric"><b>${rounds.length}</b><span>Fechas con datos</span></div></div><p class="muted">Estado: <b style="color:var(--text)">${state.phase==="draft"?"Draft en curso":state.phase==="confirmed"?"Equipos confirmados":state.phase==="setup"?"Configurando participantes":"Sin torneo iniciado"}</b></p><p class="muted">Última actualización de datos: ${formatDateTime24(state.updatedAt)}</p><p class="muted">Origen de datos: <b style="color:var(--text)">Supabase · torneo compartido</b></p><p class="muted">Base de jugadores: <b style="color:var(--text)">Referencia de 2026 · actualizar antes del nuevo torneo</b></p><p class="base-version-mark">Base V125 · Estadios e identidad visual</p><div style="margin-top:10px">${state.participants.map(m=>`<span class="badge" style="margin:2px">${esc(m)} · desde F${participantStartRound(m)}</span>`).join("")}</div>${officialBaseWarningHtml()}`;
   const adminSection=$("playerAdminSection");
   if(adminSection)adminSection.style.display=isCloudAdmin()?"flex":"none";
   if(isCloudAdmin())renderAdminPlayersTable();
@@ -8487,9 +8512,9 @@ function renderDb(){
 
 function formationTeamsObject(){return state.phase==="confirmed"?state.confirmedTeams:state.draftRosters}
 function formationRoundOptions(){
-  const previous=$("formationRound").value,current=String(Math.max(5,parseInt($("roundInput")?.value)||competitionActiveRound()));
+  const previous=$("formationRound").value,current=String(Math.max(firstRound(),parseInt($("roundInput")?.value)||competitionActiveRound()));
   const active=String(competitionActiveRound());
-  const opts=roundsDescending([...new Set([...allRounds().filter(r=>Number(r)>=5),current,active])]);
+  const opts=roundsDescending([...new Set([...allRounds().filter(r=>Number(r)>=firstRound()),current,active])]);
   $("formationRound").innerHTML=opts.map(r=>`<option value="${r}">Fecha ${r}</option>`).join("");
   if(previous&&opts.includes(previous))$("formationRound").value=previous;
   else $("formationRound").value=current;
@@ -8991,13 +9016,13 @@ function transferOrderMarkup(tr){
 }
 
 function transferHistoryRounds(){
-  return roundsDescending(Object.keys(state.transferRounds||{}).filter(r=>Number(r)>=5));
+  return roundsDescending(Object.keys(state.transferRounds||{}).filter(r=>Number(r)>=firstRound()));
 }
 function preferredTransferHistoryRound(){
   const rounds=transferHistoryRounds();
   if(!rounds.length)return "";
   const active=Number(competitionActiveRound());
-  const prior=String(Math.max(5,active-1));
+  const prior=String(Math.max(firstRound(),active-1));
   if(rounds.includes(prior))return prior;
   return rounds[0];
 }
@@ -9248,7 +9273,7 @@ function renderTransferPage(){
   renderTransferHistory();
 
   const previous=$("transferRoundSelect").value;
-  const rounds=roundsDescending(allRounds().filter(r=>Number(r)>=5));
+  const rounds=roundsDescending(allRounds().filter(r=>Number(r)>=firstRound()));
   $("transferRoundSelect").innerHTML=rounds.map(r=>`<option value="${r}">${transferTargetRoundLabel(r)}</option>`).join("");
   if(previous&&rounds.includes(previous))$("transferRoundSelect").value=previous;
   if(!rounds.length){
@@ -9294,7 +9319,7 @@ function renderTransferPage(){
   applyTransferReadOnlyMode();
 }
 function latestCompletedRoundForTransfers(){
-  const completed=roundsDescending(allRounds().filter(r=>Number(r)>=5&&roundComplete(r)));
+  const completed=roundsDescending(allRounds().filter(r=>Number(r)>=firstRound()&&roundComplete(r)));
   return completed[0]||null;
 }
 function startTransferRound(){
@@ -9551,7 +9576,7 @@ function restore(file){
     if(!Array.isArray(state.draftOrder))state.draftOrder=[...state.participants];
     if(!state.setupDraftNames)state.setupDraftNames=["",""];
     if(!state.participantStartRounds)state.participantStartRounds={};
-    state.participants.forEach(m=>{if(state.participantStartRounds[m]===undefined)state.participantStartRounds[m]=5});
+    state.participants.forEach(m=>{if(state.participantStartRounds[m]===undefined)state.participantStartRounds[m]=firstRound()});
     if(!state.rosterHistory)state.rosterHistory={};
     if(state.lateJoin===undefined)state.lateJoin=null;
     if(state.lateJoin){
@@ -9646,7 +9671,7 @@ function previewGetIndex(){
   return r;
 }
 function previewSaveIndex(reg){localStorage.setItem(PREVIEW_INDEX_KEY,JSON.stringify(reg));}
-function previewCurrentTournament(){return previewGetIndex().items.find(x=>x.id===previewActiveId)||null;}
+function previewCurrentTournament(){return v12Tournaments.find(x=>x.id===CLOUD_LEAGUE_ID)||null;}
 function previewInitialize(){ return;
 
   const reg=previewGetIndex();
@@ -9670,10 +9695,11 @@ function previewInitialize(){ return;
   previewSaveIndex(reg);
 }
 function previewRenderEditionHeader(){
-  const title=$("previewEditionTitle");
-  if(title)title.innerHTML='<span>CLAUSURA</span><strong>2026</strong>';
-  if($("previewCurrentName"))$("previewCurrentName").textContent="Clausura 2026";
-  document.title="Chiche League · Clausura 2026";
+  const t=v12Tournaments.find(x=>x.id===CLOUD_LEAGUE_ID)||{name:'Clausura 2026',year:2026};
+  const title=$("previewEditionTitle");const pieces=t.name.match(/^(.*?)(\d{4})$/);
+  if(title)title.innerHTML=pieces?`<span>${esc(pieces[1].trim())}</span><strong>${esc(pieces[2])}</strong>`:`<span>${esc(t.name)}</span>`;
+  if($("previewCurrentName"))$("previewCurrentName").textContent=t.name;
+  document.title="Chiche League · "+t.name;
 }
 function previewRefresh(){
   syncNavAvailability();fillStatic();renderParticipantInputs(state.setupDraftNames||["",""]);
@@ -9793,7 +9819,7 @@ function previewDuplicateConfig(id){
   if($("previewNewName"))$("previewNewName").value=record.name.replace(/\d{4}/g,"2027")+" (copia)";
 }
 function renderProductionTournamentNotice(){/* Edición oficial Clausura 2026. */}
-function previewRenderTournaments(){ return renderProductionTournamentNotice();
+function previewRenderTournamentsLegacy(){ return renderProductionTournamentNotice();
 
   const reg=previewGetIndex(),list=$("previewTournamentList");if(!list)return;
   list.innerHTML=reg.items.map(t=>{
@@ -9824,7 +9850,7 @@ function previewAddParticipant(){
   if(value.length>36)return alert('Máximo 36 caracteres.');
   if(state.participants.some(m=>low(m)===low(value)))return alert('Ese DT ya está en el torneo.');
   state.participants.push(value);state.draftOrder.push(value);state.draftRosters[value]=emptyRoster();
-  state.participantStartRounds[value]=5;
+  state.participantStartRounds[value]=firstRound();
   if(state.participants.length>=2)state.phase='draft';else state.phase='setup';
   persist();previewRefresh();previewRenderTournaments();
 }
@@ -9854,6 +9880,153 @@ function previewRemoveParticipant(idx){
   if(state.draftTurn?.manager===m)state.draftTurn={manager:null,club:null};
   if(state.participants.length<2)state.phase='setup';
   persist();previewRefresh();previewRenderTournaments();
+}
+
+
+/* V12 · Multitorneo compartido, sobre la infraestructura existente. */
+let v12Tournaments=[{id:'clausura-2026',name:'Clausura 2026',year:2026,participants:[]}];
+const V12_TOURNAMENTS_API='/api/chiche-tournaments';
+async function v12Request(method='GET',data=null){
+  const token=method==='GET'?null:await validAdminToken();
+  if(method!=='GET'&&!token)throw Error('Iniciá sesión como administrador.');
+  const res=await fetch(V12_TOURNAMENTS_API,{method,cache:'no-store',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},...(data?{body:JSON.stringify(data)}:{})});
+  const r=await res.json().catch(()=>({}));if(!res.ok)throw Error(r.message||`Error HTTP ${res.status}`);return r;
+}
+async function v12FetchTournaments(){
+  try{const r=await v12Request();v12Tournaments=Array.isArray(r.items)&&r.items.length?r.items:v12Tournaments;}
+  catch(e){console.warn('Lista de torneos:',e)}
+  if(!v12Tournaments.some(t=>t.id===CLOUD_LEAGUE_ID)){
+    CLOUD_LEAGUE_ID='clausura-2026';localStorage.setItem('chiche_v12_active_league',CLOUD_LEAGUE_ID);
+  }
+  STORAGE='chiche_prod_v12_cache_'+CLOUD_LEAGUE_ID;
+  return v12Tournaments;
+}
+function v12Accessible(t){return isCloudAdmin()||(!viewerManagerLocal||t.participants?.includes(viewerManagerLocal))}
+function v12SelectedTour(){return v12Tournaments.find(t=>t.id===CLOUD_LEAGUE_ID)}
+async function previewSwitchTournament(id){
+  const t=v12Tournaments.find(t=>t.id===id);if(!t)return alert('No se encontró el torneo.');
+  if(!v12Accessible(t))return alert('El DT seleccionado no participa en este torneo.');
+  if(id===CLOUD_LEAGUE_ID)return setPage('home');
+  clearTimeout(cloudSaveTimer);
+  if(isCloudAdmin())await pushCloudState();
+  CLOUD_LEAGUE_ID=id;localStorage.setItem('chiche_v12_active_league',id);
+  STORAGE='chiche_prod_v12_cache_'+id;cloudLastUpdatedAt=null;state=initialState();
+  publishedClubProfiles={};clubLocalIdentityOverrides={};clubPageManagerLocal='';
+  if(!t.participants?.includes(viewerManagerLocal))viewerManagerLocal='';
+  const loaded=await pullCloudState({force:true});
+  if(!loaded){alert('No se pudieron cargar los datos de '+t.name+'. Volvé a intentar.');return window.location.reload();}
+  await fetchPublishedClubProfiles();previewRenderEditionHeader();
+  renderAllCloudAware();setPage('home');await v12RefreshTournamentOptions();
+}
+function previewOpenCreateTournament(){
+  if(!isCloudAdmin())return alert('Solo el administrador puede crear torneos.');
+  modal('Crear torneo',`<div class="preview-form-grid">
+    <label>Nombre<input id="previewNewName" class="input" maxlength="70" placeholder="Apertura 2027"></label>
+    <label>Año<input id="previewNewYear" class="input" type="number" min="2025" max="2100" value="2027"></label>
+    <label class="preview-checkbox"><input id="previewCopyParticipants" type="checkbox" checked> Copiar DT actuales (sin planteles)</label>
+    <label class="preview-checkbox"><input id="previewCopyPlayers" type="checkbox" checked> Copiar base de jugadores</label>
+    <p class="muted">Nuevo torneo independiente: sin puntajes, resultados ni historial.</p>
+  </div>`,'Crear torneo',previewCreateTournament);
+}
+async function previewCreateTournament(){
+ try{
+  const name=$('previewNewName').value.trim(),year=Number($('previewNewYear').value);
+  if(name.length<3||!Number.isInteger(year)||year<2025||year>2100)return alert('Ingresá un nombre y año válidos.');
+  const next=initialState();next.startRound=1;next.fixtureByRound={};next.rounds={};next.rosterHistory={};next.matchResults={};
+  next.matchSchedules={};next.transferRounds={};next.generalOnlyScores={};next.generalOnlyCaptainBonuses={};
+  if(!$('previewCopyPlayers').checked)next.players=[];
+  if($('previewCopyParticipants').checked){
+    next.participants=[...state.participants];next.draftOrder=[...next.participants];
+    next.participants.forEach(m=>{next.draftRosters[m]=emptyRoster();next.participantStartRounds[m]=1});
+    next.phase=next.participants.length>=2?'draft':'setup';
+  }else next.phase='setup';
+  const r=await v12Request('POST',{name,year,initialState:next});
+  $('modalBack').classList.remove('show');await v12FetchTournaments();
+  await previewSwitchTournament(r.item.id);previewRenderTournaments();
+ }catch(e){alert('No se pudo crear el torneo: '+e.message)}
+}
+function previewRenameTournament(id){
+ if(!isCloudAdmin())return;const t=v12Tournaments.find(t=>t.id===id);if(!t)return;
+ modal('Editar torneo',`<label>Nombre<input id="previewEditName" class="input" maxlength="70" value="${esc(t.name)}"></label><label>Año<input id="previewEditYear" class="input" type="number" value="${t.year}"></label>`,'Guardar cambios',async()=>{
+  try{await v12Request('PATCH',{id,name:$('previewEditName').value.trim(),year:Number($('previewEditYear').value)});
+   $('modalBack').classList.remove('show');await v12FetchTournaments();previewRenderTournaments();previewRenderEditionHeader();}
+  catch(e){alert(e.message)}
+ });
+}
+async function previewDeleteTournament(id){
+ if(!isCloudAdmin())return;const t=v12Tournaments.find(t=>t.id===id);if(!t)return;
+ if(id==='clausura-2026')return alert('El Clausura 2026 no se puede eliminar.');
+ const confirmName=prompt(`ATENCIÓN: se borrarán todos los datos de «${t.name}» en Supabase. No se puede deshacer.\n\nEscribí el nombre exacto:`);
+ if(confirmName===null||confirmName!==t.name)return alert('Cancelado: no se borró el torneo.');
+ if(!confirm('Última confirmación: ¿eliminar definitivamente '+t.name+'?'))return;
+ try{await v12Request('DELETE',{id,confirmName});await v12FetchTournaments();
+  if(id===CLOUD_LEAGUE_ID){CLOUD_LEAGUE_ID='clausura-2026';localStorage.setItem('chiche_v12_active_league',CLOUD_LEAGUE_ID);STORAGE='chiche_prod_v12_cache_'+CLOUD_LEAGUE_ID;cloudLastUpdatedAt=null;await pullCloudState({force:true});}
+  previewRenderTournaments();setPage('tournaments');}
+ catch(e){alert('No se pudo eliminar: '+e.message)}
+}
+function previewRenderTournaments(){
+ const list=$('previewTournamentList');if(!list)return;
+ const available=v12Tournaments.filter(v12Accessible);
+ list.innerHTML=available.map(t=>`<article class="preview-tournament-row ${t.id===CLOUD_LEAGUE_ID?'selected':''}">
+ <div class="preview-tournament-mark">${t.id===CLOUD_LEAGUE_ID?'●':'○'}</div>
+ <div class="preview-tournament-main"><div class="preview-tournament-name">${esc(t.name)} ${t.id===CLOUD_LEAGUE_ID?'<span class="preview-current-badge">ACTUAL</span>':''}</div><p>${(t.participants||[]).length} DT · Torneo compartido</p></div>
+ <div class="preview-tournament-buttons"><button class="btn ${t.id===CLOUD_LEAGUE_ID?'':'primary'}" onclick="previewSwitchTournament('${t.id}')">${t.id===CLOUD_LEAGUE_ID?'Abierto':'Abrir torneo'}</button>
+ ${isCloudAdmin()?`<button class="btn" onclick="previewRenameTournament('${t.id}')">Editar</button><button class="btn danger" onclick="previewDeleteTournament('${t.id}')" ${t.id==='clausura-2026'?'disabled':''}>Eliminar</button>`:''}</div></article>`).join('')||'<div class="card emptybox">No hay torneos para este DT.</div>';
+ const members=$('previewParticipantList');if(members){
+  members.innerHTML=(state.participants||[]).map((m,i)=>`<div class="preview-member-row"><div><strong>${esc(m)}</strong><small>Participante</small></div>${isCloudAdmin()?`<button class="btn small" onclick="previewRenameParticipant(${i})">Editar nombre</button><button class="btn small danger" onclick="previewRemoveParticipant(${i})" ${state.phase==='confirmed'?'disabled':''}>Quitar</button>`:''}</div>`).join('');
+ }
+ const page=document.getElementById('tournaments');
+ if(page){
+  const target=page.querySelector('.preview-page-hero');
+  if(target&&!document.getElementById('v12FixtureButton')){
+    const btn=document.createElement('button');btn.id='v12FixtureButton';btn.className='btn';btn.type='button';btn.textContent='Configurar fixture';btn.onclick=v12ConfigureFixture;target.append(btn);
+  }
+  const btn=document.getElementById('v12FixtureButton');if(btn)btn.style.display=isCloudAdmin()&&CLOUD_LEAGUE_ID!=='clausura-2026'?'':'none';
+ }
+ if(page){page.querySelectorAll('button[onclick*="previewOpenCreateTournament"],button[onclick*="previewAddParticipant"]').forEach(b=>{b.style.display=isCloudAdmin()?'':'none'});
+ page.querySelectorAll('.preview-warn,.preview-tournament-footnote,.preview-original-restore').forEach(el=>el.style.display='none');}
+}
+
+function v12ConfigureFixture(){
+ if(!isCloudAdmin()||CLOUD_LEAGUE_ID==='clausura-2026')return;
+ const clubs=[...new Set((state.players||[]).map(p=>p.team))].filter(Boolean).sort();
+ modal('Configurar fixture',`<div class="preview-form-grid">
+ <label>Fecha<select id="v12FixtureRound" class="select">${Array.from({length:30},(_,i)=>`<option value="${i+1}">Fecha ${i+1}</option>`).join('')}</select></label>
+ <label>Un partido por línea: LOCAL - VISITANTE<textarea id="v12FixtureText" class="input" rows="7" placeholder="RIVER PLATE - BOCA JUNIORS"></textarea></label>
+ <small>Los clubes deben coincidir con los de la base. Solo se modifica este torneo.</small>
+ <details><summary>Consultar nombres de clubes</summary><small>${clubs.map(esc).join(' · ')}</small></details>
+ <div id="v12FixtureError" class="err"></div></div>`,'Guardar fecha',async()=>{
+  const rk=String($('v12FixtureRound').value),raw=$('v12FixtureText').value.trim();
+  const lines=raw.split(/\n/).map(x=>x.trim()).filter(Boolean),games=[],used=new Set();
+  if(!lines.length||lines.length>30)return $('v12FixtureError').textContent='Ingresá entre 1 y 30 partidos.';
+  for(const line of lines){
+   const terms=line.split(/\s+-\s+|\s+vs\.?\s+/i);
+   if(terms.length!==2)return $('v12FixtureError').textContent='Formato inválido: '+line;
+   const home=clubs.find(x=>x.toLowerCase()===terms[0].trim().toLowerCase());
+   const away=clubs.find(x=>x.toLowerCase()===terms[1].trim().toLowerCase());
+   if(!home||!away||home===away||used.has(home)||used.has(away))return $('v12FixtureError').textContent='Equipo inválido o repetido: '+line;
+   used.add(home);used.add(away);games.push({home,away});
+  }
+  const prev=state.fixtureByRound?.[rk];state.fixtureByRound ||= {};state.fixtureByRound[rk]=games;
+  if(!await pushCloudState()){
+   if(prev)state.fixtureByRound[rk]=prev;else delete state.fixtureByRound[rk];
+   return $('v12FixtureError').textContent='No se pudo guardar en Supabase.';
+  }
+  $('modalBack').classList.remove('show');renderMatchScores();
+ });
+ const fill=()=>{$('v12FixtureText').value=(state.fixtureByRound?.[$('v12FixtureRound').value]||[]).map(g=>g.home+' - '+g.away).join('\n')};
+ $('v12FixtureRound').onchange=fill;fill();
+}
+
+async function v12RefreshTournamentOptions(){
+ await v12FetchTournaments();
+ const host=document.querySelector('#home .home-status-row')||document.querySelector('#home .home-status');
+ if(!host)return;
+ let select=document.getElementById('v12MyTournaments');
+ if(!select){select=document.createElement('select');select.id='v12MyTournaments';select.className='select';select.setAttribute('aria-label','Seleccionar torneo');host.appendChild(select)}
+ const allowed=v12Tournaments.filter(v12Accessible);
+ select.innerHTML=allowed.map(t=>`<option value="${t.id}">${esc(t.name)}</option>`).join('');select.value=CLOUD_LEAGUE_ID;
+ select.onchange=()=>previewSwitchTournament(select.value);
 }
 
 loadClubViewerState();loadState();cloudSession=getCloudSession();sanitizeLegacyState();syncNavAvailability();renderParticipantInputs(state.phase==="setup"?(state.setupDraftNames||["",""]):state.setupDraftNames);fillStatic();bindSortHeaders();setTimeout(()=>{document.querySelectorAll(".sorthead").forEach(btn=>{const mark=btn.querySelector(".sortmark");if(mark)mark.textContent=btn.dataset.sort==="name"?"↑":"↕"})},0);
@@ -10239,7 +10412,7 @@ setTimeout(initCloud,80);
          let n=0;
          qa('details.match-game',group).forEach(card=>{
            const idx=Number(card.dataset.index);
-           const g=typeof FIXTURE_2026!=='undefined'?FIXTURE_2026[rk]?.[idx]:null;
+           const g=activeFixture()[rk]?.[idx]||null;
            const ok=!!g&&matching({g,rk});
            card.style.display=ok?'':'none';
            card.open=ok;
@@ -11171,4 +11344,49 @@ main{min-width:0}
 }
 </style>
 
+<style id="chicheProductionV11">
+/* Cambios: reponer el encabezado perdido durante el rediseño */
+#transfers .ux-transfer-intro{display:flex;flex-direction:column;gap:3px;min-width:280px;margin-right:auto;text-align:left}
+#transfers .ux-transfer-intro strong{font-size:15px;color:#f3f8ff}
+#transfers .ux-transfer-intro small{font-size:11px;line-height:1.4;color:#aac1d7}
+/* Formaciones: mayor altura y fuentes legibles en desktop; mobile conserva V10 */
+@media(min-width:851px){
+#formations .formations-layout{height:min(770px,calc(100dvh - 202px))!important;min-height:660px!important}
+#formations #formationRosterList .form-row{min-height:34px!important}
+#formations #formationRosterList .form-row>span:nth-child(2)>b{font-size:12.5px!important;line-height:1.14!important}
+#formations #formationRosterList .form-row>span:nth-child(2)>small{font-size:9.7px!important;line-height:1.2!important;margin-top:3px!important}
+#formations .formation-summary span{font-size:10px!important}
+}
+/* Fixture: encajar las dos tablas sin sacrificar detalles del historial desplegado */
+@media(min-width:1050px){
+#matchScores .ux-fixture-tables{gap:8px!important}
+#matchScores .ux-fixture-tables>.scores-rank-card .cardhead{min-height:27px!important;padding:5px 10px!important}
+#matchScores .ux-fixture-tables>.scores-rank-card th,#matchScores .ux-fixture-tables>.scores-rank-card td{padding-top:5px!important;padding-bottom:5px!important;font-size:clamp(9px,.66vw,11px)!important;line-height:1.12!important}
+#matchScores .ux-fixture-tables>.scores-rank-card .scores-general-detail-row td{padding:7px!important;white-space:normal!important}
+}
+/* Torneos: sin anotaciones de prototipo, coherente con el resto de la app. */
+#tournaments .preview-warn,#tournaments .preview-original-restore,#tournaments .preview-tournament-footnote{display:none!important}
+#tournaments .preview-page-hero{background:transparent!important;border:0!important;border-bottom:1px solid #2b4057!important;padding:4px 0 12px!important;border-radius:0!important}
+#tournaments .preview-page-hero h1{font-size:24px!important}
+#tournaments .preview-tournament-list{max-width:none!important}
+#tournaments .preview-member-card{width:100%!important}
+#tournaments .preview-member-row{min-width:0}
+#tournaments .preview-tournament-buttons{flex-wrap:wrap}
+#tournaments .preview-protected-badge{font-size:10px;color:#9ec9ef}
+#tournaments .preview-manager-security{margin-top:6px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+#tournaments .preview-manager-security button{font-size:10px}
+</style>
+<script id="chicheNoNewSetupCompatibility">
+(function(){
+ function addTransferTitle(){
+  const page=document.getElementById('transfers');
+  const head=page?.querySelector('.card .cardhead');
+  if(!head || head.querySelector('.ux-transfer-intro'))return;
+  const intro=document.createElement('div');intro.className='ux-transfer-intro';
+  intro.innerHTML='<strong>Ronda de cambios</strong><small>Se habilita después de completar una fecha. Orden: último → primero. Los empates se desempatan por la tabla general previa.</small>';
+  head.insertBefore(intro,head.firstChild);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addTransferTitle);else addTransferTitle();
+})();
+</script>
 </body></html>

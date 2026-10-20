@@ -1,0 +1,12 @@
+CHICHE LEAGUE V18 — Solo archivos modificados
+
+Reemplazar en la raíz de GitHub:
+- index.html
+- ChicheLeague_Clausura2026.html
+
+Correcciones:
+1. Formación histórica de Baco (F13): si falta el ID 382 (Fernández, Ignacio) en rosterHistory[13].Baco y tiene puntaje numérico registrado, se restaura como Titular solo en ese snapshot. No se lo vuelve a agregar a la formación actual luego del robo previo a F14. La formación muestra su snapshot histórico al detectar diferencias con el plantel actual.
+2. Administrar jugadores: nueva columna Cotización (M). Se puede editar el valor, confirmar y persistir el override al regenerar la base de jugadores. Solo administrador.
+
+No se modifican APIs, variables de Vercel ni SQL.
+Antes de actualizar, guardar un respaldo JSON. Verificar luego Baco F13 y edición de una cotización, recargar y confirmar persistencia.

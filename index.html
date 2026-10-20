@@ -4804,7 +4804,7 @@ body.home-active .top>.nav{display:none!important}
     <div class="tablewrap player-admin-tablewrap">
       <table class="player-admin-table">
         <thead>
-          <tr><th>Jugador</th><th>Pos</th><th>Club</th><th>Estado</th><th></th></tr>
+          <tr><th>Jugador</th><th>Pos</th><th>Club</th><th>Cotización (M)</th><th>Estado</th><th></th></tr>
         </thead>
         <tbody id="adminPlayersBody"></tbody>
       </table>
@@ -4982,6 +4982,7 @@ function scrollToAdminPlayers(){
 
 function ensurePlayerAdminState(){
   if(!state.playerTeamOverrides||typeof state.playerTeamOverrides!=="object")state.playerTeamOverrides={};
+  if(!state.playerPriceOverrides||typeof state.playerPriceOverrides!=="object")state.playerPriceOverrides={};
   if(!Array.isArray(state.adminCreatedPlayers))state.adminCreatedPlayers=[];
   if(!Array.isArray(state.adminDeletedPlayerIds))state.adminDeletedPlayerIds=[];
   state.adminDeletedPlayerIds=[...new Set(state.adminDeletedPlayerIds.map(Number).filter(Number.isFinite))];
@@ -5029,6 +5030,30 @@ function adminChangePlayerTeam(id,newTeam){
   persist();
   renderAllCloudAware();
 }
+function adminChangePlayerPrice(id,value){
+  if(!isCloudAdmin())return;
+  ensurePlayerAdminState();
+  id=Number(id);
+  const p=(state.players||[]).find(x=>Number(x.id)===id);
+  if(!p)return;
+  const millions=Number(String(value).replace(",","."));
+  if(!Number.isFinite(millions)||millions<0||millions>1000){
+    alert("Ingresá una cotización válida en millones, por ejemplo 4.5.");
+    renderAdminPlayersTable();return;
+  }
+  const newPrice=Math.round(millions*1000000);
+  if(newPrice===Number(p.price||0))return;
+  if(!confirm(`¿Cambiar la cotización de ${p.name} de ${money(p.price)} a ${money(newPrice)}?`)){
+    renderAdminPlayersTable();return;
+  }
+  const created=(state.adminCreatedPlayers||[]).find(x=>Number(x.id)===id);
+  if(created)created.price=newPrice;
+  state.playerPriceOverrides[id]=newPrice;
+  syncOfficialPlayerBase();
+  persist();
+  renderAllCloudAware();
+}
+
 function adminDeletePlayer(id){
   if(!isCloudAdmin())return;
   ensurePlayerAdminState();
@@ -5134,10 +5159,11 @@ function renderAdminPlayersTable(){
           ${options}
         </select>
       </td>
+      <td><input class="input" type="number" inputmode="decimal" min="0" step="0.1" style="width:83px;min-width:75px;padding:5px 7px" aria-label="Cotización en millones de ${esc(p.name)}" value="${(Number(p.price||0)/1000000).toFixed(1)}" onchange="adminChangePlayerPrice(${p.id},this.value)"></td>
       <td>${locked?`<span class="badge">Lo tiene ${owners.map(esc).join(", ")}</span>`:'<span class="badge green">Libre</span>'}</td>
       <td><button class="btn small danger" ${locked?"disabled":""} onclick="adminDeletePlayer(${p.id})">Eliminar</button></td>
     </tr>`;
-  }).join(""):`<tr><td colspan="5" class="muted" style="text-align:center;padding:18px">No hay jugadores que coincidan con la búsqueda.</td></tr>`;
+  }).join(""):`<tr><td colspan="6" class="muted" style="text-align:center;padding:18px">No hay jugadores que coincidan con la búsqueda.</td></tr>`;
 }
 
 
@@ -5198,8 +5224,8 @@ function syncOfficialPlayerBase(){
       }
 
       return old
-        ? {...old,name:op.name,team:effectiveTeam,position:op.position,price:op.price,removedOfficial:false}
-        : {...clone(op),team:effectiveTeam};
+        ? {...old,name:op.name,team:effectiveTeam,position:op.position,price:(Number.isFinite(Number(state.playerPriceOverrides?.[Number(op.id)]))&&state.playerPriceOverrides?.[Number(op.id)]!==undefined?Number(state.playerPriceOverrides[Number(op.id)]):op.price),removedOfficial:false}
+        : {...clone(op),team:effectiveTeam,price:(state.playerPriceOverrides?.[Number(op.id)]!==undefined?Number(state.playerPriceOverrides[Number(op.id)]):op.price)};
     });
 
   // Conserva referencias históricas de bajas oficiales y eliminaciones manuales.
@@ -5798,6 +5824,21 @@ function setCaptainBonus(id,input,rk){
   renderFormations();
 }
 
+function restoreBacoFecha13HistoricalPlayer(){
+  if(CLOUD_LEAGUE_ID!=="clausura-2026")return false;
+  if(!state?.participants?.includes("Baco"))return false;
+  if(!state.rounds?.["13"]||typeof state.rounds["13"][382]!=="number")return false;
+  const r=state.rosterHistory?.["13"]?.Baco;
+  if(!r||!Array.isArray(r.picks)||r.picks.includes(382))return false;
+  // Recuperar exclusivamente al titular de la fecha 13; no volver a incorporarlo
+  // al plantel actual después del robo para la fecha 14.
+  r.picks.push(382);
+  r.roles ||= {};
+  r.roles[382]="Titular";
+  cloudStateNeedsMigrationSave=true;
+  return true;
+}
+
 function normalizeCloudState(){
   if(!state||typeof state!=="object")state=initialState();
   state.version=25;
@@ -5830,6 +5871,7 @@ function normalizeCloudState(){
     patchDomanMaroniFecha8();patchDomanFecha8Roles();patchTanguitaFernandezAldosivi();
     patchFedeFecha9OviedoTitular();patchTotaFecha10AguerreTitular();
     patchFecha11Alineaciones();patchFecha11RiverSarmientoPostergado();patchAlvaFecha8Captain();
+    restoreBacoFecha13HistoricalPlayer();
   }
 }
 
@@ -6144,6 +6186,7 @@ function loadState(){
     patchDomanMaroniFecha8();patchDomanFecha8Roles();patchTanguitaFernandezAldosivi();
     patchFedeFecha9OviedoTitular();patchTotaFecha10AguerreTitular();
     patchFecha11Alineaciones();patchFecha11RiverSarmientoPostergado();patchAlvaFecha8Captain();
+    restoreBacoFecha13HistoricalPlayer();
   }
     if(state.lateJoin){
       if(!Array.isArray(state.lateJoin.names)){
@@ -8605,7 +8648,12 @@ function formationEditable(m,rk){
 }
 function editableFormationRoster(m,rk){
   if(state.phase==="draft")return state.draftRosters[m]||emptyRoster();
-  if(formationEditable(m,rk))return state.confirmedTeams[m]||emptyRoster();
+  const historical=state.rosterHistory?.[String(rk)]?.[m];
+  const current=state.confirmedTeams[m]||emptyRoster();
+  // Una vez cargados los puntajes, la foto histórica no puede perder jugadores
+  // por robos/cambios de la ronda siguiente, aunque siga editable la fecha actual.
+  if(historical&&roundHasAnyData(rk)&&historical.picks.some(id=>!current.picks.includes(id)))return historical;
+  if(formationEditable(m,rk))return current;
   return rosterForRound(m,rk);
 }
 function syncEditableFormationSnapshot(m,rk,r){

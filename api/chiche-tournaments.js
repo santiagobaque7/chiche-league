@@ -11,20 +11,35 @@ async function call(path,opts={}){
   const raw=await r.text();let j;try{j=raw?JSON.parse(raw):null}catch{j={message:raw.slice(0,300)}}
   if(!r.ok){const e=new Error(j?.message||j?.error||`Supabase HTTP ${r.status}`);e.status=r.status;throw e}return j;
 }
-// Validar el JWT con el mismo proyecto y la misma clave pública que el login oficial.
-// La service_role se reserva exclusivamente para acceder a la tabla desde el servidor.
+// Misma verificación de sesión que /api/chiche-cloud.
+// No confiar en identidad proporcionada por navegador: Supabase Auth verifica el JWT.
 const AUTH_URL='https://nhncljaqxhlapfsjqrql.supabase.co';
 const AUTH_PUBLIC_KEY='sb_publishable_GaMB23nh1tEtytzPS2c3gA_S_4YwYr3';
 async function admin(req){
   const jwt=String(req.headers.authorization||'').replace(/^Bearer\s+/i,'').trim();
-  if(!jwt)return false;
-  const r=await fetch(`${AUTH_URL}/auth/v1/user`,{
-    headers:{apikey:AUTH_PUBLIC_KEY,Authorization:`Bearer ${jwt}`},
-    signal:AbortSignal.timeout(10000)
-  });
-  if(!r.ok){console.warn('[chiche-tournaments] JWT rechazado por Auth:',r.status);return false;}
+  if(!jwt)return {ok:false,status:401,message:'Falta la sesión de administrador. Cerrá sesión y volvé a ingresar.'};
+  let r;
+  try{
+    r=await fetch(`${AUTH_URL}/auth/v1/user`,{
+      headers:{apikey:AUTH_PUBLIC_KEY,Authorization:`Bearer ${jwt}`,'Content-Type':'application/json'},
+      signal:AbortSignal.timeout(10000)
+    });
+  }catch(e){
+    console.error('[chiche-tournaments] No se pudo consultar Supabase Auth:',e.message);
+    return {ok:false,status:502,message:'No se pudo verificar la sesión con Supabase. Reintentá.'};
+  }
+  if(!r.ok){
+    let detail='';try{const j=await r.json();detail=String(j?.error_code||j?.code||j?.msg||j?.message||'')}catch{}
+    console.error('[chiche-tournaments] Supabase Auth rechazó token',{httpStatus:r.status,code:detail.slice(0,100)});
+    const expired=r.status===401||r.status===403;
+    return {ok:false,status:expired?401:502,message:expired?'La sesión de administrador venció o fue rechazada. Volvé a iniciar sesión.':`No se pudo verificar la sesión (Auth HTTP ${r.status}).`};
+  }
   const u=await r.json();
-  return u?.id===owner;
+  if(u?.id!==owner){
+    console.warn('[chiche-tournaments] Sesión válida pero el usuario no es el administrador.');
+    return {ok:false,status:403,message:'La cuenta iniciada no es la administradora de Chiche League.'};
+  }
+  return {ok:true};
 }
 function validateId(id){return typeof id==='string'&&/^[a-z0-9-]{3,80}$/.test(id)}
 function validateName(name){return typeof name==='string'&&name.trim().length>=3&&name.trim().length<=70}
@@ -50,7 +65,8 @@ module.exports=async(req,res)=>{
   if(!url.startsWith('https://')||!key)return reply(res,503,{message:'La conexión actual de Supabase no está disponible.'});
   if(req.method==='GET')return reply(res,200,await manifest());
   if(!['POST','PATCH','DELETE'].includes(req.method))return reply(res,405,{message:'Método no permitido.'});
-  if(!await admin(req))return reply(res,403,{message:'Solo el administrador puede gestionar torneos.'});
+  const verification=await admin(req);
+  if(!verification.ok)return reply(res,verification.status,{message:verification.message});
   const b=typeof req.body==='string'?JSON.parse(req.body):req.body||{};
   const index=await manifest(),items=index.items.map(({participants,...t})=>t);
   if(req.method==='POST'){

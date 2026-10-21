@@ -4206,6 +4206,13 @@ body.home-active .top>.nav{display:none!important}
   }
 }
 </style>
+<style id="chiche-v20-style">
+.score-editable{cursor:pointer!important;outline-offset:2px;transition:border-color .12s,filter .12s}.score-editable:hover,.score-editable:focus-visible{border-color:#60b7fa!important;filter:brightness(1.2)}
+.best-score-nj{color:#fa9b9b!important;font-weight:700}
+.club-alumni{margin-top:12px}.club-alumni-grid{padding:11px 14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 18px}.club-alumni-row{padding:7px 0;border-bottom:1px solid #273b4d;min-width:0;display:flex;flex-direction:column;gap:3px}.club-alumni-row b{font-size:12px}.club-alumni-row small{font-size:10px;color:#94b0cc}
+.ranking-progress-card{margin-top:10px}.ranking-progress-content{padding:12px 10px}.ranking-progress-legend{display:flex;gap:6px 12px;flex-wrap:wrap;padding:8px 3px 0}.ranking-progress-legend span{font-size:10px;color:#afc5d9;display:inline-flex;align-items:center;gap:5px}.ranking-progress-legend i{width:9px;height:9px;border-radius:3px}
+@media(max-width:680px){.club-alumni-grid{grid-template-columns:1fr}.ranking-progress-content{overflow-x:auto}.ranking-progress-content svg{min-width:360px}}
+</style>
 </head>
 <body class="app-booting">
 
@@ -4451,6 +4458,7 @@ body.home-active .top>.nav{display:none!important}
     <div class="scores-side">
       <div id="scoresRoundCard" class="card scores-rank-card"><div class="cardhead"><h3 id="scoresRoundRankingTitle">Tabla de la fecha</h3></div><div class="tablewrap"><table><thead><tr><th>#</th><th>DT</th><th>Puntos</th><th>Suplentes</th><th>Pend.</th></tr></thead><tbody id="scoresRoundRanking"></tbody></table></div></div>
       <div id="scoresGeneralCard" class="card scores-rank-card"><div class="cardhead"><h3>Tabla general</h3></div><div class="tablewrap"><table><thead><tr><th>#</th><th>DT</th><th>Total</th><th>Fechas</th></tr></thead><tbody id="scoresGeneralRanking"></tbody></table></div></div>
+      <div id="rankingProgressChart" class="card ranking-progress-card"><div class="cardhead"><h3>Evolución de posiciones</h3></div><div class="ranking-progress-content" id="rankingProgressContent"></div></div>
     </div>
   </div>
 
@@ -6416,11 +6424,11 @@ function bestPlayerStats(roundFilter=""){
   for(const rk of rounds){
     const vals=state.rounds[rk]||{};
     Object.entries(vals).forEach(([idRaw,value])=>{
-      if(typeof value!=="number")return;
+      if(typeof value!=="number"&&value!=="NO JUEGA")return;
       const id=Number(idRaw),p=player(id);if(!p)return;
       if(!stats.has(id))stats.set(id,{id,player:p,total:0,games:0,matches:[],owners:new Set()});
       const s=stats.get(id),owner=bestPlayerOwnerForRound(id,rk),fixture=bestPlayerFixtureInfo(p,rk);
-      s.total+=value;s.games++;if(owner)s.owners.add(owner);s.matches.push({round:Number(rk),score:value,owner,...fixture});
+      if(typeof value==="number"){s.total+=value;s.games++}if(owner)s.owners.add(owner);s.matches.push({round:Number(rk),score:value,owner,...fixture});
     });
   }
   return [...stats.values()].map(s=>{s.average=s.games?s.total/s.games:0;s.currentManager=reservedOwner(s.id)||[...s.owners][s.owners.size-1]||"";s.matches.sort((a,b)=>a.round-b.round);return s});
@@ -6460,7 +6468,7 @@ function renderBestPlayers(repopulate=true){
   const all=bestPlayerStats(round);renderBestLeaders(all);const rows=sortBestPlayers(bestPlayersFiltered());
   document.querySelectorAll("[data-best-sort]").forEach(btn=>{const active=btn.dataset.bestSort===bestPlayersSort.key;btn.classList.toggle("active",active);const base=btn.textContent.replace(/[↕↑↓]/g,"").trim();btn.textContent=`${base} ${active?(bestPlayersSort.dir==="asc"?"↑":"↓"):"↕"}`});
   if(!rows.length){$("bestPlayersBody").innerHTML='<tr><td colspan="8" class="best-empty">No hay jugadores que coincidan con los filtros.</td></tr>';return}
-  $("bestPlayersBody").innerHTML=rows.map((s,i)=>{const open=bestPlayersOpen.has(s.id),details=s.matches.map(m=>`<div class="best-match-row"><div><b>Fecha ${m.round}</b></div><div>${esc(m.date||"—")}</div><div>${esc(m.opponent||"—")}</div><div class="${m.score<0?"best-score-negative":"best-score-positive"}">${m.score}</div><div>${esc(m.owner||"—")}</div></div>`).join("");
+  $("bestPlayersBody").innerHTML=rows.map((s,i)=>{const open=bestPlayersOpen.has(s.id),details=s.matches.map(m=>`<div class="best-match-row"><div><b>Fecha ${m.round}</b></div><div>${esc(m.date||"—")}</div><div>${esc(m.opponent||"—")}</div><div class="${m.score==="NO JUEGA"?"best-score-nj":m.score<0?"best-score-negative":"best-score-positive"}">${m.score==="NO JUEGA"?"NJ":m.score}</div><div>${esc(m.owner||"—")}</div></div>`).join("");
     return `<tr class="best-main-row" onclick="toggleBestPlayerDetail(${s.id})"><td class="ranknum">${i+1}</td><td class="best-player-name">${esc(s.player.name)}<small>${esc(s.player.team)}<span class="ux-rank-owner"> · ${esc(s.currentManager||"Libre")}</span></small></td><td>${esc(s.player.team)}</td><td><span class="pos pos-${s.player.position}">${s.player.position}</span></td><td>${esc(s.currentManager||"Libre")}</td><td><b>${s.total}</b></td><td>${s.games}</td><td class="best-average">${s.average.toFixed(1)}</td></tr><tr class="best-detail-row ${open?"open":""}"><td colspan="8" class="best-detail-cell"><div class="best-match-list"><div class="best-match-row header"><div>Fecha</div><div>Día</div><div>Rival</div><div>Puntos</div><div>DT</div></div>${details}</div></td></tr>`}).join("");
 }
 
@@ -7074,6 +7082,7 @@ function renderClubPage(){
       ${clubGeneralTableHtml(current)}
     </div>
     ${rosterHtml}
+    ${clubPastPlayersHtml(current)}
   </div>`;
   updateTopBrand();
 }
@@ -8724,7 +8733,7 @@ function formationPlayerRow(id,r,rk,m){
   return `<div class="form-row ${editable?"formation-draggable formation-tappable":""} ${selected?"formation-selected":""}" ${drag} style="grid-template-columns:39px minmax(148px,1fr) 82px 30px 48px 48px">
     <span class="pos pos-${p.position}">${p.position}</span>
     <span style="line-height:1.05"><b style="font-size:14.5px">${esc(p.name)}</b><br><small class="muted" style="font-size:10.5px">${esc(p.team)} · ${money(p.price)}</small></span>
-    <span class="badge formation-role"><span class="role-full">${role||"—"}</span><span class="role-short">${role==="Titular"?"T":role==="Suplente"?"S":"—"}</span></span>${captainControl}<span class="score-pill ${sc.cls}">${sc.text}</span>${bonus.html}
+    <span class="badge formation-role"><span class="role-full">${role||"—"}</span><span class="role-short">${role==="Titular"?"T":role==="Suplente"?"S":"—"}</span></span>${captainControl}<span class="score-pill ${sc.cls} ${editable?"score-editable":""}" ${editable?`role="button" tabindex="0" title="Editar puntaje" onclick="event.preventDefault();event.stopPropagation();editFormationScore(${id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();editFormationScore(${id})}"`:""}>${sc.text}</span>${bonus.html}
   </div>`;
 }
 function fieldPlayer(id,r,rk,m){
@@ -8734,7 +8743,7 @@ function fieldPlayer(id,r,rk,m){
     <div class="player-dot pos-${p.position}">${p.position}</div>
     <div class="field-name">${esc(short)}</div>
     <div class="field-team">${esc(p.team)}</div>
-    <div class="field-score-line"><span class="field-score ${sc.cls}">${sc.text}</span>${bonus.field}</div>
+    <div class="field-score-line"><span class="field-score ${sc.cls} ${formationEditable(m,rk)?"score-editable":""}" ${formationEditable(m,rk)?`role="button" tabindex="0" title="Editar puntaje" onclick="event.preventDefault();event.stopPropagation();editFormationScore(${id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();editFormationScore(${id})}"`:""}>${sc.text}</span>${bonus.field}</div>
   </div>`;
 }
 function toggleFormationCaptain(id){
@@ -11627,6 +11636,48 @@ main{min-width:0}
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(install,0));else setTimeout(install,0);
 })();
+
+/* V20: cálculos históricos basados en las mismas fechas y planteles guardados. */
+function editFormationScore(id){
+  if(!isCloudAdmin())return;
+  const rk=String($('formationRound').value),m=$('formationManager').value;
+  if(!formationEditable(m,rk))return;
+  const p=player(id),value=state.rounds?.[rk]?.[id];
+  const text=prompt('Puntaje de '+(p?.name||id)+' · Fecha '+rk+'\nNúmero, NJ (No juega), o vacío para quitar el puntaje:',typeof value==='number'?String(value):value==='NO JUEGA'?'NJ':'');
+  if(text===null)return;
+  setScore(id,text,rk);
+  // El bonus capitán se modifica desde Fixture y Tablas, no se presupone su valor.
+}
+function clubPastPlayersHtml(manager){
+  const seen=new Map(),current=new Set((state.confirmedTeams?.[manager]?.picks||state.draftRosters?.[manager]?.picks||[]).map(Number));
+  for(const [round,rosters] of Object.entries(state.rosterHistory||{})){
+    const roster=rosters?.[manager];if(!roster?.picks)continue;
+    for(const id of roster.picks){const n=Number(id);if(current.has(n)||!player(n))continue;if(!seen.has(n))seen.set(n,[]);seen.get(n).push(Number(round))}
+  }
+  if(!seen.size)return '';
+  const rows=[...seen].map(([id,rounds])=>({p:player(id),rounds:[...new Set(rounds)].sort((a,b)=>a-b)})).sort((a,b)=>a.p.name.localeCompare(b.p.name,'es'));
+  return `<div class="card club-alumni"><div class="cardhead"><h3>Jugadores que pasaron por el club</h3><span class="badge">${rows.length}</span></div><div class="club-alumni-grid">${rows.map(({p,rounds})=>`<div class="club-alumni-row"><b>${esc(p.name)}</b><small>${esc(p.team)} · ${esc(p.position)} · Fechas registradas: ${rounds.map(x=>'F'+x).join(', ')}</small></div>`).join('')}</div></div>`;
+}
+function refreshRankingProgress(){
+  const target=document.getElementById('rankingProgressContent');if(!target||!state||state.phase!=='confirmed')return;
+  const rounds=allRounds().map(Number).filter(r=>Number.isFinite(r)&&roundRankingRows(String(r)).some(x=>x.total!==0||x.pending===0&&x.subs>0||Object.keys(state.rounds?.[String(r)]||{}).length)).sort((a,b)=>a-b);
+  if(!rounds.length){target.textContent='No hay fechas con puntuaciones para mostrar.';return}
+  const managers=(state.participants||[]).filter(m=>rounds.some(r=>participantActiveInRound(m,String(r))));
+  const w=900,h=Math.max(200,Math.min(370,managers.length*28+80)),pad={left:35,right:20,top:23,bottom:28};
+  const plotW=w-pad.left-pad.right,plotH=h-pad.top-pad.bottom;
+  const x=i=>pad.left+(rounds.length===1?plotW/2:i*plotW/(rounds.length-1));
+  const y=rank=>pad.top+(rank-1)*plotH/Math.max(1,managers.length-1);
+  const snapshots=rounds.map(r=>{const scores=managers.filter(m=>participantActiveInRound(m,String(r))).map(m=>({m,total:rounds.filter(v=>v<=r&&participantActiveInRound(m,String(v))).reduce((n,v)=>n+calcTeamRound(m,String(v),{includeGeneralOnly:true}).total,0)})).sort((a,b)=>b.total-a.total||a.m.localeCompare(b.m,'es'));return new Map(scores.map((a,i)=>[a.m,i+1]))});
+  const palette=['#62b2fc','#ffcc65','#ec7777','#8cdbb0','#c7a0f6','#72ced4','#f3a76d','#a4c95a','#f08bc1','#93a8f7'];
+  let svg=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Evolución de posiciones de todos los DT por fecha" style="width:100%;height:auto;display:block">`;
+  for(let i=1;i<=managers.length;i++){svg+=`<line x1="${pad.left}" y1="${y(i)}" x2="${w-pad.right}" y2="${y(i)}" stroke="#263c4f" stroke-width="1"/><text x="${pad.left-10}" y="${y(i)+4}" fill="#92a8bd" text-anchor="end" font-size="11">${i}°</text>`}
+  rounds.forEach((r,i)=>svg+=`<text x="${x(i)}" y="${h-7}" text-anchor="middle" font-size="11" fill="#9bb2c9">F${r}</text>`);
+  managers.forEach((m,j)=>{let pts=[];rounds.forEach((r,i)=>{const rank=snapshots[i].get(m);if(rank)pts.push(`${x(i)},${y(rank)}`)});if(pts.length)svg+=`<polyline points="${pts.join(' ')}" fill="none" stroke="${palette[j%palette.length]}" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/>`});
+  svg+='</svg>';
+  target.innerHTML=svg+`<div class="ranking-progress-legend">${managers.map((m,i)=>`<span><i style="background:${palette[i%palette.length]}"></i>${esc(m)}</span>`).join('')}</div>`;
+}
+const originalRankingsV20=renderRankingTables;
+renderRankingTables=function(...args){const res=originalRankingsV20(...args);refreshRankingProgress();return res};
 </script>
 
 <style id="chicheV16Correcciones">

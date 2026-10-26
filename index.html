@@ -4458,7 +4458,7 @@ body.home-active .top>.nav{display:none!important}
     <div class="scores-side">
       <div id="scoresRoundCard" class="card scores-rank-card"><div class="cardhead"><h3 id="scoresRoundRankingTitle">Tabla de la fecha</h3></div><div class="tablewrap"><table><thead><tr><th>#</th><th>DT</th><th>Puntos</th><th>Suplentes</th><th>Pend.</th></tr></thead><tbody id="scoresRoundRanking"></tbody></table></div></div>
       <div id="scoresGeneralCard" class="card scores-rank-card"><div class="cardhead"><h3>Tabla general</h3></div><div class="tablewrap"><table><thead><tr><th>#</th><th>DT</th><th>Total</th><th>Fechas</th></tr></thead><tbody id="scoresGeneralRanking"></tbody></table></div></div>
-      <div id="rankingProgressChart" class="card ranking-progress-card"><div class="cardhead"><h3>Evolución de posiciones</h3></div><div class="ranking-progress-content" id="rankingProgressContent"></div></div>
+      <div id="rankingProgressChart" class="card ranking-progress-card"><div class="cardhead"><h3>Carrera por el título</h3></div><div class="ranking-progress-content" id="rankingProgressContent"></div></div>
     </div>
   </div>
 
@@ -11669,10 +11669,29 @@ function refreshRankingProgress(){
   const y=rank=>pad.top+(rank-1)*plotH/Math.max(1,managers.length-1);
   const snapshots=rounds.map(r=>{const scores=managers.filter(m=>participantActiveInRound(m,String(r))).map(m=>({m,total:rounds.filter(v=>v<=r&&participantActiveInRound(m,String(v))).reduce((n,v)=>n+calcTeamRound(m,String(v),{includeGeneralOnly:true}).total,0)})).sort((a,b)=>b.total-a.total||a.m.localeCompare(b.m,'es'));return new Map(scores.map((a,i)=>[a.m,i+1]))});
   const palette=['#62b2fc','#ffcc65','#ec7777','#8cdbb0','#c7a0f6','#72ced4','#f3a76d','#a4c95a','#f08bc1','#93a8f7'];
-  let svg=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Evolución de posiciones de todos los DT por fecha" style="width:100%;height:auto;display:block">`;
+  let svg=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Carrera por el título: posiciones de todos los DT por fecha" style="width:100%;height:auto;display:block">`;
   for(let i=1;i<=managers.length;i++){svg+=`<line x1="${pad.left}" y1="${y(i)}" x2="${w-pad.right}" y2="${y(i)}" stroke="#263c4f" stroke-width="1"/><text x="${pad.left-10}" y="${y(i)+4}" fill="#92a8bd" text-anchor="end" font-size="11">${i}°</text>`}
   rounds.forEach((r,i)=>svg+=`<text x="${x(i)}" y="${h-7}" text-anchor="middle" font-size="11" fill="#9bb2c9">F${r}</text>`);
   managers.forEach((m,j)=>{let pts=[];rounds.forEach((r,i)=>{const rank=snapshots[i].get(m);if(rank)pts.push(`${x(i)},${y(rank)}`)});if(pts.length)svg+=`<polyline points="${pts.join(' ')}" fill="none" stroke="${palette[j%palette.length]}" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/>`});
+  // Etiquetas identificadoras distribuidas a lo largo de segmentos intermedios.
+  // Se ubican sobre las propias líneas para no depender solo de la leyenda inferior.
+  const chartEscape=str=>String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  if(rounds.length>1){
+    managers.forEach((m,j)=>{
+      const valid=rounds.map((r,i)=>({i,rank:snapshots[i].get(m)})).filter(p=>p.rank);
+      if(valid.length<2)return;
+      const fraction=.22+(.56*(j+.5)/managers.length);
+      const k=Math.min(valid.length-2,Math.floor(fraction*(valid.length-1)));
+      const left=valid[k],right=valid[k+1];
+      const px=(x(left.i)+x(right.i))/2;
+      const py=(y(left.rank)+y(right.rank))/2;
+      const label=String(m);
+      const lw=Math.max(28,Math.min(128,label.length*7+14));
+      const tx=Math.max(pad.left+lw/2,Math.min(w-pad.right-lw/2,px));
+      const ty=Math.max(pad.top+9,Math.min(h-pad.bottom-9,py));
+      svg+=`<g class="race-inline-label"><rect x="${tx-lw/2}" y="${ty-9}" width="${lw}" height="18" rx="5" fill="#0c1827" stroke="${palette[j%palette.length]}" stroke-width="1.5"/><text x="${tx}" y="${ty+3.8}" font-size="10.5" font-family="Arial,sans-serif" font-weight="700" text-anchor="middle" fill="#ffffff">${chartEscape(label)}</text></g>`;
+    });
+  }
   svg+='</svg>';
   target.innerHTML=svg+`<div class="ranking-progress-legend">${managers.map((m,i)=>`<span><i style="background:${palette[i%palette.length]}"></i>${esc(m)}</span>`).join('')}</div>`;
 }
@@ -11719,5 +11738,19 @@ renderRankingTables=function(...args){const res=originalRankingsV20(...args);ref
  #formations.ux-field-focus .formations-layout>.card:last-child{height:auto!important;max-height:none!important;overflow:visible!important}
  #formations.ux-field-focus .formations-layout .field-wrap{height:clamp(490px,calc(100dvh - 270px),660px)!important;min-height:490px!important;max-height:none!important;grid-template-rows:20px minmax(0,1fr) 105px!important}
 }
+</style>
+
+<style id="chicheV21CarreraPorTitulo">
+/* La tabla general debe crecer de forma natural al abrir el historial.
+   No utilizar alturas fijas ni scroll interno que se solape con el gráfico siguiente. */
+#matchScores .ux-fixture-tables{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:9px!important;overflow:visible!important;height:auto!important;max-height:none!important}
+#matchScores .ux-fixture-tables #scoresGeneralCard,
+#matchScores .ux-fixture-tables #scoresGeneralCard.general-expanded{position:relative!important;display:block!important;flex:none!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;transform:none!important}
+#matchScores .ux-fixture-tables #scoresGeneralCard .tablewrap,
+#matchScores .ux-fixture-tables #scoresGeneralCard.general-expanded .tablewrap{display:block!important;flex:none!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important}
+#matchScores .ux-fixture-tables #scoresGeneralCard .general-rank-detail,
+#matchScores .ux-fixture-tables #scoresGeneralCard .general-rank-detail td{height:auto!important;max-height:none!important;overflow:visible!important}
+#matchScores .ux-fixture-tables #rankingProgressChart{position:relative!important;display:block!important;flex:none!important;margin:0!important;clear:both!important;transform:none!important;height:auto!important;max-height:none!important}
+#rankingProgressContent .race-inline-label{pointer-events:none}
 </style>
 </body></html>

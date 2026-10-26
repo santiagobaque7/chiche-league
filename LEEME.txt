@@ -1,3 +1,0 @@
-Subir esta carpeta completa a GitHub.
-Incluye index.html, ChicheLeague_Clausura2026.html y assets SVG corregidos (estadios + camiseta Swifties).
-Versión: v127 estadios SVG sin recorte + Swifties rosa corregido.

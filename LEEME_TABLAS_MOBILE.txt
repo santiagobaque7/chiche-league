@@ -1,1 +1,0 @@
-Corrección para las tablas de Fixture y Tablas en mobile. Reemplazar index.html y ChicheLeague_Clausura2026.html en GitHub. No se modifican las APIs ni los datos de Supabase.

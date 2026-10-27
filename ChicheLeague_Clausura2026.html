@@ -4213,6 +4213,11 @@ body.home-active .top>.nav{display:none!important}
 .ranking-progress-card{margin-top:10px}.ranking-progress-content{padding:12px 10px}.ranking-progress-legend{display:flex;gap:6px 12px;flex-wrap:wrap;padding:8px 3px 0}.ranking-progress-legend span{font-size:10px;color:#afc5d9;display:inline-flex;align-items:center;gap:5px}.ranking-progress-legend i{width:9px;height:9px;border-radius:3px}
 @media(max-width:680px){.club-alumni-grid{grid-template-columns:1fr}.ranking-progress-content{overflow-x:auto}.ranking-progress-content svg{min-width:360px}}
 </style>
+
+<style id="chiche-v22-formation-points">
+#formations #formationSummary .formation-total-points{background:#09291f!important;border:1px solid #167750!important;color:#9af2c5!important;white-space:nowrap!important;}
+#formations #formationSummary .formation-total-points b{color:#9af2c5!important;font-weight:800!important;}
+</style>
 </head>
 <body class="app-booting">
 
@@ -8915,7 +8920,8 @@ function renderFormations(){
     `<span><b>${esc(r.formation||"—")}</b> esquema</span>`,
     `<span><b>${money(rosterBudget(r))}</b> plantel</span>`,
     `<span><b>${captainPlayer?esc(String(captainPlayer.name).split(",")[0]):"—"}</b> capitán</span>`,
-    state.phase==="confirmed"?`<span><b>${roundCalc?.pending??0}</b> pendientes</span>`:""
+    state.phase==="confirmed"?`<span><b>${roundCalc?.pending??0}</b> pendientes</span>`:"",
+    state.phase==="confirmed"?`<span class="formation-total-points" title="Puntos acumulados en la fecha seleccionada, incluidos suplentes y bonus de capitán"><b>${roundCalc?.total??0} pts</b></span>`:""
   ].filter(Boolean).join("");
   const titulares=sortIdsByPosition(r.picks.filter(id=>r.roles[id]==="Titular")),suplentes=sortIdsByPosition(r.picks.filter(id=>r.roles[id]==="Suplente"));
   let list=formationClubAnomalyHtml(m,r);

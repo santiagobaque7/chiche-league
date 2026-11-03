@@ -1,0 +1,11 @@
+CHICHE LEAGUE V25 — FIX F15/F16 FRIGO
+
+Reemplazar solo index.html y ChicheLeague_Clausura2026.html en la raíz de GitHub.
+
+Cambios:
+- Sin botón «Corregir Frigo».
+- Fecha 15: se muestra incidencia por el error del DT, pero no una transferencia de Frigo.
+- Fecha 16: se conserva una sola reposición Silva Torrejón → Di Lollo de Frigo.
+- En la ronda previa a F16, Frigo ocupa el segundo turno y figura bloqueado (resuelto). No consume un nuevo cambio.
+
+IMPORTANTE: la reconciliación de los registros guardados se ejecuta desde Cambios cuando un administrador autenticado abre esa pantalla en Clausura 2026. Se guarda por sincronización de la aplicación. Comprobar el guardado desde otra sesión y conservar antes una copia JSON. No se modifican puntajes ni alineaciones.

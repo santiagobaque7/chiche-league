@@ -4534,7 +4534,6 @@ body.home-active .top>.nav{display:none!important}
       <div class="toolbar">
         <span class="muted">Cambios previos a</span><select id="transferRoundSelect" class="select"></select>
         <button id="startTransferRound" class="btn primary">Iniciar ronda de cambios</button>
-        <button id="frigoSilvaExceptionButton" class="btn small" type="button" onclick="openFrigoSilvaException()" title="Excepción administrativa: Frigo y Fede comparten los puntos de Silva en F15; Di Lollo entra en F16">Corregir Frigo · F15/F16</button>
       </div>
     </div>
     <div id="transferStatus" class="callout">Todavía no hay una ronda de cambios iniciada.</div>
@@ -8980,10 +8979,6 @@ function initTransferState(rk){
     outPlayer:null,
     done:false
   };
-  if(String(rk)==='15'&&state.historyCorrections?.frigoSilvaDiLollo?.['15']){
-    state.transferRounds[rk].history.push({...frigoF15CorrectionEvent(),at:state.historyCorrections.frigoSilvaDiLollo['15'].at});
-    state.historyCorrections.frigoSilvaDiLollo['15'].registeredInTransferRound=true;
-  }
   persist();return state.transferRounds[rk];
 }
 function normalizeTransferRound(tr){
@@ -9159,9 +9154,11 @@ function transferEligibleClubs(m,tr){
 }
 function transferOrderMarkup(tr){
   return tr.order.map((x,i)=>{
-    const active=currentTransferManager(tr)===x;
+    const locked=Number(tr.round)===15 && x==='Frigo' && !!tr.frigoF16Locked;
+    const active=!locked&&currentTransferManager(tr)===x;
     const s=tr.statuses?.[x]||"pending";
-    return `<span class="badge ${active?"blue":s==="changed"||s==="forced_resolved"?"green":s==="forced_pending"?"red":""}" style="margin:2px">${active?"▶ ":""}${i+1}. ${esc(x)} · ${esc(transferStatusLabel(s))}</span>`;
+    const label=locked?'Bloqueado · reposición obligatoria':transferStatusLabel(s);
+    return `<span class="badge ${active?"blue":locked||s==="changed"||s==="forced_resolved"?"green":s==="forced_pending"?"red":""}" style="margin:2px" ${locked?'title="Reposición Silva Torrejón → Di Lollo registrada para F16. No puede realizar un segundo cambio."':''}>${active?"▶ ":""}${i+1}. ${esc(x)} · ${esc(label)}</span>`;
   }).join(" ");
 }
 
@@ -9191,7 +9188,7 @@ function transferHistoryOrigin(ev){
   return "";
 }
 function transferHistoryEventLabel(ev){
-  if(ev.exceptionId)return "Corrección excepcional · Frigo";
+  if(ev.exceptionId)return "Reposición obligatoria de Frigo · F16";
   if(ev.type==="pass")return "Sin cambios";
   if(ev.type==="forced")return ev.stolenFrom?`Reposición · robo a ${ev.stolenFrom}`:"Reposición obligatoria";
   if(ev.stolenFrom)return `Robo a ${ev.stolenFrom}`;
@@ -9214,6 +9211,9 @@ function transferHistoryRows(roundFilter){
     const correction=state.historyCorrections?.frigoSilvaDiLollo?.[String(rk)];
     if(String(rk)==='15'&&correction&&!events.some(ev=>ev.exceptionId==='frigo-silva-dilollo-15')){
       events.push({...frigoF15CorrectionEvent(),at:correction.at});
+    }
+    if(String(rk)==='14'&&state.historyCorrections?.frigoSilvaDiLollo?.['15']){
+      events.push({type:'incident',manager:'Frigo',note:'Error del DT: no reemplazó a Silva Torrejón después del robo de Fede antes de la fecha 15. Por excepción, Silva suma para ambos equipos en F15. La reposición Silva Torrejón → Di Lollo se registra recién para F16.'});
     }
     if(events.length){
       events.forEach((ev,index)=>rows.push({rk,ev,index}));
@@ -9333,6 +9333,10 @@ function renderTransferHistory(){
   box.innerHTML=grouped.map(group=>{
     const dateTitle=`Fecha ${Number(group.rk)+1}`;
     const body=group.rows.map(({ev})=>{
+      if(ev.type==='incident')return `<div class="transfer-ledger-row" style="grid-template-columns:minmax(115px,0.25fr) 1fr;align-items:center;gap:12px">
+        <div class="transfer-ledger-manager">${esc(ev.manager)}<small style="color:#f3b45b">Incidente · sin cambio</small></div>
+        <div class="transfer-pass-text" style="color:#e3cb99;line-height:1.45">${esc(ev.note)}</div>
+      </div>`;
       if(ev.type==="pass"){
         const laterMovement=group.rows.find(row=>{
           const other=row.ev||{};
@@ -9414,10 +9418,6 @@ function applyTransferReadOnlyMode(){
   if(start){start.style.display=admin?"":"none";start.disabled=!admin;}
   if(draw){draw.style.display=admin?"":"none";draw.disabled=!admin;}
   if(pass){pass.style.display=admin?"":"none";pass.disabled=!admin;}
-  const exceptionButton=$("frigoSilvaExceptionButton");
-  // El acceso permanece visible para que los administradores puedan localizarlo.
-  // El permiso real se comprueba dentro de la función antes de modificar los datos.
-  if(exceptionButton){exceptionButton.style.display=CLOUD_LEAGUE_ID==='clausura-2026'?"":"none";exceptionButton.disabled=false;}
   document.querySelectorAll("#transferRoster button,#transferPlayersBody button").forEach(b=>{
     b.style.display=admin?"":"none";
     b.disabled=!admin;
@@ -9426,7 +9426,60 @@ function applyTransferReadOnlyMode(){
   if(hint)hint.style.display=admin?"none":"";
 }
 
+/* Corrección excepcional del Clausura 2026, aplicada sólo por el admin.
+   El robo de Fede se conserva; F15 es una incidencia sin movimiento de Frigo.
+   La reposición de Frigo ocupa el segundo lugar bloqueado en la ronda F16. */
+function reconcileFrigoF16Exception(){
+  if(CLOUD_LEAGUE_ID!=='clausura-2026'||!isCloudAdmin())return;
+  const marker=state.historyCorrections?.frigoSilvaDiLollo?.['15'];
+  if(!marker)return; // No activar la excepción si aún no existe en los datos reales.
+  let dirty=false;
+  const before15=state.transferRounds?.['14'];
+  if(before15){
+    before15.history||=[];
+    const count=before15.history.length;
+    before15.history=before15.history.filter(ev=>!(ev.manager==='Frigo'&&(
+      ev.exceptionId==='frigo-silva-dilollo-15'||
+      (Number(ev.outPlayerId)===396&&Number(ev.inPlayerId)===215)
+    )));
+    if(before15.history.length!==count)dirty=true;
+  }
+  const before16=state.transferRounds?.['15'];
+  if(before16){
+    normalizeTransferRound(before16);
+    // Keep the existing active turn when moving Frigo to position 2.
+    const activeName=before16.activeManager||before16.order[before16.currentIndex]||'';
+    const oldOrder=before16.order.join('\u0000');
+    const withFrigo=before16.order.filter(m=>m!=='Frigo');
+    withFrigo.splice(Math.min(1,withFrigo.length),0,'Frigo');
+    if(oldOrder!==withFrigo.join('\u0000')){before16.order=withFrigo;dirty=true;}
+    if(!before16.activeManager&&activeName&&activeName!=='Frigo'){
+      const index=before16.order.indexOf(activeName);
+      if(index>=0&&before16.currentIndex!==index){before16.currentIndex=index;dirty=true;}
+    }
+    if(before16.statuses?.Frigo!=='forced_resolved'){
+      before16.statuses.Frigo='forced_resolved';dirty=true;
+    }
+    if(before16.forced?.Frigo){delete before16.forced.Frigo;dirty=true;}
+    if(before16.frigoF16Locked!==true){before16.frigoF16Locked=true;dirty=true;}
+    // Keep one, and only one, historical replacement in the F16 round.
+    const events=before16.history||[];
+    const matches=events.filter(ev=>ev.manager==='Frigo'&&(
+      ev.exceptionId==='frigo-silva-dilollo-15'||
+      (Number(ev.outPlayerId)===396&&Number(ev.inPlayerId)===215)
+    ));
+    if(matches.length!==1||!matches[0].exceptionId){
+      const others=events.filter(ev=>!matches.includes(ev));
+      const event={...frigoF15CorrectionEvent(),at:matches[0]?.at||marker.at||new Date().toISOString()};
+      before16.history=[...others,event];dirty=true;
+    }
+  }
+  // Marker is stable across reloads, and never duplicates previous transactions.
+  if(dirty)persist();
+}
+
 function renderTransferPage(){
+  reconcileFrigoF16Exception();
   applyTransferReadOnlyMode();
 
   // Primera entrada: historial enfocado automáticamente en los cambios
@@ -9676,116 +9729,9 @@ function frigoF15CorrectionEvent(){
     inPlayerName:player(215)?.name||'Di Lollo, Lautaro',inPlayerTeam:player(215)?.team||'BOCA JUNIORS',
     club:player(215)?.team||'BOCA JUNIORS',sourceOwner:'',stolenFrom:'',wasFree:true,
     exceptionId:'frigo-silva-dilollo-15',
-    note:'Excepción: Silva suma para Fede y Frigo en F15. Di Lollo reemplaza a Silva desde F16.'
+    note:'Reposición obligatoria registrada para F16 tras el error de Frigo al no reemplazar a Silva antes de F15.'
   };
 }
-function openFrigoSilvaException(){
-  if(!isCloudAdmin())return alert('Ingresá como administrador desde Home para realizar esta corrección.');
-  if(CLOUD_LEAGUE_ID!=='clausura-2026')return alert('La excepción corresponde únicamente al Clausura 2026.');
-  modal('Corregir Frigo · Fecha 15 / Fecha 16',
-    `<div class="callout">En <b>Fecha 15</b>, Silva Torrejón quedará como titular de <b>Frigo</b> y también podrá puntuar para <b>Fede</b>. El puntaje se carga <b>una sola vez</b> y se computa para ambos planteles.<br><br>
-    <b>Di Lollo</b> no jugará para Frigo en F15: su ingreso será efectivo en <b>Fecha 16</b> y se reflejará como corrección excepcional en el historial de cambios previos a F16.</div>
-    <div class="muted" style="font-size:12px;margin-top:12px">El plantel actual y las fechas anteriores no se modifican. Se comprobarán las alineaciones antes de pedir confirmación; esta acción no puede duplicarse.</div>`,
-    'Revisar y aplicar',applyFrigoSilvaF15F16
-  );
-}
-function applyFrigoSilvaF15F16(){
-  if(!isCloudAdmin()||CLOUD_LEAGUE_ID!=='clausura-2026')return alert('Solo el administrador del Clausura 2026 puede aplicar la corrección.');
-  const f15='15',f16='16',frigo='Frigo',fede='Fede',silva=396,diLollo=215;
-  if(!state.participants.includes(frigo)||!state.participants.includes(fede))return alert('Faltan Frigo o Fede entre los participantes.');
-  if(!player(silva)||!player(diLollo))return alert('No se encontraron Silva Torrejón o Di Lollo en la base.');
-  if(state.historyCorrections?.frigoSilvaDiLollo?.[f15])return alert('La excepción F15 → F16 ya está registrada. No se modificó nada.');
-  if(Object.keys(state.historyCorrections?.frigoSilvaDiLollo||{}).some(r=>r!==f15))
-    return alert('Existe una corrección anterior de este caso en otra fecha. Revisá ese registro antes de volver a aplicar cambios.');
-
-  // Tomar las fotos específicas de F15. Nunca reemplazar la foto de F15 por la de F16.
-  const snap15=state.rosterHistory?.[f15]||null;
-  const originalFrigo=snap15?.[frigo]||state.confirmedTeams?.[frigo];
-  const originalFede=snap15?.[fede]||state.confirmedTeams?.[fede];
-  if(!originalFrigo||!originalFede)return alert('No se encontraron las formaciones de Frigo y Fede.');
-  const frigo15=clone(originalFrigo),fede15=clone(originalFede);
-  const fPicks=frigo15.picks.map(Number),fedePicks=fede15.picks.map(Number);
-  if(!fedePicks.includes(silva))return alert('Silva Torrejón no aparece en Fede en F15. No se aplicó nada: revisá primero la formación histórica de Fede.');
-  if(fPicks.includes(silva)&&fPicks.includes(diLollo))return alert('Frigo tiene ambos jugadores en F15. Revisá la formación antes de aplicar la excepción.');
-  if(!fPicks.includes(silva)){
-    if(fPicks.includes(diLollo)){
-      const ix=fPicks.indexOf(diLollo);
-      const role=frigo15.roles?.[diLollo]||frigo15.roles?.[String(diLollo)]||'Titular';
-      frigo15.picks[ix]=silva;
-      frigo15.roles={...(frigo15.roles||{})};
-      delete frigo15.roles[diLollo];
-      frigo15.roles[silva]=role;
-      if(Number(frigo15.captain)===diLollo)return alert('Di Lollo figura como capitán de Frigo en F15. Corregí primero la capitanía histórica.');
-    }else if(fPicks.length===14){
-      frigo15.picks.push(silva);
-      frigo15.roles={...(frigo15.roles||{}),[silva]:'Titular'};
-    }else return alert('No se encontró a Di Lollo en F15 ni una vacante en Frigo. No se modificó nada.');
-  }
-  // No aceptar formaciones incompletas o sustituciones en posiciones distintas.
-  const historicalIssues=validateRoster(frigo,frigo15);
-  if(historicalIssues.length)return alert('La corrección histórica no es válida: '+historicalIssues.join(' · '));
-
-  // Desde F16 Di Lollo es jugador de Frigo: se respeta el plantel actual si ya está bien.
-  const currentOriginal=state.confirmedTeams?.[frigo];
-  if(!currentOriginal)return alert('No se encontró el plantel actual de Frigo.');
-  const current=clone(currentOriginal);
-  let currentChanged=false;
-  if(!current.picks.map(Number).includes(diLollo)){
-    if(!current.picks.map(Number).includes(silva))return alert('El plantel actual de Frigo no contiene ni a Silva ni a Di Lollo. No se puede reconstruir F16 sin tocar otro jugador.');
-    const i=current.picks.map(Number).indexOf(silva);
-    current.picks[i]=diLollo;
-    const priorRole=current.roles?.[silva]||'Titular';
-    current.roles={...(current.roles||{})};
-    delete current.roles[silva];current.roles[diLollo]=priorRole;
-    if(Number(current.captain)===silva)return alert('Silva es capitán del plantel actual. Elegí primero un nuevo capitán.');
-    const issues=validateRoster(frigo,current);
-    if(issues.length)return alert('No se puede validar el plantel desde F16: '+issues.join(' · '));
-    currentChanged=true;
-  }
-  let corrected16=null;
-  if(state.rosterHistory?.[f16]?.[frigo]){
-    corrected16=clone(state.rosterHistory[f16][frigo]);
-    if(!corrected16.picks.map(Number).includes(diLollo)){
-      const idx=corrected16.picks.map(Number).indexOf(silva);
-      if(idx<0)return alert('La formación guardada de F16 no contiene a Silva ni a Di Lollo. Revisala antes de aplicar.');
-      corrected16.picks[idx]=diLollo;
-      const role=corrected16.roles?.[silva]||'Titular';
-      corrected16.roles={...(corrected16.roles||{})};
-      delete corrected16.roles[silva];corrected16.roles[diLollo]=role;
-      if(Number(corrected16.captain)===silva)return alert('Silva figura como capitán en F16. Corregí primero esa capitanía.');
-      const issues=validateRoster(frigo,corrected16);
-      if(issues.length)return alert('La formación F16 no es válida: '+issues.join(' · '));
-    }
-  }
-  const preF16=state.transferRounds?.[f15];
-  if((preF16?.history||[]).some(ev=>ev.exceptionId==='frigo-silva-dilollo-15'))
-    return alert('La transferencia excepcional ya está anotada en la ronda previa a F16.');
-  const score15=state.rounds?.[f15]?.[silva];
-  const scoreLabel=typeof score15==='number'?`${score15} puntos`:'el puntaje que se cargue en F15';
-  if(!confirm(`Se aplicará SOLO esta corrección:\n\n• F15: Silva Torrejón será titular de Frigo y conservará su lugar en Fede (${scoreLabel} para ambos).\n• F15: Di Lollo dejará de figurar en Frigo.\n• F16: Di Lollo será el reemplazo de Silva Torrejón para Frigo.\n• Se registrará el movimiento en la ronda previa a F16, sin cambiar el orden de sorteos.\n\n¿Confirmar?`))return;
-
-  // Compromiso único después de pasar todas las verificaciones.
-  state.rosterHistory||={};state.rosterHistory[f15]||={};
-  state.rosterHistory[f15][frigo]=frigo15;
-  // Conservar Fede tal cual estaba en la foto histórica.
-  if(!state.rosterHistory[f15][fede])state.rosterHistory[f15][fede]=fede15;
-  if(currentChanged)state.confirmedTeams[frigo]=current;
-  if(corrected16)state.rosterHistory[f16][frigo]=corrected16;
-  const event=frigoF15CorrectionEvent();event.at=new Date().toISOString();event.formation=current.formation;
-  if(preF16){
-    preF16.history||=[];
-    preF16.history.push(event);
-  }
-  state.historyCorrections||={};state.historyCorrections.frigoSilvaDiLollo||={};
-  state.historyCorrections.frigoSilvaDiLollo[f15]={
-    at:event.at,otherManager:fede,playerId:silva,replacementId:diLollo,
-    effectiveRound:16,event:event,registeredInTransferRound:!!preF16
-  };
-  persist();
-  renderFormations();renderScores(false);renderTransferPage();
-  alert('Corrección enviada a guardar. En F15 Silva debe figurar para Frigo y Fede; en F16 Frigo conserva a Di Lollo. Revisá la sincronización antes de salir.');
-}
-
 function passTransfer(){
   if(!isCloudAdmin())return;
   const tr=currentTransfer();if(!tr||tr.done)return;

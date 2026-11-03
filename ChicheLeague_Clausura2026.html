@@ -4534,6 +4534,7 @@ body.home-active .top>.nav{display:none!important}
       <div class="toolbar">
         <span class="muted">Cambios previos a</span><select id="transferRoundSelect" class="select"></select>
         <button id="startTransferRound" class="btn primary">Iniciar ronda de cambios</button>
+        <button id="frigoSilvaExceptionButton" class="btn small" type="button" onclick="openFrigoSilvaException()" style="display:none" title="Corrección administrativa excepcional: Silva Torrejón / Di Lollo">Corregir caso Frigo</button>
       </div>
     </div>
     <div id="transferStatus" class="callout">Todavía no hay una ronda de cambios iniciada.</div>
@@ -8501,6 +8502,12 @@ function calcTeamRound(m,rk,{includeGeneralOnly=false}={}){
     else total+=captainBonusValue(rk,capId);
   }
 
+  const exceptional=state.historyCorrections?.frigoSilvaDiLollo?.[String(rk)];
+  if(m==='Frigo'&&exceptional?.playerId===396&&r.picks.map(Number).includes(396)
+      &&r.roles[396]==='Suplente'&&typeof vals[396]==='number'){
+    const defenderHasNj=titularByPos.DEF.some(id=>vals[id]==='NO JUEGA');
+    if(!defenderHasNj)total+=vals[396];
+  }
   return {total,subs,pending};
 }
 function allRounds(){return Object.keys(state.rounds).filter(k=>Object.keys(state.rounds[k]||{}).length).sort((a,b)=>Number(a)-Number(b))}
@@ -9184,6 +9191,7 @@ function transferHistoryOrigin(ev){
   return "";
 }
 function transferHistoryEventLabel(ev){
+  if(ev.exceptionId)return "Corrección excepcional · Frigo";
   if(ev.type==="pass")return "Sin cambios";
   if(ev.type==="forced")return ev.stolenFrom?`Reposición · robo a ${ev.stolenFrom}`:"Reposición obligatoria";
   if(ev.stolenFrom)return `Robo a ${ev.stolenFrom}`;
@@ -9402,6 +9410,8 @@ function applyTransferReadOnlyMode(){
   if(start){start.style.display=admin?"":"none";start.disabled=!admin;}
   if(draw){draw.style.display=admin?"":"none";draw.disabled=!admin;}
   if(pass){pass.style.display=admin?"":"none";pass.disabled=!admin;}
+  const exceptionButton=$("frigoSilvaExceptionButton");
+  if(exceptionButton){exceptionButton.style.display=admin&&CLOUD_LEAGUE_ID==='clausura-2026'?"":"none";exceptionButton.disabled=!admin;}
   document.querySelectorAll("#transferRoster button,#transferPlayersBody button").forEach(b=>{
     b.style.display=admin?"":"none";
     b.disabled=!admin;
@@ -9649,6 +9659,107 @@ function chooseIncoming(inId){
     finishTransferCommit(m,tr,finalRoster,inP,owner,forced);
   });
 }
+/* V23 · Excepción Frigo/Silva Torrejón: histórico y reposición en la ronda actual.
+   Se ejecuta UNA sola vez por un administrador, sobre el estado sincronizado.
+   No cambia el puntaje original de Silva ni los planteles históricos ajenos. */
+function openFrigoSilvaException(){
+  if(!isCloudAdmin())return alert('Esta corrección requiere la sesión de administrador.');
+  if(CLOUD_LEAGUE_ID!=='clausura-2026')return alert('Esta corrección corresponde solo al Clausura 2026.');
+  const rounds=allRounds().filter(r=>Number(r)>=firstRound()).sort((a,b)=>Number(b)-Number(a));
+  if(!rounds.length)return alert('Todavía no hay fechas con puntajes.');
+  const selected=String(latestCompletedRoundForTransfers()||rounds[0]);
+  modal('Corrección excepcional · Frigo',
+    `<div class="callout">Silva Torrejón (DEF) conservará sus puntos para <b>Frigo</b> y para el DT que lo tuvo en la fecha elegida. <b>Di Lollo</b> será la reposición de Frigo en los cambios previos a la fecha siguiente. No se modifican los puntajes cargados ni otras fechas.</div>
+     <label style="display:block;margin-top:12px;font-weight:700">Fecha que puntúa para ambos DT</label>
+     <select class="select" id="frigoSilvaAffectedRound" style="width:100%;margin-top:6px">${rounds.map(r=>`<option value="${esc(r)}" ${r===selected?'selected':''}>Fecha ${esc(r)} · reposición previa a F${Number(r)+1}</option>`).join('')}</select>
+     <div class="muted" style="font-size:12px;margin-top:12px">Se verificará el plantel de 15 jugadores, el puntaje de Silva, la pertenencia de Di Lollo y la ronda de cambios antes de guardar. La acción no se repetirá si ya fue aplicada.</div>`,
+    'Revisar y aplicar',()=>applyFrigoSilvaException($('frigoSilvaAffectedRound')?.value)
+  );
+}
+function applyFrigoSilvaException(rk){
+  if(!isCloudAdmin()||CLOUD_LEAGUE_ID!=='clausura-2026')return alert('Acceso restringido al administrador del Clausura 2026.');
+  rk=String(rk||'');
+  const frigo='Frigo',silva=396,diLollo=215;
+  if(!state.participants.includes(frigo)||!player(silva)||!player(diLollo))return alert('No están disponibles Frigo o los futbolistas de la corrección.');
+  if(!state.rounds?.[rk]||!Number.isFinite(state.rounds[rk][silva]))return alert('Silva Torrejón no tiene un puntaje numérico cargado en esa fecha. Cargalo primero en Fixture y Tablas.');
+  if(state.historyCorrections?.frigoSilvaDiLollo?.[rk])return alert(`Esta corrección ya fue aplicada para la fecha ${rk}. No se duplicó.`);
+  const hist=state.rosterHistory?.[rk];
+  if(!hist?.[frigo])return alert(`No existe una formación histórica de Frigo para la fecha ${rk}. No se modificó ningún dato.`);
+  const otherOwners=Object.entries(hist).filter(([m,r])=>m!==frigo&&Array.isArray(r?.picks)&&r.picks.map(Number).includes(silva)).map(([m])=>m);
+  if(otherOwners.length!==1)return alert(`Se esperaba a Silva en el plantel histórico de otro DT en la fecha ${rk}, pero se encontraron ${otherOwners.length}. Revisá primero esa formación.`);
+  const transfer=normalizeTransferRound(state.transferRounds?.[rk]);
+  if(!transfer)return alert(`La ronda de cambios previa a F${Number(rk)+1} todavía no fue iniciada. Iniciala en Cambios y volvé a ejecutar la corrección.`);
+  const realCurrent=state.confirmedTeams?.[frigo];
+  if(!realCurrent)return alert('No existe el plantel actual de Frigo.');
+  const silvaOwner=reservedConfirmedOwner(silva),newOwner=reservedConfirmedOwner(diLollo);
+  if(newOwner&&newOwner!==frigo)return alert(`Di Lollo pertenece actualmente a ${newOwner}. Esta excepción no puede quitar jugadores de otro DT sin registrarlo.`);
+  if(silvaOwner===frigo&&realCurrent.picks.includes(diLollo))return alert('Frigo ya tiene a Silva Torrejón y Di Lollo. Revisá el plantel antes de corregir.');
+  const historical=clone(hist[frigo]);
+  const alreadyHistoric=historical.picks.map(Number).includes(silva);
+  if(!alreadyHistoric){
+    if(historical.picks.length!==14)return alert(`La foto de Frigo en F${rk} tiene ${historical.picks.length} jugadores sin Silva. Para no reemplazar a un tercero accidentalmente, no se aplicó ningún cambio.`);
+    const previous=Object.keys(state.rosterHistory||{}).filter(r=>Number(r)<Number(rk)).sort((a,b)=>Number(b)-Number(a))
+      .map(r=>state.rosterHistory[r]?.[frigo]).find(r=>r?.picks?.map(Number).includes(silva));
+    const role=previous?.roles?.[silva]||previous?.roles?.[String(silva)]||'Titular';
+    historical.picks.push(silva); historical.roles={...(historical.roles||{}),[silva]:role};
+    const issues=validateRoster(frigo,historical);
+    if(issues.length)return alert('No se puede reconstruir la formación histórica sin invalidarla: '+issues.join(' · '));
+  }
+  let updated=clone(realCurrent),didChange=false;
+  if(!updated.picks.includes(diLollo)){
+    const oldRoles=clone(updated.roles||{});
+    if(updated.picks.includes(silva)){
+      updated.picks[updated.picks.indexOf(silva)]=diLollo;
+      delete oldRoles[silva];delete updated.roles[silva];
+      if(Number(updated.captain)===silva)updated.captain=null;
+    }else if(updated.picks.length===14){
+      updated.picks.push(diLollo);
+    }else{
+      return alert(`Frigo tiene ${updated.picks.length} jugadores y Silva ya no figura. No se puede sumar a Di Lollo sin identificar primero quién debe salir.`);
+    }
+    updated=rebalanceTransferRoster(updated,oldRoles,realCurrent.formation);
+    if(!updated)return alert('No se encontró una distribución válida de titulares y suplentes tras incorporar a Di Lollo.');
+    if(!updated.captain||updated.roles[updated.captain]!=='Titular'){
+      const fallback=realCurrent.captain;
+      if(fallback&&updated.roles[fallback]==='Titular')updated.captain=fallback;
+      else return alert('La reposición requiere elegir un nuevo capitán. Corregí primero la capitanía del plantel actual de Frigo.');
+    }
+    const issues=validateRoster(frigo,updated);
+    if(issues.length)return alert('La reposición no es válida: '+issues.join(' · '));
+    didChange=true;
+  }
+  const alreadyLogged=(transfer.history||[]).some(e=>e.exceptionId===`frigo-silva-dilollo-${rk}`);
+  if(alreadyLogged)return alert('El movimiento ya está registrado en esta ronda. No se duplicó.');
+  const confirmation=`Confirmá la excepción para F${rk}:\n\n• ${player(silva).name}: ${state.rounds[rk][silva]} puntos para Frigo y ${otherOwners[0]} (sin duplicar la carga del puntaje).\n• Frigo: ${player(silva).name} → ${player(diLollo).name} en cambios previos a F${Number(rk)+1}.\n• No se alterará el plantel histórico de ${otherOwners[0]} ni los resultados de otras fechas.\n\n¿Aplicar ahora?`;
+  if(!confirm(confirmation))return;
+  // A partir de aquí se modifican solo copias ya validadas.
+  state.rosterHistory[rk][frigo]=historical;
+  if(didChange)state.confirmedTeams[frigo]=updated;
+  const wasForced=!!transfer.forced?.[frigo];
+  transfer.history ||= [];
+  transfer.history.push({
+    type:wasForced?'forced':'change',manager:frigo,outPlayerId:silva,outPlayerName:player(silva).name,
+    outPlayerTeam:player(silva).team,inPlayerId:diLollo,inPlayerName:player(diLollo).name,
+    inPlayerTeam:player(diLollo).team,club:player(diLollo).team,sourceOwner:'',wasFree:true,
+    stolenFrom:'',formation:updated.formation,at:new Date().toISOString(),
+    exceptionId:`frigo-silva-dilollo-${rk}`,note:`Excepción F${rk}: Silva puntúa para Frigo y ${otherOwners[0]}; reposición aplicada en esta ronda.`
+  });
+  if(transfer.forced?.[frigo])delete transfer.forced[frigo];
+  transfer.statuses ||= {};
+  transfer.statuses[frigo]=wasForced?'forced_resolved':'changed';
+  transfer.lateQueue=(transfer.lateQueue||[]).filter(m=>m!==frigo);
+  if(!transfer.done&&currentTransferManager(transfer)===frigo){
+    transfer.draws=[];transfer.outPlayer=null;transfer.activeClub=null;
+    advanceTransferTurn(transfer);
+  }
+  state.historyCorrections ||= {};
+  state.historyCorrections.frigoSilvaDiLollo ||= {};
+  state.historyCorrections.frigoSilvaDiLollo[rk]={at:new Date().toISOString(),otherManager:otherOwners[0],playerId:silva,replacementId:diLollo};
+  persist();
+  renderTransferPage();renderTransferHistory();renderFormations();renderScores(false);
+  alert(`Corrección registrada en F${rk} y en los cambios previos a F${Number(rk)+1}. Se inició el guardado de la partida compartida; comprobá el estado de sincronización antes de salir.`);
+}
+
 function passTransfer(){
   if(!isCloudAdmin())return;
   const tr=currentTransfer();if(!tr||tr.done)return;

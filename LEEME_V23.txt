@@ -1,0 +1,6 @@
+V23 · Corrección excepcional Frigo/Silva Torrejón/Di Lollo.
+Solo los dos HTML modificados.
+Entrar como administrador > Cambios > Corregir caso Frigo > elegir fecha > confirmar.
+Antes de aplicar, descargar respaldo JSON. La operación valida que Silva tenga puntaje, que exista en el histórico de otro DT y que Di Lollo esté disponible.
+La corrección no se aplica automáticamente al publicar; exige confirmación del administrador.
+Comprobar estado «Admin · sincronizado» y las formaciones/puntajes después.

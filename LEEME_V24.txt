@@ -1,0 +1,17 @@
+Chiche League V24 — Corrección excepcional Frigo/Fede
+
+Actualizá únicamente index.html y ChicheLeague_Clausura2026.html en la raíz del repositorio.
+
+Desde Home iniciá sesión como administrador. En Cambios tocá el botón visible "Corregir Frigo · F15/F16" y confirmá.
+
+- F15: Silva Torrejón, Pedro (ID 396) queda en la formación de Frigo, y también en la de Fede. Su puntaje de F15 se carga una sola vez y computa para ambos DT.
+- F15: Di Lollo, Lautaro (ID 215) no figura en la formación histórica de Frigo.
+- Desde F16: Di Lollo reemplaza a Silva en Frigo.
+- El movimiento se registra para los cambios previos a F16, sin iniciar ni alterar el orden de sorteos.
+- La acción es manual, exige administrador y no debe ejecutarse más de una vez.
+
+Antes: descargá un respaldo JSON desde Centro de Gestión.
+Después: comprobá F15 para Frigo y Fede y F16 para Frigo; esperá a ver sincronización antes de cerrar.
+
+La corrección está sujeta a validaciones: si las formaciones actuales no se corresponden con el caso, mostrará un error y no aplicará un reemplazo arbitrario.
+No se necesitan nuevas variables ni SQL. No se modificaron APIs.

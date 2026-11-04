@@ -1,0 +1,7 @@
+Chiche League V29 — Ícono transparente y más grande
+
+Subir TODOS los archivos a la raíz de GitHub, reemplazando los existentes.
+Los HTML apuntan a los íconos versionados ?v=29, para renovar caché.
+En iPhone/iPad: Safari puede conservar un ícono antiguo del acceso directo. Eliminá el ícono anterior de la pantalla de inicio, abrí la web en Safari y elegí Compartir > Agregar a pantalla de inicio.
+Safari no muestra el favicon en todos los modos de vista; esto depende de iOS/Safari.
+No hay cambios en Supabase ni en la lógica del torneo.

@@ -4230,6 +4230,7 @@ body.home-active .top>.nav{display:none!important}
 #formations #formationSummary .formation-total-points{background:#09291f!important;border:1px solid #167750!important;color:#9af2c5!important;white-space:nowrap!important;}
 #formations #formationSummary .formation-total-points b{color:#9af2c5!important;font-weight:800!important;}
 </style>
+
 </head>
 <body class="app-booting">
 
@@ -4250,7 +4251,14 @@ body.home-active .top>.nav{display:none!important}
     <button id="adminLoginBtn" class="btn small" type="button">Admin</button>
     <button id="adminLogoutBtn" class="btn small" type="button" style="display:none">Salir</button>
   </div>
-  <nav class="nav">
+  <button id="chicheMobileNavToggle" class="chiche-mobile-nav-toggle" type="button"
+          aria-controls="chicheMainNav" aria-expanded="false"
+          aria-label="Abrir menú de secciones">
+    <span class="chiche-menu-glyph" aria-hidden="true">☰</span>
+    <span id="chicheMobileNavLabel">Secciones</span>
+    <span class="chiche-menu-chevron" aria-hidden="true">▾</span>
+  </button>
+  <nav class="nav" id="chicheMainNav" aria-label="Secciones de Chiche League">
     <button class="active" data-page="welcome">Inicio</button>
     <button data-page="setup">Configurar</button>
     <button data-page="draft">Draft</button>
@@ -4386,6 +4394,7 @@ body.home-active .top>.nav{display:none!important}
         </tr></thead>
         <tbody id="playersBody"></tbody>
       </table></div>
+      <div id="draftPlayerPager" class="chiche-player-pager" aria-live="polite"></div>
     </div>
 
     <div class="card">
@@ -6257,7 +6266,23 @@ function loadState(){
   persist();
 }
 function persist(){state.updatedAt=new Date().toISOString();localStorage.setItem(STORAGE,JSON.stringify(state));scheduleCloudSave()}
-function player(id){const n=Number(id);return state.players.find(p=>p.id===n)||(state.retiredPlayers||[]).find(p=>p.id===n)}
+let chichePlayerLookup = null;
+let chichePlayerLookupPlayers = null;
+let chichePlayerLookupRetired = null;
+function player(id){
+  const n=Number(id);
+  if(!state || !Number.isFinite(n))return undefined;
+  const players=state.players||[],retired=state.retiredPlayers||[];
+  if(!chichePlayerLookup || chichePlayerLookupPlayers!==players || chichePlayerLookupRetired!==retired){
+    chichePlayerLookup=new Map();
+    // Keep original Array.find semantics: first active match, then first retired match.
+    players.forEach(p=>{const id=Number(p.id);if(!chichePlayerLookup.has(id))chichePlayerLookup.set(id,p)});
+    retired.forEach(p=>{const id=Number(p.id);if(!chichePlayerLookup.has(id))chichePlayerLookup.set(id,p)});
+    chichePlayerLookupPlayers=players;
+    chichePlayerLookupRetired=retired;
+  }
+  return chichePlayerLookup.get(n);
+}
 function draftEditableMode(){return state.phase==="draft"||!!state.lateJoin}
 function currentManager(){
   const selected=$("manager")?.value||"";
@@ -6457,9 +6482,9 @@ function populateBestFilters(){
   const rs=$("bestRoundFilter");if(rs){const old=rs.value,rounds=allRounds();rs.innerHTML='<option value="">Todas las fechas</option>'+rounds.map(r=>`<option value="${r}">Fecha ${r}</option>`).join("");if(rounds.includes(old))rs.value=old}
 }
 function bestPositionOrder(pos){return ({ARQ:0,DEF:1,VOL:2,DEL:3})[pos]??99}
-function bestPlayersFiltered(){
+function bestPlayersFiltered(stats=null){
   const q=normalizeRuleText($("bestPlayerSearch")?.value||""),pos=$("bestPositionFilter")?.value||"",team=$("bestTeamFilter")?.value||"",manager=$("bestManagerFilter")?.value||"",round=$("bestRoundFilter")?.value||"";
-  return bestPlayerStats(round).filter(s=>(!q||normalizeRuleText(`${s.player.name} ${s.player.team} ${s.currentManager}`).includes(q))&&(!pos||s.player.position===pos)&&(!team||s.player.team===team)&&(!manager||s.currentManager===manager));
+  return (stats || bestPlayerStats(round)).filter(s=>(!q||normalizeRuleText(`${s.player.name} ${s.player.team} ${s.currentManager}`).includes(q))&&(!pos||s.player.position===pos)&&(!team||s.player.team===team)&&(!manager||s.currentManager===manager));
 }
 function sortBestPlayers(rows){
   const {key,dir}=bestPlayersSort,m=dir==="asc"?1:-1;
@@ -6482,11 +6507,11 @@ function renderBestPlayers(repopulate=true){
     $("bestLegacyCaptainNotice").style.display=legacyPending.length?"block":"none";
     $("bestLegacyCaptainNotice").innerHTML=legacyPending.length?`<b>Ranking provisional.</b> Falta separar el Bonus capitán de ${legacyPending.length} actuación${legacyPending.length===1?"":"es"} histórica${legacyPending.length===1?"":"s"}. Al cargar esos bonus, los puntos del jugador se corrigen sin alterar las tablas de DT.`:"";
   }
-  const all=bestPlayerStats(round);renderBestLeaders(all);const rows=sortBestPlayers(bestPlayersFiltered());
+  const all=bestPlayerStats(round);renderBestLeaders(all);const rows=sortBestPlayers(bestPlayersFiltered(all));
   document.querySelectorAll("[data-best-sort]").forEach(btn=>{const active=btn.dataset.bestSort===bestPlayersSort.key;btn.classList.toggle("active",active);const base=btn.textContent.replace(/[↕↑↓]/g,"").trim();btn.textContent=`${base} ${active?(bestPlayersSort.dir==="asc"?"↑":"↓"):"↕"}`});
   if(!rows.length){$("bestPlayersBody").innerHTML='<tr><td colspan="8" class="best-empty">No hay jugadores que coincidan con los filtros.</td></tr>';return}
-  $("bestPlayersBody").innerHTML=rows.map((s,i)=>{const open=bestPlayersOpen.has(s.id),details=s.matches.map(m=>`<div class="best-match-row"><div><b>Fecha ${m.round}</b></div><div>${esc(m.date||"—")}</div><div>${esc(m.opponent||"—")}</div><div class="${m.score==="NO JUEGA"?"best-score-nj":m.score<0?"best-score-negative":"best-score-positive"}">${m.score==="NO JUEGA"?"NJ":m.score}</div><div>${esc(m.owner||"—")}</div></div>`).join("");
-    return `<tr class="best-main-row" onclick="toggleBestPlayerDetail(${s.id})"><td class="ranknum">${i+1}</td><td class="best-player-name">${esc(s.player.name)}<small>${esc(s.player.team)}<span class="ux-rank-owner"> · ${esc(s.currentManager||"Libre")}</span></small></td><td>${esc(s.player.team)}</td><td><span class="pos pos-${s.player.position}">${s.player.position}</span></td><td>${esc(s.currentManager||"Libre")}</td><td><b>${s.total}</b></td><td>${s.games}</td><td class="best-average">${s.average.toFixed(1)}</td></tr><tr class="best-detail-row ${open?"open":""}"><td colspan="8" class="best-detail-cell"><div class="best-match-list"><div class="best-match-row header"><div>Fecha</div><div>Día</div><div>Rival</div><div>Puntos</div><div>DT</div></div>${details}</div></td></tr>`}).join("");
+  $("bestPlayersBody").innerHTML=rows.map((s,i)=>{const open=bestPlayersOpen.has(s.id),details=open?s.matches.map(m=>`<div class="best-match-row"><div><b>Fecha ${m.round}</b></div><div>${esc(m.date||"—")}</div><div>${esc(m.opponent||"—")}</div><div class="${m.score==="NO JUEGA"?"best-score-nj":m.score<0?"best-score-negative":"best-score-positive"}">${m.score==="NO JUEGA"?"NJ":m.score}</div><div>${esc(m.owner||"—")}</div></div>`).join(""):"";
+    return `<tr class="best-main-row" role="button" tabindex="0" aria-expanded="${open?'true':'false'}" aria-label="Ver estadísticas de ${esc(s.player.name)}" onclick="toggleBestPlayerDetail(${s.id})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleBestPlayerDetail(${s.id})}"><td class="ranknum">${i+1}</td><td class="best-player-name">${esc(s.player.name)}<small>${esc(s.player.team)}<span class="ux-rank-owner"> · ${esc(s.currentManager||"Libre")}</span></small></td><td>${esc(s.player.team)}</td><td><span class="pos pos-${s.player.position}">${s.player.position}</span></td><td>${esc(s.currentManager||"Libre")}</td><td><b>${s.total}</b></td><td>${s.games}</td><td class="best-average">${s.average.toFixed(1)}</td></tr><tr class="best-detail-row ${open?"open":""}"><td colspan="8" class="best-detail-cell"><div class="best-match-list"><div class="best-match-row header"><div>Fecha</div><div>Día</div><div>Rival</div><div>Puntos</div><div>DT</div></div>${details}</div></td></tr>`}).join("");
 }
 
 
@@ -7099,7 +7124,7 @@ function renderClubPage(){
       ${clubGeneralTableHtml(current)}
     </div>
     ${rosterHtml}
-    ${clubPastPlayersHtml(current)}
+    ${typeof clubPastPlayersHtml === "function" ? clubPastPlayersHtml(current) : ""}
   </div>`;
   updateTopBrand();
 }
@@ -7131,6 +7156,7 @@ function filterRules(){
 }
 
 function setPage(id){
+  const previousPage=document.querySelector('.page.active')?.id;
   if(!isCloudAdmin()&&["database","setup","welcome"].includes(id))id="home";
   if(needsClubChooser()&&!isCloudAdmin()&&!["clubChooser","welcome","setup"].includes(id))id="clubChooser";
   if(needsClubChooser()&&isCloudAdmin()&&!["clubChooser","welcome","setup"].includes(id))id="clubChooser";
@@ -7151,6 +7177,8 @@ function setPage(id){
   if(id==="bestPlayers")renderBestPlayers();
   if(id==="database")renderDb();
   if(id==="tournaments"){v12FetchTournaments().then(()=>previewRenderTournaments()).catch(e=>console.warn(e));}
+  // Mobile: opening another long screen should start at its header, not mid-list.
+  if(previousPage && previousPage!==id)window.scrollTo(0,0);
 }
 document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>{
   if(b.dataset.page==="formations")return openDefaultFormations();
@@ -7565,6 +7593,15 @@ function setPlayerSort(key){
 function bindSortHeaders(){
   document.querySelectorAll(".sorthead").forEach(btn=>btn.addEventListener("click",()=>setPlayerSort(btn.dataset.sort)));
 }
+const CHICHE_DRAFT_PAGE_SIZE=60;
+let chicheDraftPage=0;
+let chicheDraftFilterSignature="";
+function changeDraftPlayersPage(direction){
+  chicheDraftPage=Math.max(0,chicheDraftPage+direction);
+  renderPlayers();
+  const list=document.querySelector('#draft .grid>.card:first-child .tablewrap');
+  if(list)list.scrollTop=0;
+}
 function renderPlayers(){
   const q=low($("search").value),pos=$("posFilter").value,av=$("availFilter").value,m=currentManager(),r=activeRoster()||emptyRoster();
   let list=state.players.filter(p=>{
@@ -7587,8 +7624,20 @@ function renderPlayers(){
     av=String(av||"").toLocaleLowerCase("es");bv=String(bv||"").toLocaleLowerCase("es");
     return av.localeCompare(bv,"es",{sensitivity:"base"})*dir;
   });
-  $("playerCount").textContent=list.length+" jugadores";
-  $("playersBody").innerHTML=list.map(p=>{
+  const sig=JSON.stringify([q,pos,av,m,state.draftTurn?.club||"",playerSort.key,playerSort.dir]);
+  if(sig!==chicheDraftFilterSignature){chicheDraftFilterSignature=sig;chicheDraftPage=0;}
+  const total=list.length;
+  const lastPage=Math.max(0,Math.ceil(total/CHICHE_DRAFT_PAGE_SIZE)-1);
+  chicheDraftPage=Math.min(chicheDraftPage,lastPage);
+  const start=chicheDraftPage*CHICHE_DRAFT_PAGE_SIZE;
+  const visible=list.slice(start,start+CHICHE_DRAFT_PAGE_SIZE);
+  $("playerCount").textContent=total+" jugadores";
+  const pager=$("draftPlayerPager");
+  if(pager){
+    pager.hidden=total<=CHICHE_DRAFT_PAGE_SIZE;
+    pager.innerHTML=pager.hidden?"":`<button type="button" class="btn small" onclick="changeDraftPlayersPage(-1)" ${chicheDraftPage===0?"disabled":""} aria-label="Página anterior de jugadores">‹ Anterior</button><span>${start+1}–${Math.min(start+CHICHE_DRAFT_PAGE_SIZE,total)} de ${total}</span><button type="button" class="btn small" onclick="changeDraftPlayersPage(1)" ${chicheDraftPage>=lastPage?"disabled":""} aria-label="Página siguiente de jugadores">Siguiente ›</button>`;
+  }
+  $("playersBody").innerHTML=visible.map(p=>{
     const owner=reservedOwner(p.id),mine=r.picks.includes(p.id),other=owner&&owner!==m,disabled=!draftEditableMode()||other||mine;
     return `<tr class="${other?"owned":""}"><td class="name">${esc(p.name)}</td><td>${esc(p.team)}</td><td><span class="pos pos-${p.position}">${p.position}</span></td><td>${money(p.price)}</td><td class="muted">${owner?esc(owner):"—"}</td><td>${mine?'<span class="badge green">Elegido</span>':`<button class="btn small" ${disabled?"disabled":""} onclick="selectPlayer(${p.id})">Seleccionar</button>`}</td></tr>`
   }).join("");
@@ -10856,41 +10905,58 @@ setTimeout(initCloud,80);
    switcher.append(byDate,byManager);head.append(switcher);
    const choices=mk('div','ux-v4-history-options');q('.transfer-history-body',history)?.before(choices);
    const roundSel=$('transferHistoryRound'),managerSel=$('transferHistoryManager'),player=$('transferHistoryPlayer');
-   let mode='date';let selectedRound='';let selectedManager='';
+   // V32: los dos filtros se comportan como botones desplegables.
+   // Sin filtro activo, se muestra el historial completo.
+   let mode=null,selectedRound='all',selectedManager='all';
    function rounds(){try{return typeof transferHistoryRounds==='function'?transferHistoryRounds():[]}catch{return []}}
    function label(r){return 'Fecha '+(Number(r)+1)}
    function setFilter(){
      if(!roundSel||!managerSel)return;
      roundSel.dataset.userSelected='1';
-     roundSel.value=mode==='date' ? ((selectedRound&&selectedRound!=='all') ? selectedRound : 'all') : 'all';
-     managerSel.value=mode==='manager' ? ((selectedManager&&selectedManager!=='all') ? selectedManager : '') : '';
+     roundSel.value=mode==='date'?selectedRound:'all';
+     managerSel.value=mode==='manager'&&selectedManager!=='all'?selectedManager:'';
      if(player)player.value='';
      if(typeof renderTransferHistory==='function')renderTransferHistory();
    }
    function update(){
-     byDate.classList.toggle('active',mode==='date');byManager.classList.toggle('active',mode==='manager');
+     const dateActive=mode==='date',managerActive=mode==='manager';
+     byDate.classList.toggle('active',dateActive);
+     byManager.classList.toggle('active',managerActive);
+     byDate.setAttribute('aria-expanded',String(dateActive));
+     byManager.setAttribute('aria-expanded',String(managerActive));
+     byDate.setAttribute('aria-pressed',String(dateActive));
+     byManager.setAttribute('aria-pressed',String(managerActive));
      choices.replaceChildren();
-     const items=mode==='date'
-       ? [{id:'all',label:'Todas'}, ...rounds().map(r=>({id:String(r),label:label(r)}))]
-       : [{id:'all',label:'Todos'}, ...(state?.participants||[]).map(m=>({id:m,label:m}))];
-     for(const {id,label} of items){
-       const active=((mode==='date'?selectedRound:selectedManager)||'all')===id;
-       const b=mk('button',active?'active':'',label);b.type='button';
-       b.setAttribute('aria-pressed',String(active));
-       b.onclick=()=>{
-         if(mode==='date') selectedRound=(selectedRound===id||id==='all')?'all':id;
-         else selectedManager=(selectedManager===id||id==='all')?'all':id;
-         update();
-       };
-       choices.append(b);
+     choices.hidden=!mode;
+     if(mode){
+       const items=dateActive
+         ? [{id:'all',label:'Todas'},...rounds().map(r=>({id:String(r),label:label(r)}))]
+         : [{id:'all',label:'Todos'},...(state?.participants||[]).map(m=>({id:m,label:m}))];
+       for(const {id,label} of items){
+         const isActive=(dateActive?selectedRound:selectedManager)===id;
+         const b=mk('button',isActive?'active':'',label);
+         b.type='button';
+         b.setAttribute('aria-pressed',String(isActive));
+         b.onclick=()=>{
+           if(dateActive)selectedRound=id;
+           else selectedManager=id;
+           update();
+         };
+         choices.append(b);
+       }
      }
      setFilter();
    }
-   // Inicial, preferir la última ronda cerrada, no la futura aún bloqueada.
-   const closed=rounds().filter(r=>state?.transferRounds?.[r]?.done);
-   selectedRound=String((closed.length?closed:[...rounds()]).map(Number).filter(Number.isFinite).sort((a,b)=>b-a)[0]??'all');
-   selectedManager='all';
-   byDate.onclick=()=>{mode='date';update()};byManager.onclick=()=>{mode='manager';update()};
+   byDate.onclick=()=>{
+     if(mode==='date'){mode=null;selectedRound='all';}
+     else {mode='date';selectedRound='all';}
+     update();
+   };
+   byManager.onclick=()=>{
+     if(mode==='manager'){mode=null;selectedManager='all';}
+     else {mode='manager';selectedManager='all';}
+     update();
+   };
    update();
    const toolbar=q(':scope>.card:first-of-type .cardhead>.toolbar',page);
    if(toolbar){toolbar.style.marginLeft='auto'}
@@ -11861,94 +11927,401 @@ renderRankingTables=function(...args){const res=originalRankingsV20(...args);ref
 #rankingProgressContent .race-inline-label{pointer-events:none}
 </style>
 
-
-<style id="chicheV31MobilePolish">
-@media(max-width:640px){
-  input,select,textarea,button{font-size:16px!important}
-  #formations.page > .preview-section-lead.v16-formation-heading{
-    display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:10px!important;
+<style id="chicheV30MobileQuality">
+/* V30 — Mobile usability / no football scoring rules or cloud contract changes. */
+.chiche-mobile-nav-toggle{display:none;}
+.chiche-player-pager{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:10px 12px;border-top:1px solid var(--line);color:#b9d5ed;font-size:12px;font-variant-numeric:tabular-nums;}
+.chiche-player-pager[hidden]{display:none!important}
+.chiche-player-pager .btn{min-height:34px;}
+.best-main-row[role="button"]:focus-visible{outline:2px solid #7cbcff;outline-offset:-2px;}
+@media(max-width:700px), (pointer:coarse) and (max-width:960px){
+  /* Header: the nine tabs no longer eat three rows of phone screen. */
+  .top{
+    position:sticky!important;
+    grid-template-columns:auto minmax(0,1fr) auto!important;
+    grid-template-areas:'home brand cloud' 'menu menu menu'!important;
+    align-items:center!important;
+    padding:6px 9px 7px!important;
+    gap:4px 7px!important;
+    overflow:visible!important;
   }
-  #formations.page > .preview-section-lead.v16-formation-heading > h2{
-    width:100%!important;text-align:left!important;
+  .top .home-return-btn{min-width:0;padding:5px 7px!important;font-size:11px!important}
+  .top .brand{min-width:0!important;font-size:12px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+  .top .cloudbar{min-width:0!important;max-width:39vw!important;justify-self:end!important;gap:4px!important}
+  .top .cloud-status{max-width:23vw!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+  .top .cloudbar .btn{padding:4px 7px!important}
+  .top #chicheMobileNavToggle{
+    display:flex!important;grid-area:menu;align-items:center;gap:9px;
+    height:37px;width:100%;min-width:0;max-width:100%;
+    text-align:left;padding:6px 12px;
+    font-size:12.5px;font-weight:800;color:#c5e1fa;
+    border:1px solid #2d4964;border-radius:9px;background:#102337;
+    box-shadow:none;cursor:pointer;
   }
-  #formations.page > .preview-section-lead.v16-formation-heading > .v15-formation-controls{
-    width:100%!important;max-width:none!important;margin:0!important;display:flex!important;flex-direction:column!important;
-    align-items:center!important;justify-content:center!important;gap:10px!important;
+  .top #chicheMobileNavLabel{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .top .chiche-menu-glyph{font-size:17px;color:#87bded}
+  .top .chiche-menu-chevron{color:#92b9de;transition:transform .14s ease}
+  .top.chiche-menu-open .chiche-menu-chevron{transform:rotate(180deg)}
+  body.home-active .top #chicheMobileNavToggle{display:none!important}
+  body.home-active .top>.nav{display:none!important}
+  .top>.nav{
+    display:none!important;position:absolute!important;z-index:100!important;
+    top:calc(100% + 3px)!important;left:8px!important;right:8px!important;
+    width:auto!important;max-width:none!important;min-width:0!important;
+    max-height:min(72dvh,570px)!important;
+    overflow-x:hidden!important;overflow-y:auto!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    align-items:stretch!important;gap:6px!important;
+    padding:10px!important;background:#0d1b29!important;
+    border:1px solid #355371!important;border-radius:12px!important;
+    box-shadow:0 16px 38px #000b!important;
+    scrollbar-width:thin!important;
   }
-  #formations .v15-formation-controls .toolbar{
-    display:grid!important;grid-template-columns:auto minmax(132px,1fr) auto minmax(150px,1fr)!important;
-    gap:6px 8px!important;align-items:center!important;width:min(100%,430px)!important;margin:0 auto!important;
+  .top.chiche-menu-open>.nav{display:grid!important}
+  .top>.nav button{
+    display:flex;align-items:center;justify-content:center;
+    width:100%!important;max-width:100%!important;min-width:0!important;
+    min-height:43px!important;height:auto!important;
+    text-align:center;white-space:normal!important;overflow-wrap:anywhere!important;
+    font-size:12px!important;line-height:1.2!important;padding:9px 7px!important;
   }
-  #formations .v15-formation-controls .toolbar .muted{font-size:12px!important;white-space:nowrap!important}
-  #formations .v15-formation-controls .toolbar .select{
-    width:100%!important;max-width:none!important;min-width:0!important;
+  .top>.nav button[style*="display: none"],.top>.nav button[style*="display:none"]{display:none!important}
+  .top>.nav .ux-nav-label{grid-column:1/-1!important;margin:6px 2px 1px!important;width:auto!important;white-space:normal!important;}
+  /* iOS Safari zooms to an input when its computed font-size is below 16px. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]),
+  select,textarea{
+    font-size:16px!important;
+    max-width:100%;
+    touch-action:manipulation;
   }
-  #formations .v15-formation-controls .ux-formation-modes{
-    width:100%!important;justify-content:center!important;
+  /* Specificity override for legacy high-priority filter rules (10–11px on iOS). */
+  :is(#welcome,#myClub,#matchScores,#formations,#transfers,#bestPlayers,#draft,#scores,#database,#tournaments,#rules)
+  :is(input,select,textarea):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]){
+    font-size:16px!important;
   }
-  #formations .v15-formation-controls .ux-formation-modes button{
-    flex:1 1 0!important;min-height:44px!important;
+  input[type="number"]{font-variant-numeric:tabular-nums}
+  .page .input,.page .select{min-width:0;max-width:100%}
+  .page .toolbar,.page .filters{min-width:0;max-width:100%}
+  .page .card,.page .cardhead,.page .tablewrap{min-width:0;max-width:100%}
+  .page:not(#myClub){overflow-wrap:break-word}
+  .page .tablewrap{scrollbar-width:thin;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+  /* Keep large data tables scrollable within their card, not clipped by overflow:hidden. */
+  #transfers #transferArea .tablewrap,
+  #database .player-admin-tablewrap,
+  #scores .scores-entry-card .tablewrap,
+  #draft .grid>.card:first-child .tablewrap{
+    max-width:100%!important;overflow-x:auto!important;overflow-y:auto!important;
   }
+  #scores .scores-entry-card table{min-width:540px!important;table-layout:auto!important}
+  #scores .scores-entry-card th,#scores .scores-entry-card td{overflow:visible!important;text-overflow:clip!important}
+  /* Preserve the rows of both ranking tables when detailed history expands. */
+  #matchScores .ux-fixture-tables .scores-rank-card .tablewrap{
+    max-width:100%!important;min-width:0!important;overflow-x:auto!important;
+    height:auto!important;min-height:0!important;max-height:none!important;
+  }
+  #matchScores .ux-fixture-tables .scores-rank-card table{width:100%!important;table-layout:auto!important}
+  #matchScores .ux-fixture-tables .scores-rank-card th,
+  #matchScores .ux-fixture-tables .scores-rank-card td{white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}
+  /* Transfer choices: use full-width cards rather than a clipped five-column table. */
+  #transfers #transferArea .tablewrap{overflow-x:hidden!important}
+  #transfers #transferArea .tablewrap table,
+  #transfers #transferArea .tablewrap tbody{display:block!important;width:100%!important;min-width:0!important;}
+  #transfers #transferArea .tablewrap thead{display:none!important}
+  #transfers #transferArea #transferPlayersBody tr:not(:has(td[colspan])){
+    display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-rows:auto auto auto!important;gap:4px 10px!important;
+    width:100%!important;min-width:0!important;padding:10px 12px!important;
+    border-bottom:1px solid #253e54;
+  }
+  #transfers #transferArea #transferPlayersBody tr:not(:has(td[colspan])) td{border:0!important;padding:0!important;min-width:0;white-space:normal!important;overflow-wrap:anywhere!important}
+  #transfers #transferArea #transferPlayersBody tr:not(:has(td[colspan])) td:nth-child(1){grid-column:1;grid-row:1;font-size:12.5px}
+  #transfers #transferArea #transferPlayersBody tr:not(:has(td[colspan])) td:nth-child(2){grid-column:1;grid-row:2;color:#a0bed7;font-size:11px}
+  #transfers #transferArea #transferPlayersBody tr:not(:has(td[colspan])) td:nth-child(3){grid-column:2;grid-row:1;justify-self:end}
+  #transfers #transferArea #transferPlayersBody tr:not(:has(td[colspan])) td:nth-child(4){grid-column:1;grid-row:3;font-size:11px;color:#bdcfe0}
+  #transfers #transferArea #transferPlayersBody tr:not(:has(td[colspan])) td:nth-child(4)::before{content:'Dueño: ';color:#799dbb}
+  #transfers #transferArea #transferPlayersBody tr:not(:has(td[colspan])) td:nth-child(5){grid-column:2;grid-row:2/4;align-self:center}
+  #transfers #transferArea #transferPlayersBody .btn{min-height:36px;padding:7px 12px}
+  /* Change history: no truncated player names when phone is in portrait. */
+  #transfers .transfer-ledger-row{height:auto!important;max-height:none!important;min-height:0!important;padding:9px 10px!important;overflow:visible!important}
+  #transfers .transfer-ledger-name,#transfers .transfer-ledger-sub{
+    white-space:normal!important;text-overflow:clip!important;overflow:visible!important;word-break:normal!important;overflow-wrap:anywhere!important;
+  }
+  #transfers .transfer-history-controls{min-width:0}
+  /* Screen readers / touch: keep tap targets comfortably sized. */
+  .page .btn:not(.small){min-height:36px}
+  .page :focus-visible{outline:2px solid #70b3ee;outline-offset:2px}
+}
+@media(max-width:650px){
+  /* Formation roster must scroll naturally down the page: no half-cut rows. */
+  #formations.ux-roster-focus>.formations-layout,
   #formations.ux-roster-focus .formations-layout,
-  #formations.ux-roster-focus .formations-layout>.card,
-  #formations.ux-roster-focus #formationRosterList{
+  #formations.ux-roster-focus .formations-layout>.card:first-child{
     height:auto!important;max-height:none!important;min-height:0!important;overflow:visible!important;
   }
-  #formations.ux-roster-focus #formationRosterList{padding-bottom:10px!important}
-  #fixtureImportText::placeholder,
-  #scoresImportText::placeholder{color:transparent!important}
-  #transfers > .card:first-of-type .cardhead{
-    display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:10px!important;
+  #formations.ux-roster-focus #formationRosterList{
+    display:block!important;height:auto!important;max-height:none!important;
+    overflow:visible!important;padding:7px 8px 12px!important;
   }
-  #transfers > .card:first-of-type .cardhead .toolbar{
-    width:100%!important;display:grid!important;grid-template-columns:1fr!important;gap:8px!important;margin-left:0!important;
+  #formations.ux-roster-focus #formationRosterList .form-row{
+    display:grid!important;
+    grid-template-columns:31px minmax(0,1fr) 57px 25px 38px 29px!important;
+    gap:3px!important;align-items:center!important;
+    height:auto!important;min-height:48px!important;max-height:none!important;
+    padding:6px 2px!important;
+    overflow:visible!important;flex:0 0 auto!important;
   }
-  #transfers > .card:first-of-type .cardhead .toolbar .muted{display:none!important}
-  #transfers > .card:first-of-type .cardhead .toolbar .select,
-  #transfers > .card:first-of-type .cardhead .toolbar .btn{
-    width:100%!important;min-height:44px!important;
+  #formations.ux-roster-focus #formationRosterList .form-row>span:nth-child(2){overflow:visible!important;min-width:0!important;}
+  #formations.ux-roster-focus #formationRosterList .form-row>span:nth-child(2)>b{
+    display:block!important;white-space:normal!important;text-overflow:clip!important;
+    overflow:visible!important;line-height:1.2!important;font-size:11.5px!important;
+    word-break:normal!important;overflow-wrap:anywhere!important;
   }
-  #transfers .ux-v4-history-options{
-    display:flex!important;flex-wrap:wrap!important;gap:8px!important;padding:10px 0 0!important;
+  #formations.ux-roster-focus #formationRosterList .form-row>span:nth-child(2)>small{
+    display:block!important;white-space:normal!important;text-overflow:clip!important;
+    overflow:visible!important;line-height:1.18!important;font-size:9px!important;
+    overflow-wrap:anywhere!important;
   }
-  #transfers .ux-v4-history-options button{min-height:42px!important}
-  #bestPlayers .best-match-list{max-width:100%!important;overflow-x:hidden!important}
-  #bestPlayers .best-match-row,
-  #bestPlayers .best-match-row.header{
-    grid-template-columns:54px 48px minmax(0,1fr) 46px 38px!important;
-    width:100%!important;max-width:100%!important;box-sizing:border-box!important;
+  #formations.ux-roster-focus #formationRosterList .sectiontitle{min-height:22px!important;padding:6px 2px!important;font-size:10px!important}
+  #formations.ux-roster-focus #formationRosterList .pos{min-width:29px!important;padding:4px 1px!important}
+  #formations.ux-roster-focus #formationRosterList .badge.formation-role{min-width:0!important;max-width:100%!important;padding:4px 1px!important;font-size:9px!important}
+  #formations.ux-roster-focus #formationRosterList .score-pill{min-width:35px!important;padding:3px 2px!important}
+  #formations .v15-formation-controls{min-width:0!important;gap:7px!important}
+  #formations .v15-formation-controls .toolbar{min-width:0!important;flex:1 1 auto}
+  #formations .v15-formation-controls .toolbar select{flex:1 1 95px;min-width:0!important}
+  /* Player ranking rows grow to fit names and team labels. */
+  #bestPlayers .best-table tbody tr.best-main-row{
+    height:auto!important;max-height:none!important;min-height:52px!important;
+    padding-top:7px!important;padding-bottom:7px!important;
+    grid-template-rows:auto!important;
+    align-items:center!important;
   }
-  #bestPlayers .best-match-row{
-    font-size:9.5px!important;padding:6px 6px!important;gap:5px!important;
+  #bestPlayers .best-table tbody tr.best-main-row td:nth-child(2){white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere!important;line-height:1.2!important}
+  #bestPlayers .best-table tbody tr.best-main-row td:nth-child(2)>small{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.16!important}
+  #bestPlayers .best-table-wrap{overflow-x:auto!important}
+  #draft .grid>.card:first-child .tablewrap{max-height:58dvh!important}
+  #draft .grid>.card:first-child #playersBody tr{height:auto!important;min-height:53px!important;}
+  #draft #playersBody tr td:nth-child(1),#draft #playersBody tr td:nth-child(2){
+    white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere!important;
   }
-  #bestPlayers .best-match-row > div{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important}
-  #bestPlayers .best-match-row > div:nth-child(3){white-space:normal!important;line-height:1.15!important}
-  #bestPlayers .best-match-row > :last-child{display:block!important;text-align:right!important}
+  /* Proper display of admin fields and modal on narrow screens. */
+  .modal,.club-edit-modal{max-width:100vw!important}
+  #database .player-admin-tablewrap{max-height:70dvh!important}
 }
-@media(max-width:390px){
-  #formations .v15-formation-controls .toolbar{grid-template-columns:1fr 1fr!important;}
-  #formations .v15-formation-controls .toolbar .muted{text-align:center!important;}
+@media(max-width:360px){
+  #formations.ux-roster-focus #formationRosterList .form-row{
+    grid-template-columns:29px minmax(0,1fr) 50px 23px 35px 25px!important;gap:2px!important;
+  }
+  #formations.ux-roster-focus #formationRosterList .form-row>span:nth-child(2)>b{font-size:10.8px!important}
+  #formations.ux-roster-focus #formationRosterList .formation-captain-btn{width:23px!important;min-width:23px!important}
 }
 </style>
-<script id="chicheV31MobilePolishScript">
+<script id="chicheV30MobileNavScript">
 (function(){
-  function apply(){
-    var scores=document.getElementById('scoresImportText'); if(scores) scores.setAttribute('placeholder','');
-    var fixture=document.getElementById('fixtureImportText'); if(fixture) fixture.setAttribute('placeholder','');
+  const header=document.querySelector('.top');
+  const toggle=document.getElementById('chicheMobileNavToggle');
+  const nav=document.getElementById('chicheMainNav');
+  const label=document.getElementById('chicheMobileNavLabel');
+  if(!header||!toggle||!nav||!label)return;
+  function close(){header.classList.remove('chiche-menu-open');toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Abrir menú de secciones')}
+  function sync(){
+    const active=nav.querySelector('button[data-page].active');
+    const page=document.querySelector('.page.active');
+    const name=active?.textContent?.trim()||page?.querySelector('h2')?.textContent?.trim()||'Secciones';
+    label.textContent=name;
   }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',apply);
-  else apply();
-  var oldRenderTransferHistory=window.renderTransferHistory;
-  if(typeof oldRenderTransferHistory==='function' && !window.__v31WrapTransferHistory){
-    window.__v31WrapTransferHistory=true;
-    window.renderTransferHistory=function(){ var r=oldRenderTransferHistory.apply(this,arguments); apply(); return r; };
-  }
-  var oldRenderMatchScores=window.renderMatchScores;
-  if(typeof oldRenderMatchScores==='function' && !window.__v31WrapMatchScores){
-    window.__v31WrapMatchScores=true;
-    window.renderMatchScores=function(){ var r=oldRenderMatchScores.apply(this,arguments); apply(); return r; };
-  }
+  toggle.addEventListener('click',()=>{
+    if(header.classList.contains('chiche-menu-open'))close();
+    else{header.classList.add('chiche-menu-open');toggle.setAttribute('aria-expanded','true');toggle.setAttribute('aria-label','Cerrar menú de secciones');sync()}
+  });
+  nav.addEventListener('click',event=>{if(event.target.closest('button[data-page]')){close();queueMicrotask(sync)}});
+  document.addEventListener('click',event=>{if(header.classList.contains('chiche-menu-open')&&!header.contains(event.target))close()});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&header.classList.contains('chiche-menu-open')){close();toggle.focus()}});
+  const observer=new MutationObserver(sync);
+  observer.observe(nav,{subtree:true,attributes:true,attributeFilter:['class','style']});
+  sync();
 })();
 </script>
+<style id="chicheV32MobileCorrecciones">
+/* V32: correcciones de usabilidad móvil. No modifica scoring, draft o Supabase. */
+@media(max-width:700px){
+  /* Título, descripción y herramientas de la ronda usan el ancho completo. */
+  #transfers > .card:has(#startTransferRound) > .cardhead{
+    display:flex!important;flex-direction:column!important;align-items:stretch!important;
+    justify-content:flex-start!important;gap:10px!important;
+    padding:12px 12px 10px!important;
+  }
+  #transfers > .card:has(#startTransferRound) > .cardhead > .ux-v4-transfer-summary{display:none!important}
+  #transfers > .card:has(#startTransferRound) > .cardhead > div:not(.toolbar):not(.ux-v4-transfer-summary){
+    display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;
+    margin:0!important;flex:0 0 auto!important;
+  }
+  #transfers > .card:has(#startTransferRound) > .cardhead > div:not(.toolbar):not(.ux-v4-transfer-summary) h2{
+    display:block!important;font-size:18px!important;line-height:1.2!important;margin:0 0 5px!important;
+  }
+  #transfers > .card:has(#startTransferRound) > .cardhead > div:not(.toolbar):not(.ux-v4-transfer-summary) .muted{
+    display:block!important;white-space:normal!important;max-width:none!important;
+    font-size:12px!important;line-height:1.4!important;
+  }
+  #transfers > .card:has(#startTransferRound) > .cardhead > .toolbar{
+    display:grid!important;grid-template-columns:minmax(0,0.85fr) minmax(0,1.4fr)!important;
+    align-items:stretch!important;gap:9px!important;
+    width:100%!important;max-width:100%!important;margin:0!important;
+    padding:0!important;flex:0 0 auto!important;
+  }
+  #transfers > .card:has(#startTransferRound) > .cardhead > .toolbar > .muted{display:none!important}
+  #transfers > .card:has(#startTransferRound) > .cardhead > .toolbar > .select,
+  #transfers > .card:has(#startTransferRound) > .cardhead > .toolbar > .btn{
+    display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;
+    height:auto!important;min-height:42px!important;white-space:normal!important;
+    padding:7px 9px!important;line-height:1.18!important;
+  }
+  #transfers > .card:has(#startTransferRound) > .cardhead > .toolbar > .btn{font-size:12px!important}
+  /* Solo un título/descr.: V15 añade .ux-transfer-intro y el marcado original queda duplicado. */
+  #transfers > .card:has(#startTransferRound) > .cardhead > div:not(.toolbar):not(.ux-transfer-intro){display:none!important}
+  #transfers > .card:has(#startTransferRound) > .cardhead > .ux-transfer-intro{
+    display:flex!important;flex-direction:column!important;align-items:stretch!important;
+    width:100%!important;max-width:100%!important;min-width:0!important;
+    margin:0!important;padding:0!important;gap:4px!important;
+  }
+  #transfers > .card:has(#startTransferRound) > .cardhead > .ux-transfer-intro strong{
+    display:block!important;font-size:18px!important;line-height:1.18!important;
+  }
+  #transfers > .card:has(#startTransferRound) > .cardhead > .ux-transfer-intro small{
+    display:block!important;white-space:normal!important;font-size:12px!important;
+    line-height:1.4!important;max-width:none!important;
+  }
+  /* El encabezado de Cambios usa un bloque de datos insertado por JS: la descripción siempre va primero. */
+  #transfers > .card:has(#startTransferRound) > .cardhead > div:not(.toolbar):not(.ux-v4-transfer-summary){order:0!important}
+  #transfers > .card:has(#startTransferRound) > .cardhead > .toolbar{order:1!important}
+  /* Mejores Jugadores: mantener todos los datos del detalle en el ancho del celular. */
+  #bestPlayers .best-match-list{max-width:100%!important;overflow-x:hidden!important;overscroll-behavior-x:none!important}
+  #bestPlayers .best-match-row,#bestPlayers .best-match-row.header{
+    display:grid!important;width:100%!important;max-width:100%!important;
+    min-width:0!important;box-sizing:border-box!important;
+    grid-template-columns:49px 42px minmax(0,1fr) 46px 39px!important;
+    gap:4px!important;padding:6px 4px!important;font-size:9px!important;
+  }
+  #bestPlayers .best-match-row > div{min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important}
+  #bestPlayers .best-match-row > div:nth-child(3){white-space:normal!important;line-height:1.16!important}
+  #bestPlayers .best-match-row > div:last-child{display:block!important;text-align:right!important}
+  /* Esconder completamente las opciones del historial cuando el filtro se cierra. */
+  #transfers #transferHistoryCard .ux-v4-history-options[hidden]{display:none!important}
+  #transfers #transferHistoryCard .ux-v4-history-options{
+    flex-wrap:wrap!important;min-width:0!important;
+  }
+  /* Tocar otra vez Por fecha / Por DT desactiva el botón (JS). */
+  #transfers #transferHistoryCard .ux-v4-history-switch button{min-height:36px!important}
+
+  /* Formaciones: controles de tamaño normal; los selectores muestran Fecha completa. */
+  #formations.page > .preview-section-lead.v16-formation-heading{
+    display:flex!important;flex-direction:column!important;align-items:stretch!important;
+    flex-wrap:nowrap!important;gap:7px!important;margin:0 0 7px!important;
+    min-height:0!important;padding:3px 0 8px!important;
+  }
+  #formations.page > .preview-section-lead.v16-formation-heading > h2{
+    width:100%!important;font-size:20px!important;line-height:1.05!important;
+  }
+  #formations.page > .preview-section-lead.v16-formation-heading > .v15-formation-controls{
+    display:flex!important;flex-direction:column!important;align-items:stretch!important;
+    justify-content:center!important;gap:5px!important;
+    margin:0!important;max-width:100%!important;width:100%!important;min-width:0!important;
+  }
+  #formations .v15-formation-controls .toolbar{
+    display:grid!important;grid-template-columns:auto minmax(0,1fr) auto minmax(126px,1.25fr)!important;
+    gap:6px!important;align-items:center!important;justify-content:center!important;
+    margin:0 auto!important;width:min(100%,420px)!important;min-width:0!important;
+  }
+  #formations .v15-formation-controls .toolbar .muted{font-size:11px!important;white-space:nowrap!important}
+  #formations .v15-formation-controls .toolbar select{
+    display:block!important;width:100%!important;min-width:0!important;max-width:none!important;
+    box-sizing:border-box!important;height:35px!important;min-height:35px!important;
+    padding:5px 22px 5px 9px!important;line-height:1.2!important;
+  }
+  #formations .v15-formation-controls .ux-formation-modes{
+    display:flex!important;align-items:center!important;justify-content:center!important;
+    gap:2px!important;flex:0 0 auto!important;
+    width:100%!important;max-width:none!important;padding:2px!important;
+    margin:0!important;min-height:0!important;
+  }
+  #formations .v15-formation-controls .ux-formation-modes button{
+    flex:1 1 0!important;min-width:0!important;
+    min-height:30px!important;height:30px!important;
+    padding:5px 7px!important;font-size:10px!important;line-height:1.05!important;
+  }
+  /* Todos los 15 jugadores, titulares y suplentes, sin scroll dentro de la tarjeta.
+     Se adapta a la altura disponible del dispositivo manteniendo el orden. */
+  #formations.ux-roster-focus .formations-layout,
+  #formations.ux-roster-focus .formations-layout > .card:first-child{
+    display:flex!important;flex-direction:column!important;
+    height:auto!important;min-height:0!important;max-height:none!important;
+    overflow:visible!important;flex:0 0 auto!important;
+  }
+  #formations.ux-roster-focus #formationRosterList{
+    display:block!important;flex:0 0 auto!important;height:auto!important;
+    min-height:0!important;max-height:none!important;
+    overflow:visible!important;padding:2px 6px 5px!important;
+  }
+  #formations.ux-roster-focus #formationRosterList .form-row{
+    display:grid!important;
+    box-sizing:border-box!important;
+    height:clamp(25px,calc((100dvh - 375px)/15),32px)!important;
+    min-height:clamp(25px,calc((100dvh - 375px)/15),32px)!important;
+    max-height:32px!important;flex:0 0 auto!important;
+    grid-template-columns:29px minmax(0,1fr) 30px 23px 36px 26px!important;
+    gap:3px!important;align-items:center!important;
+    padding:1px 1px!important;margin:0!important;
+    overflow:visible!important;
+  }
+  #formations.ux-roster-focus #formationRosterList .form-row > span:nth-child(2){
+    display:flex!important;flex-direction:column!important;justify-content:center!important;
+    gap:1px!important;min-width:0!important;max-width:100%!important;
+    overflow:hidden!important;
+  }
+  #formations.ux-roster-focus #formationRosterList .form-row > span:nth-child(2) > b{
+    display:block!important;font-size:10.5px!important;line-height:1.06!important;
+    white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+  }
+  #formations.ux-roster-focus #formationRosterList .form-row > span:nth-child(2) > small{
+    display:block!important;font-size:8.3px!important;line-height:1.05!important;
+    margin:0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+  }
+  #formations.ux-roster-focus #formationRosterList .sectiontitle{
+    height:16px!important;min-height:16px!important;max-height:16px!important;
+    padding:2px 1px!important;margin:1px 0!important;line-height:12px!important;
+    font-size:9px!important;box-sizing:border-box!important;
+  }
+  /* Los 10px vacíos entre titulares y suplentes consumían pantalla. */
+  #formations.ux-roster-focus #formationRosterList > div[style*="height:10px"]{height:2px!important}
+  #formations.ux-roster-focus #formationRosterList .pos{
+    width:28px!important;min-width:28px!important;max-width:28px!important;
+    font-size:9px!important;padding:3px 0!important;
+  }
+  #formations.ux-roster-focus #formationRosterList .badge.formation-role{
+    min-width:0!important;max-width:100%!important;
+    font-size:9px!important;padding:3px 1px!important;
+  }
+  #formations.ux-roster-focus #formationRosterList .formation-captain-btn,
+  #formations.ux-roster-focus #formationRosterList .formation-captain-spacer{
+    width:23px!important;min-width:23px!important;height:23px!important;min-height:23px!important;
+  }
+  #formations.ux-roster-focus #formationRosterList .score-pill{
+    min-width:33px!important;max-width:36px!important;
+    font-size:10px!important;height:23px!important;min-height:23px!important;padding:2px 2px!important;
+  }
+  #formations.ux-roster-focus .formations-layout .cardhead{
+    min-height:29px!important;padding:5px 8px!important;
+  }
+  #formations.ux-roster-focus .formations-layout .formation-summary{
+    padding:4px 6px!important;margin:0!important;
+  }
+}
+@media(max-width:350px){
+  #formations .v15-formation-controls .toolbar{grid-template-columns:auto minmax(0,1fr) auto minmax(113px,1.15fr)!important;gap:4px!important}
+  #formations.ux-roster-focus #formationRosterList .form-row{
+    grid-template-columns:28px minmax(0,1fr) 27px 21px 33px 24px!important;gap:2px!important;
+  }
+  #formations.ux-roster-focus #formationRosterList .form-row > span:nth-child(2) > b{font-size:10px!important}
+}
+</style>
 
 </body></html>

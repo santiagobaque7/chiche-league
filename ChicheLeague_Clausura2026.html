@@ -8721,11 +8721,15 @@ function formationScore(id,rk){
   return {text:String(v),cls:"scored"};
 }
 
-function formationCaptainBonus(id,r,rk){
-  if(Number(r?.captain)!==Number(id))return {html:'<span class="formation-bonus-spacer"></span>',field:""};
+function formationCaptainBonus(id,r,rk,m){
+  if(Number(r?.captain)!==Number(id))return {html:'<span class="formation-bonus-spacer" aria-hidden="true"></span>',field:""};
   const ui=captainBonusUiState(rk,id);
-  const html=`<span class="formation-bonus-pill ${ui.cls}" title="Bonus capitán">${ui.text}</span>`;
-  const field=`<span class="field-bonus ${ui.cls}" title="Bonus capitán">${ui.text}</span>`;
+  const canEdit=state.phase==="confirmed"&&formationEditable(m,rk)&&!ui.disabled;
+  const label=canEdit?"Editar bonus Clarín del capitán":"Bonus Clarín del capitán";
+  const action=canEdit?`role="button" tabindex="0" aria-label="${label}" onclick="event.preventDefault();event.stopPropagation();editFormationCaptainBonus(${Number(id)})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();editFormationCaptainBonus(${Number(id)})}"`:'';
+  const editableClass=canEdit?' formation-bonus-editable':'';
+  const html=`<span class="formation-bonus-pill ${ui.cls}${editableClass}" title="${label}" ${action}>${ui.text}</span>`;
+  const field=`<span class="field-bonus ${ui.cls}${editableClass}" title="${label}" ${action}>${ui.text}</span>`;
   return {html,field};
 }
 
@@ -8793,7 +8797,7 @@ function formationDragAttrs(id,m,rk){
   return `draggable="true" ${tap} ondragstart="formationDragStart(event,${id})" ondragend="formationDragEnd(event)" ondragover="formationDragOver(event)" ondragleave="formationDragLeave(event)" ondrop="formationDrop(event,${id})"`;
 }
 function formationPlayerRow(id,r,rk,m){
-  const p=player(id),sc=formationScore(id,rk),role=r.roles[id],drag=formationDragAttrs(id,m,rk),editable=formationEditable(m,rk),captain=r.captain===id,bonus=formationCaptainBonus(id,r,rk);
+  const p=player(id),sc=formationScore(id,rk),role=r.roles[id],drag=formationDragAttrs(id,m,rk),editable=formationEditable(m,rk),captain=r.captain===id,bonus=formationCaptainBonus(id,r,rk,m);
   const selected=!!(selectedFormationPlayer&&selectedFormationPlayer.id===Number(id)&&selectedFormationPlayer.m===m&&selectedFormationPlayer.rk===String(rk));
   const captainControl=role==="Titular"?`<button type="button" class="formation-captain-btn ${captain?"active":""}" title="${captain?"Quitar capitanía":"Hacer capitán"}" ${editable?`onclick="event.preventDefault();event.stopPropagation();toggleFormationCaptain(${id})"`:'disabled'}>C</button>`:`<span class="formation-captain-spacer"></span>`;
   return `<div class="form-row ${editable?"formation-draggable formation-tappable":""} ${selected?"formation-selected":""}" ${drag} style="grid-template-columns:39px minmax(148px,1fr) 82px 30px 48px 48px">
@@ -8803,7 +8807,7 @@ function formationPlayerRow(id,r,rk,m){
   </div>`;
 }
 function fieldPlayer(id,r,rk,m){
-  const p=player(id),sc=formationScore(id,rk),short=String(p.name).split(",")[0],drag=formationDragAttrs(id,m,rk),captain=r.captain===id,bonus=formationCaptainBonus(id,r,rk);
+  const p=player(id),sc=formationScore(id,rk),short=String(p.name).split(",")[0],drag=formationDragAttrs(id,m,rk),captain=r.captain===id,bonus=formationCaptainBonus(id,r,rk,m);
   return `<div class="field-player ${formationEditable(m,rk)?"formation-draggable":""}" ${drag} title="${esc(p.name)}">
     ${captain?'<div class="captain-badge">C</div>':""}
     <div class="player-dot pos-${p.position}">${p.position}</div>
@@ -11819,7 +11823,34 @@ function editFormationScore(id){
   const text=prompt('Puntaje de '+(p?.name||id)+' · Fecha '+rk+'\nNúmero, NJ (No juega), o vacío para quitar el puntaje:',typeof value==='number'?String(value):value==='NO JUEGA'?'NJ':'');
   if(text===null)return;
   setScore(id,text,rk);
-  // El bonus capitán se modifica desde Fixture y Tablas, no se presupone su valor.
+}
+/* El bonus Clarín se edita separado de la puntuación normal y usa
+   el mismo almacenamiento y la misma lógica que Fixture y Tablas. */
+function editFormationCaptainBonus(id){
+  if(!isCloudAdmin()||state.phase!=="confirmed")return;
+  const rk=String($('formationRound')?.value||''),m=$('formationManager')?.value;
+  if(!rk||!m||!formationEditable(m,rk))return;
+  id=Number(id);
+  const roster=rosterForRound(m,rk);
+  if(!roster||Number(roster.captain)!==id)return;
+  if(state.rounds?.[rk]?.[id]==="NO JUEGA"){
+    alert("El capitán figura como NO JUEGA: no corresponde bonus Clarín.");
+    return;
+  }
+  const p=player(id),current=captainBonusRaw(rk,id);
+  const answer=prompt(
+    `Bonus Clarín de ${p?.name||id} · Fecha ${rk}\nIngresá la calificación adicional (número). Dejá el campo vacío para quitarla:`,
+    typeof current==='number'?String(current):''
+  );
+  if(answer===null)return;
+  const value=String(answer).trim().replace(',','.');
+  if(value!==''&&!Number.isFinite(Number(value))){
+    alert("Ingresá un Bonus Clarín numérico, o dejá vacío para quitarlo.");
+    return;
+  }
+  setCaptainBonus(id,{value},rk);
+  // setCaptainBonus no actualiza Formaciones al borrar un valor.
+  renderFormations();
 }
 function clubPastPlayersHtml(manager){
   const seen=new Map(),current=new Set((state.confirmedTeams?.[manager]?.picks||state.draftRosters?.[manager]?.picks||[]).map(Number));
@@ -12321,6 +12352,56 @@ renderRankingTables=function(...args){const res=originalRankingsV20(...args);ref
     grid-template-columns:28px minmax(0,1fr) 27px 21px 33px 24px!important;gap:2px!important;
   }
   #formations.ux-roster-focus #formationRosterList .form-row > span:nth-child(2) > b{font-size:10px!important}
+}
+</style>
+
+
+<style id="chicheV33CaptainMobileFit">
+/* F33: Clarín editable desde el bonus del capitán, también en cancha. */
+#formations .formation-bonus-editable,
+#formations .field-bonus.formation-bonus-editable{cursor:pointer;touch-action:manipulation;}
+#formations .formation-bonus-editable:focus-visible{outline:2px solid #88c7ff;outline-offset:2px;}
+#formations .formation-bonus-editable:hover{border-color:#68b5f3;filter:brightness(1.14)}
+@media(max-width:700px){
+  /* Reservar el ancho real de las CUATRO píldoras de un titular:
+     rol, capitán, puntuación y bonus Clarín. El bonus ya no invade el borde. */
+  #formations.ux-roster-focus #formationRosterList .form-row{
+    grid-template-columns:28px minmax(0,1fr) 27px 24px 36px 37px!important;
+    column-gap:3px!important;
+    padding-right:5px!important;
+    padding-left:2px!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+  }
+  #formations.ux-roster-focus #formationRosterList .form-row .badge.formation-role,
+  #formations.ux-roster-focus #formationRosterList .form-row .formation-captain-btn,
+  #formations.ux-roster-focus #formationRosterList .form-row .formation-captain-spacer,
+  #formations.ux-roster-focus #formationRosterList .form-row .score-pill,
+  #formations.ux-roster-focus #formationRosterList .form-row .formation-bonus-pill,
+  #formations.ux-roster-focus #formationRosterList .form-row .formation-bonus-spacer{
+    display:inline-flex!important;align-items:center!important;justify-content:center!important;
+    width:100%!important;min-width:0!important;max-width:100%!important;
+    box-sizing:border-box!important;margin:0!important;
+    height:23px!important;min-height:23px!important;
+    padding:1px 1px!important;white-space:nowrap!important;
+    font-size:10px!important;
+  }
+  #formations.ux-roster-focus #formationRosterList .form-row .pos{
+    max-width:28px!important;min-width:0!important;width:100%!important;
+  }
+  #formations.ux-roster-focus #formationRosterList .form-row>span:nth-child(2){
+    min-width:0!important;max-width:100%!important;
+  }
+}
+@media(max-width:350px){
+  #formations.ux-roster-focus #formationRosterList .form-row{
+    grid-template-columns:26px minmax(0,1fr) 25px 22px 33px 34px!important;
+    column-gap:2px!important;
+  }
+  #formations.ux-roster-focus #formationRosterList .form-row .formation-bonus-pill,
+  #formations.ux-roster-focus #formationRosterList .form-row .formation-bonus-spacer{
+    font-size:9px!important;
+  }
 }
 </style>
 

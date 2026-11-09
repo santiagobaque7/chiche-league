@@ -4541,7 +4541,21 @@ body.home-active .top>.nav{display:none!important}
 <button type="button" class="ux-round-arrow" id="uxFixtureNext" aria-label="Fecha siguiente" title="Fecha siguiente">›</button>
 <div class="ux-round-picker" id="uxFixtureRoundPicker" hidden></div>
 </div>
-<div class="card match-fixture-card">
+    <section id="playoffFixtureEditor" class="card playoff-fixture-editor" style="display:none" aria-label="Cargar cruces de eliminatorias">
+      <div class="cardhead playoff-editor-head">
+        <div><h3 id="playoffEditorTitle">Fixture de eliminatorias</h3><p class="muted">Elegí los cruces y, si ya están confirmados, sus fechas y horarios. Se guardan por torneo.</p></div>
+        <button class="btn small" type="button" id="playoffEditorToggle" aria-expanded="false">Editar cruces</button>
+      </div>
+      <div id="playoffEditorBody" hidden>
+        <div id="playoffEditorRows"></div>
+        <div class="playoff-editor-actions">
+          <button type="button" class="btn small" id="playoffEditorCancel">Cancelar</button>
+          <button type="button" class="btn primary" id="playoffEditorSave">Guardar fixture</button>
+        </div>
+        <p id="playoffEditorMessage" role="status" class="muted"></p>
+      </div>
+    </section>
+    <div class="card match-fixture-card">
       <div id="matchFixtureList" class="match-fixture-list"></div>
     </div>
   </div>
@@ -4887,7 +4901,24 @@ const BUDGET=65000000;
 const FIXTURE_2026={"5":[{"dateLabel":"Viernes 14 de agosto","time":"20:30","home":"RACING","away":"BANFIELD","result":"0-1","date":"2026-08-14"},{"dateLabel":"Sábado 15 de agosto","time":"14:30","home":"ALDOSIVI","away":"TIGRE","result":"0-0","date":"2026-08-15"},{"dateLabel":"Sábado 15 de agosto","time":"14:30","home":"SAN LORENZO","away":"UNIÓN","result":"1-0","date":"2026-08-15"},{"dateLabel":"Sábado 15 de agosto","time":"16:45","home":"ESTUDIANTES LP","away":"GIMNASIA LP","result":"4-0","date":"2026-08-15"},{"dateLabel":"Sábado 15 de agosto","time":"19:00","home":"NEWELL'S","away":"RIESTRA","result":"2-0","date":"2026-08-15"},{"dateLabel":"Sábado 15 de agosto","time":"19:00","home":"BELGRANO","away":"IND. RIVADAVIA","result":"2-0","date":"2026-08-15"},{"dateLabel":"Sábado 15 de agosto","time":"21:15","home":"PLATENSE","away":"BOCA JUNIORS","result":"1-1","date":"2026-08-15"},{"dateLabel":"Domingo 16 de agosto","time":"15:00","home":"SARMIENTO","away":"HURACÁN","result":"2-0","date":"2026-08-16"},{"dateLabel":"Domingo 16 de agosto","time":"18:00","home":"RIVER PLATE","away":"ARGENTINOS JRS.","result":"2-0","date":"2026-08-16"},{"dateLabel":"Domingo 16 de agosto","time":"20:15","home":"BARRACAS","away":"ROSARIO CENTRAL","result":"0-1","date":"2026-08-16"},{"dateLabel":"Domingo 16 de agosto","time":"20:15","home":"CENTRAL CÓRDOBA","away":"INSTITUTO","result":"0-1","date":"2026-08-16"},{"dateLabel":"Lunes 17 de agosto","time":"14:45","home":"ESTUDIANTES RC","away":"ATL. TUCUMÁN","result":"0-1","date":"2026-08-17"},{"dateLabel":"Lunes 17 de agosto","time":"17:00","home":"LANÚS","away":"INDEPENDIENTE","result":"1-3","date":"2026-08-17"},{"dateLabel":"Lunes 17 de agosto","time":"19:15","home":"VÉLEZ","away":"DEFENSA Y JUSTICIA","result":"1-1","date":"2026-08-17"},{"dateLabel":"Lunes 17 de agosto","time":"21:30","home":"GIMNASIA M.","away":"TALLERES","result":"3-1","date":"2026-08-17"}],"6":[{"home":"ALDOSIVI","away":"UNIÓN","dateLabel":"Viernes 21 de agosto","time":"14:30","date":"2026-08-21"},{"home":"ESTUDIANTES RC","away":"SAN LORENZO","dateLabel":"Viernes 21 de agosto","time":"20:00","date":"2026-08-21"},{"home":"GIMNASIA LP","away":"GIMNASIA M.","dateLabel":"Sábado 22 de agosto","time":"16:00","date":"2026-08-22"},{"home":"ATL. TUCUMÁN","away":"INSTITUTO","dateLabel":"Sábado 22 de agosto","time":"16:00","date":"2026-08-22"},{"home":"INDEPENDIENTE","away":"IND. RIVADAVIA","dateLabel":"Sábado 22 de agosto","time":"18:30","date":"2026-08-22"},{"home":"NEWELL'S","away":"BANFIELD","dateLabel":"Sábado 22 de agosto","time":"21:00","date":"2026-08-22"},{"home":"HURACÁN","away":"RIESTRA","dateLabel":"Sábado 22 de agosto","time":"21:00","date":"2026-08-22"},{"home":"SARMIENTO","away":"ESTUDIANTES LP","dateLabel":"Domingo 23 de agosto","time":"14:45","date":"2026-08-23"},{"home":"BARRACAS","away":"PLATENSE","dateLabel":"Domingo 23 de agosto","time":"14:45","date":"2026-08-23"},{"home":"BELGRANO","away":"DEFENSA Y JUSTICIA","dateLabel":"Domingo 23 de agosto","time":"17:00","date":"2026-08-23"},{"home":"RIVER PLATE","away":"VÉLEZ","dateLabel":"Domingo 23 de agosto","time":"19:15","date":"2026-08-23"},{"home":"RACING","away":"BOCA JUNIORS","dateLabel":"Domingo 23 de agosto","time":"21:30","date":"2026-08-23"},{"home":"TIGRE","away":"CENTRAL CÓRDOBA","dateLabel":"Lunes 24 de agosto","time":"19:00","date":"2026-08-24"},{"home":"LANÚS","away":"ARGENTINOS JRS.","dateLabel":"Lunes 24 de agosto","time":"21:15","date":"2026-08-24"},{"home":"TALLERES","away":"ROSARIO CENTRAL","dateLabel":"Lunes 24 de agosto","time":"21:15","date":"2026-08-24"}],"7":[{"home":"HURACÁN","away":"ESTUDIANTES RC","dateLabel":"Viernes 28 de agosto","time":"19:00","date":"2026-08-28"},{"home":"UNIÓN","away":"SARMIENTO","dateLabel":"Viernes 28 de agosto","time":"21:15","date":"2026-08-28"},{"home":"RIESTRA","away":"VÉLEZ","dateLabel":"Sábado 29 de agosto","time":"14:45","date":"2026-08-29"},{"home":"ROSARIO CENTRAL","away":"GIMNASIA LP","dateLabel":"Sábado 29 de agosto","time":"17:00","date":"2026-08-29"},{"home":"BOCA JUNIORS","away":"LANÚS","dateLabel":"Sábado 29 de agosto","time":"19:00","date":"2026-08-29"},{"home":"TALLERES","away":"CENTRAL CÓRDOBA","dateLabel":"Sábado 29 de agosto","time":"21:30","date":"2026-08-29"},{"home":"ATL. TUCUMÁN","away":"BELGRANO","dateLabel":"Sábado 29 de agosto","time":"21:30","date":"2026-08-29"},{"home":"BANFIELD","away":"RIVER PLATE","dateLabel":"Domingo 30 de agosto","time":"15:00","date":"2026-08-30"},{"home":"ARGENTINOS JRS.","away":"ALDOSIVI","dateLabel":"Domingo 30 de agosto","time":"17:00","date":"2026-08-30"},{"home":"INDEPENDIENTE","away":"GIMNASIA M.","dateLabel":"Domingo 30 de agosto","time":"19:15","date":"2026-08-30"},{"home":"IND. RIVADAVIA","away":"RACING","dateLabel":"Domingo 30 de agosto","time":"21:30","date":"2026-08-30"},{"home":"DEFENSA Y JUSTICIA","away":"PLATENSE","dateLabel":"Lunes 31 de agosto","time":"19:00","date":"2026-08-31"},{"home":"ESTUDIANTES LP","away":"NEWELL'S","dateLabel":"Lunes 31 de agosto","time":"19:00","date":"2026-08-31"},{"home":"TIGRE","away":"BARRACAS","dateLabel":"Lunes 31 de agosto","time":"21:15","date":"2026-08-31"},{"home":"INSTITUTO","away":"SAN LORENZO","dateLabel":"Lunes 31 de agosto","time":"21:15","date":"2026-08-31"}],"8":[{"home":"GIMNASIA M.","away":"BOCA JUNIORS"},{"home":"CENTRAL CÓRDOBA","away":"INDEPENDIENTE"},{"home":"SAN LORENZO","away":"TALLERES"},{"home":"ROSARIO CENTRAL","away":"NEWELL'S"},{"home":"BARRACAS","away":"ARGENTINOS JRS."},{"home":"UNIÓN","away":"INSTITUTO"},{"home":"LANÚS","away":"DEFENSA Y JUSTICIA"},{"home":"GIMNASIA LP","away":"TIGRE"},{"home":"ALDOSIVI","away":"BANFIELD"},{"home":"PLATENSE","away":"RIESTRA"},{"home":"VÉLEZ","away":"ESTUDIANTES LP"},{"home":"RIVER PLATE","away":"IND. RIVADAVIA"},{"home":"BELGRANO","away":"HURACÁN"},{"home":"ESTUDIANTES RC","away":"SARMIENTO"},{"home":"RACING","away":"ATL. TUCUMÁN"}],"9":[{"home":"BANFIELD","away":"BARRACAS","date":"2026-09-14","time":"19:00","dateLabel":""},{"home":"RIESTRA","away":"LANÚS","date":"2026-09-14","time":"19:00","dateLabel":""},{"home":"BOCA JUNIORS","away":"CENTRAL CÓRDOBA","date":"2026-09-12","time":"19:15","dateLabel":""},{"home":"INDEPENDIENTE","away":"SAN LORENZO","date":"2026-09-13","time":"19:15","dateLabel":""},{"home":"TALLERES","away":"UNIÓN","date":"2026-09-12","time":"21:30","dateLabel":""},{"home":"ESTUDIANTES LP","away":"PLATENSE","date":"2026-09-12","time":"14:45","dateLabel":""},{"home":"IND. RIVADAVIA","away":"ALDOSIVI","date":"2026-09-12","time":"14:45","dateLabel":""},{"home":"TIGRE","away":"ROSARIO CENTRAL","date":"2026-09-13","time":"14:45","dateLabel":""},{"home":"HURACÁN","away":"RACING","date":"2026-09-13","time":"21:30","dateLabel":""},{"home":"ARGENTINOS JRS.","away":"GIMNASIA LP","date":"2026-09-13","time":"17:00","dateLabel":""},{"home":"SARMIENTO","away":"BELGRANO","date":"2026-09-13","time":"14:45","dateLabel":""},{"home":"ATL. TUCUMÁN","away":"RIVER PLATE","date":"2026-09-12","time":"17:00","dateLabel":""},{"home":"DEFENSA Y JUSTICIA","away":"GIMNASIA M.","date":"2026-09-11","time":"20:00","dateLabel":""},{"home":"NEWELL'S","away":"VÉLEZ","date":"2026-09-11","time":"19:00","dateLabel":""},{"home":"INSTITUTO","away":"ESTUDIANTES RC","date":"2026-09-14","time":"21:15","dateLabel":""}],"10":[{"home":"VÉLEZ","away":"TIGRE","date":"2026-09-20","time":"21:30","dateLabel":""},{"home":"UNIÓN","away":"INDEPENDIENTE","date":"2026-09-19","time":"16:45","dateLabel":""},{"home":"PLATENSE","away":"NEWELL'S","date":"2026-09-20","time":"17:00","dateLabel":""},{"home":"RACING","away":"SARMIENTO","date":"2026-09-18","time":"21:15","dateLabel":""},{"home":"GIMNASIA LP","away":"BANFIELD","date":"2026-09-19","time":"14:30","dateLabel":""},{"home":"ROSARIO CENTRAL","away":"ARGENTINOS JRS.","date":"2026-09-20","time":"17:00","dateLabel":""},{"home":"SAN LORENZO","away":"BOCA JUNIORS","date":"2026-09-20","time":"14:45","dateLabel":""},{"home":"BARRACAS","away":"IND. RIVADAVIA","date":"2026-09-21","time":"19:00","dateLabel":""},{"home":"ALDOSIVI","away":"ATL. TUCUMÁN","date":"2026-09-21","time":"14:30","dateLabel":""},{"home":"GIMNASIA M.","away":"RIESTRA","date":"2026-09-19","time":"14:30","dateLabel":""},{"home":"CENTRAL CÓRDOBA","away":"DEFENSA Y JUSTICIA","date":"2026-09-18","time":"19:00","dateLabel":""},{"home":"INSTITUTO","away":"TALLERES","date":"2026-09-19","time":"21:15","dateLabel":""},{"home":"BELGRANO","away":"ESTUDIANTES RC","date":"2026-09-20","time":"19:15","dateLabel":""},{"home":"RIVER PLATE","away":"HURACÁN","date":"2026-09-19","time":"19:00","dateLabel":""},{"home":"LANÚS","away":"ESTUDIANTES LP","date":"2026-09-21","time":"21:15","dateLabel":""}],"11":[{"home":"VÉLEZ","away":"PLATENSE","date":"2026-10-05","time":"19:00","dateLabel":""},{"home":"BANFIELD","away":"ROSARIO CENTRAL","date":"2026-10-05","time":"21:15","dateLabel":""},{"home":"IND. RIVADAVIA","away":"GIMNASIA LP","date":"2026-10-02","time":"21:30","dateLabel":""},{"home":"TALLERES","away":"BELGRANO","date":"2026-10-04","time":"17:00","dateLabel":""},{"home":"SARMIENTO","away":"RIVER PLATE","date":"2026-10-04","time":"14:45","dateLabel":""},{"home":"BOCA JUNIORS","away":"UNIÓN","date":"2026-10-04","time":"19:15","dateLabel":""},{"home":"ARGENTINOS JRS.","away":"TIGRE","date":"2026-10-03","time":"19:15","dateLabel":""},{"home":"ATL. TUCUMÁN","away":"BARRACAS","date":"2026-10-03","time":"17:00","dateLabel":""},{"home":"HURACÁN","away":"ALDOSIVI","date":"2026-10-03","time":"21:30","dateLabel":""},{"home":"DEFENSA Y JUSTICIA","away":"SAN LORENZO","date":"2026-10-03","time":"14:45","dateLabel":""},{"home":"ESTUDIANTES RC","away":"RACING","date":"2026-10-04","time":"21:30","dateLabel":""},{"home":"INDEPENDIENTE","away":"INSTITUTO","date":"2026-10-02","time":"19:15","dateLabel":""},{"home":"NEWELL'S","away":"LANÚS","date":"2026-10-03","time":"17:00","dateLabel":""},{"home":"RIESTRA","away":"CENTRAL CÓRDOBA","date":"2026-10-05","time":"16:45","dateLabel":""},{"home":"ESTUDIANTES LP","away":"GIMNASIA M.","date":"2026-10-05","time":"19:00","dateLabel":""}],"12":[{"home":"TIGRE","away":"BANFIELD"},{"home":"GIMNASIA LP","away":"ATL. TUCUMÁN"},{"home":"LANÚS","away":"VÉLEZ"},{"home":"GIMNASIA M.","away":"NEWELL'S"},{"home":"UNIÓN","away":"DEFENSA Y JUSTICIA"},{"home":"TALLERES","away":"INDEPENDIENTE"},{"home":"RACING","away":"BELGRANO"},{"home":"ALDOSIVI","away":"SARMIENTO"},{"home":"RIVER PLATE","away":"ESTUDIANTES RC"},{"home":"INSTITUTO","away":"BOCA JUNIORS"},{"home":"ROSARIO CENTRAL","away":"IND. RIVADAVIA"},{"home":"PLATENSE","away":"ARGENTINOS JRS."},{"home":"CENTRAL CÓRDOBA","away":"ESTUDIANTES LP"},{"home":"BARRACAS","away":"HURACÁN"},{"home":"SAN LORENZO","away":"RIESTRA"}],"13":[{"home":"PLATENSE","away":"LANÚS"},{"home":"SARMIENTO","away":"BARRACAS"},{"home":"IND. RIVADAVIA","away":"TIGRE"},{"home":"BOCA JUNIORS","away":"TALLERES"},{"home":"VÉLEZ","away":"GIMNASIA M."},{"home":"RIESTRA","away":"UNIÓN"},{"home":"ESTUDIANTES LP","away":"SAN LORENZO"},{"home":"ESTUDIANTES RC","away":"ALDOSIVI"},{"home":"RACING","away":"INDEPENDIENTE"},{"home":"ATL. TUCUMÁN","away":"ROSARIO CENTRAL"},{"home":"HURACÁN","away":"GIMNASIA LP"},{"home":"BELGRANO","away":"RIVER PLATE"},{"home":"NEWELL'S","away":"CENTRAL CÓRDOBA"},{"home":"BANFIELD","away":"ARGENTINOS JRS."},{"home":"DEFENSA Y JUSTICIA","away":"INSTITUTO"}],"14":[{"home":"ALDOSIVI","away":"BELGRANO"},{"home":"INSTITUTO","away":"RIESTRA"},{"home":"ARGENTINOS JRS.","away":"IND. RIVADAVIA"},{"home":"UNIÓN","away":"ESTUDIANTES LP"},{"home":"INDEPENDIENTE","away":"BOCA JUNIORS"},{"home":"BARRACAS","away":"ESTUDIANTES RC"},{"home":"SAN LORENZO","away":"NEWELL'S"},{"home":"GIMNASIA M.","away":"PLATENSE"},{"home":"TIGRE","away":"ATL. TUCUMÁN"},{"home":"ROSARIO CENTRAL","away":"HURACÁN"},{"home":"RIVER PLATE","away":"RACING"},{"home":"GIMNASIA LP","away":"SARMIENTO"},{"home":"TALLERES","away":"DEFENSA Y JUSTICIA"},{"home":"BANFIELD","away":"LANÚS"},{"home":"CENTRAL CÓRDOBA","away":"VÉLEZ"}],"15":[{"home":"NEWELL'S","away":"UNIÓN"},{"home":"ESTUDIANTES RC","away":"GIMNASIA LP"},{"home":"ESTUDIANTES LP","away":"INSTITUTO"},{"home":"DEFENSA Y JUSTICIA","away":"INDEPENDIENTE"},{"home":"ATL. TUCUMÁN","away":"ARGENTINOS JRS."},{"home":"RACING","away":"ALDOSIVI"},{"home":"BOCA JUNIORS","away":"RIVER PLATE"},{"home":"SARMIENTO","away":"ROSARIO CENTRAL"},{"home":"RIESTRA","away":"TALLERES"},{"home":"BELGRANO","away":"BARRACAS"},{"home":"PLATENSE","away":"CENTRAL CÓRDOBA"},{"home":"IND. RIVADAVIA","away":"BANFIELD"},{"home":"VÉLEZ","away":"SAN LORENZO"},{"home":"LANÚS","away":"GIMNASIA M."},{"home":"HURACÁN","away":"TIGRE"}],"16":[{"home":"BOCA JUNIORS","away":"DEFENSA Y JUSTICIA"},{"home":"INDEPENDIENTE","away":"RIESTRA"},{"home":"ROSARIO CENTRAL","away":"ESTUDIANTES RC"},{"home":"CENTRAL CÓRDOBA","away":"LANÚS"},{"home":"BARRACAS","away":"RACING"},{"home":"SAN LORENZO","away":"PLATENSE"},{"home":"TALLERES","away":"ESTUDIANTES LP"},{"home":"TIGRE","away":"SARMIENTO"},{"home":"ALDOSIVI","away":"RIVER PLATE"},{"home":"GIMNASIA M.","away":"IND. RIVADAVIA"},{"home":"INSTITUTO","away":"NEWELL'S"},{"home":"GIMNASIA LP","away":"BELGRANO"},{"home":"BANFIELD","away":"ATL. TUCUMÁN"},{"home":"UNIÓN","away":"VÉLEZ"},{"home":"ARGENTINOS JRS.","away":"HURACÁN"}]};
 
 function firstRound(){return CLOUD_LEAGUE_ID==='clausura-2026'?5:1}
-function activeFixture(){return CLOUD_LEAGUE_ID==='clausura-2026'?FIXTURE_2026:(state?.fixtureByRound||{})}
+// V35 · El fixture de eliminatorias se guarda por torneo y no modifica la fase regular.
+const PLAYOFF_DEFAULT_OCTAVOS=[
+  ['INSTITUTO','HURACÁN'],
+  ['RIVER PLATE','LANÚS'],
+  ['ARGENTINOS JRS.','INDEPENDIENTE'],
+  ['VÉLEZ','BELGRANO'],
+  ['ROSARIO CENTRAL','GIMNASIA M.'],
+  ['DEFENSA Y JUSTICIA','BARRACAS'],
+  ['BOCA JUNIORS','IND. RIVADAVIA'],
+  ['GIMNASIA LP',"NEWELL'S"]
+].map(([home,away])=>({home,away}));
+function isPlayoffRound(rk){return CLOUD_LEAGUE_ID==='clausura-2026'&&['17','18'].includes(String(rk))}
+function playoffStage(rk){return String(rk)==='17'?'Octavos de final':String(rk)==='18'?'Cuartos de final':''}
+function activeFixture(){
+  const overrides=state?.fixtureByRound||{};
+  if(CLOUD_LEAGUE_ID!=='clausura-2026')return overrides;
+  return {...FIXTURE_2026,'17':PLAYOFF_DEFAULT_OCTAVOS,'18':[],...overrides};
+}
 
 const FORMATIONS={"4-4-2":{ARQ:1,DEF:4,VOL:4,DEL:2},"4-3-3":{ARQ:1,DEF:4,VOL:3,DEL:3},"3-4-3":{ARQ:1,DEF:3,VOL:4,DEL:3},"4-5-1":{ARQ:1,DEF:4,VOL:5,DEL:1},"3-5-2":{ARQ:1,DEF:3,VOL:5,DEL:2},"5-3-2":{ARQ:1,DEF:5,VOL:3,DEL:2},"3-3-4":{ARQ:1,DEF:3,VOL:3,DEL:4},"4-2-4":{ARQ:1,DEF:4,VOL:2,DEL:4},"5-2-3":{ARQ:1,DEF:5,VOL:2,DEL:3}};
 // Entorno de prueba: cada edición tiene su propia copia independiente en este navegador.
@@ -5938,6 +5969,7 @@ function normalizeCloudState(){
   if(state.lateJoin===undefined)state.lateJoin=null;
   if(!state.matchResults)state.matchResults={};
   if(!state.matchSchedules)state.matchSchedules={};
+  if(!state.fixtureByRound||typeof state.fixtureByRound!=='object'||Array.isArray(state.fixtureByRound))state.fixtureByRound={};
   ensureCaptainBonusState();
   state.participants.forEach(m=>{
     if(state.participantStartRounds[m]===undefined)state.participantStartRounds[m]=firstRound();
@@ -7837,7 +7869,7 @@ function updateMatchScoresRoundOptions(){
   const sel=$("matchScoresRound");if(!sel)return;
   const previous=sel.value,active=String(competitionActiveRound());
   const rounds=fixtureRounds();
-  sel.innerHTML=rounds.map(r=>`<option value="${r}">Fecha ${r}</option>`).join("");
+  sel.innerHTML=rounds.map(r=>`<option value="${r}">${isPlayoffRound(r)?esc(playoffStage(r)+' · F'+r):'Fecha '+r}</option>`).join("");
   if(previous&&rounds.includes(previous))sel.value=previous;
   else if(rounds.includes(active))sel.value=active;
   else sel.value=rounds[0]||String(firstRound());
@@ -8432,7 +8464,8 @@ function renderMatchScores(){
 
   const list=$("matchFixtureList");
   if(!list)return;
-  if(!games.length){list.innerHTML='<div class="emptybox">No hay fixture cargado para esta fecha.</div>';return;}
+  renderPlayoffFixtureEditor(rk);
+   if(!games.length){list.innerHTML='<div class="emptybox">'+(isPlayoffRound(rk)?'Todavía no se cargaron los cruces de '+playoffStage(rk).toLowerCase()+'. El administrador puede agregarlos desde «Editar cruces».':'No hay fixture cargado para esta fecha.')+'</div>';return;}
 
   const visibleGames=games
     .map((g,i)=>({g,i}))
@@ -10627,10 +10660,10 @@ setTimeout(initCloud,80);
   function rounds(){return $qa('option',sel).map(o=>o.value).filter(Boolean)}
   function sync(){
    const ids=rounds(),i=ids.indexOf(sel.value);
-   current.innerHTML='FECHA '+(sel.value||'—')+' <span aria-hidden="true">▾</span>';
+   current.innerHTML=(typeof isPlayoffRound==='function'&&isPlayoffRound(sel.value)?(sel.value==='17'?'OCTAVOS':'CUARTOS')+' · F'+sel.value:'FECHA '+(sel.value||'—'))+' <span aria-hidden="true">▾</span>';
    prev.disabled=i<=0;next.disabled=i<0||i>=ids.length-1;
    picker.innerHTML='';
-   for(const id of ids){const b=document.createElement('button');b.type='button';b.textContent='Fecha '+id;b.className=id===sel.value?'active':'';b.setAttribute('aria-current',id===sel.value?'true':'false');b.onclick=()=>choose(id);picker.append(b)}
+   for(const id of ids){const b=document.createElement('button');b.type='button';b.textContent=(typeof isPlayoffRound==='function'&&isPlayoffRound(id)?playoffStage(id)+' · F'+id:'Fecha '+id);b.className=id===sel.value?'active':'';b.setAttribute('aria-current',id===sel.value?'true':'false');b.onclick=()=>choose(id);picker.append(b)}
   }
   function choose(id){if(!rounds().includes(String(id)))return;
    sel.value=String(id);picker.hidden=true;current.setAttribute('aria-expanded','false');
@@ -12498,4 +12531,128 @@ renderRankingTables=function(...args){const res=originalRankingsV20(...args);ref
 }
 @media(max-width:360px){#transfers .transfer-eligible-grid{grid-template-columns:minmax(0,1fr)}}
 </style>
+
+<style id="chicheV35PlayoffsStyles">
+#playoffFixtureEditor{margin:0 0 12px!important;border-color:#2b5170}
+#playoffFixtureEditor .playoff-editor-head{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+#playoffFixtureEditor .playoff-editor-head h3{margin:0 0 4px;font-size:15px}
+#playoffFixtureEditor .playoff-editor-head p{margin:0;font-size:12px;line-height:1.45}
+#playoffFixtureEditor #playoffEditorBody[hidden]{display:none!important}
+#playoffFixtureEditor #playoffEditorRows{display:grid;gap:8px;padding:10px}
+#playoffFixtureEditor .playoff-row{display:grid;grid-template-columns:24px minmax(130px,1fr) minmax(130px,1fr) minmax(128px,.75fr) minmax(104px,.5fr);gap:8px;align-items:end;padding:8px;border:1px solid #263b4f;border-radius:10px}
+#playoffFixtureEditor .playoff-row label{display:flex;flex-direction:column;gap:4px;min-width:0;font-size:11px;color:#adc2d6}
+#playoffFixtureEditor .playoff-row input,#playoffFixtureEditor .playoff-row select{max-width:100%;min-width:0;width:100%;box-sizing:border-box}
+#playoffFixtureEditor .playoff-number{align-self:center;color:#86b2da;font-weight:800}
+#playoffFixtureEditor .playoff-editor-actions{display:flex;justify-content:flex-end;gap:8px;padding:7px 12px}
+#playoffFixtureEditor #playoffEditorMessage{padding:0 12px 10px;font-size:12px}
+@media(max-width:650px){
+ #playoffFixtureEditor .playoff-row{grid-template-columns:24px minmax(0,1fr) minmax(0,1fr);gap:8px}
+ #playoffFixtureEditor .playoff-row label:nth-child(4){grid-column:2}
+ #playoffFixtureEditor .playoff-row label:nth-child(5){grid-column:3}
+ #playoffFixtureEditor .playoff-row select,#playoffFixtureEditor .playoff-row input{font-size:16px!important}
+ #playoffFixtureEditor .playoff-editor-actions .btn{min-height:42px}
+}
+</style>
+<script id="chicheV35PlayoffsScript">
+// El editor no altera la fase regular ni elimina los resultados históricos.
+function playoffClubOptions(selected){
+  const qualified=typeof transferDrawEligibleClubs==='function' ? transferDrawEligibleClubs() : [];
+  const known=[...new Set(qualified.length?qualified:(state?.players||[]).map(p=>p.team).filter(Boolean))]
+    .sort((a,b)=>a.localeCompare(b,'es'));
+  const values=['',...known];
+  if(selected&&!known.includes(selected))values.push(selected);
+  return values.map(x=>`<option value="${esc(x)}" ${x===selected?'selected':''}>${x?esc(x):'Elegir club'}</option>`).join('');
+}
+function renderPlayoffFixtureEditor(rk){
+  const host=document.getElementById('playoffFixtureEditor');if(!host)return;
+  const visible=isPlayoffRound(rk)&&state?.phase==='confirmed'&&isCloudAdmin();
+  host.style.display=visible?'block':'none';
+  if(!visible){host.dataset.round='';return;}
+  const title=document.getElementById('playoffEditorTitle');
+  if(title)title.textContent='Fixture · '+playoffStage(rk)+' (Fecha '+rk+')';
+  if(host.dataset.round!==String(rk)){
+    host.dataset.round=String(rk);
+    document.getElementById('playoffEditorBody').hidden=true;
+    document.getElementById('playoffEditorToggle').setAttribute('aria-expanded','false');
+    document.getElementById('playoffEditorToggle').textContent='Editar cruces';
+    document.getElementById('playoffEditorMessage').textContent='';
+  }
+}
+function playoffFixtureHasResults(rk){
+  const resultEntries=Object.values(state?.matchResults?.[rk]||{});
+  return resultEntries.length>0||Object.keys(state?.rounds?.[rk]||{}).length>0
+    ||Object.keys(state?.generalOnlyScores?.[rk]||{}).length>0;
+}
+function drawPlayoffEditor(rk){
+  const host=document.getElementById('playoffEditorRows');if(!host)return;
+  const games=activeFixture()[rk]||[],count=rk==='17'?8:4;
+  const locked=playoffFixtureHasResults(rk);
+  host.innerHTML=Array.from({length:count},(_,i)=>{
+    const g=games[i]||{};
+    const schedule=getMatchSchedule(rk,i,g);
+    return `<div class="playoff-row" data-playoff-index="${i}">
+      <span class="playoff-number">${i+1}.</span>
+      <label>Local<select class="select playoff-home" ${locked?'disabled':''}>${playoffClubOptions(g.home||'')}</select></label>
+      <label>Visitante<select class="select playoff-away" ${locked?'disabled':''}>${playoffClubOptions(g.away||'')}</select></label>
+      <label>Día<input type="date" class="input playoff-date" value="${esc(schedule.date||'')}"></label>
+      <label>Hora<input type="time" class="input playoff-time" value="${esc(schedule.time||'')}"></label>
+    </div>`;
+  }).join('');
+  const msg=document.getElementById('playoffEditorMessage');
+  msg.textContent=locked?'Ya hay puntajes o resultados en esta fecha. Los clubes quedan bloqueados para conservar la relación con esos datos; todavía podés ajustar los días y horarios.':'Las filas vacías se ignoran. No se permiten clubes repetidos en una misma fase. Los datos no se guardan hasta confirmar.';
+}
+function togglePlayoffFixtureEditor(){
+  const root=document.getElementById('playoffFixtureEditor'),body=document.getElementById('playoffEditorBody');
+  if(!root||!body||!isCloudAdmin())return;
+  const open=body.hidden;
+  body.hidden=!open;
+  const button=document.getElementById('playoffEditorToggle');
+  button.setAttribute('aria-expanded',String(open));button.textContent=open?'Ocultar editor':'Editar cruces';
+  if(open)drawPlayoffEditor(root.dataset.round);
+}
+function savePlayoffFixtureEditor(){
+  if(!isCloudAdmin())return;
+  const root=document.getElementById('playoffFixtureEditor'),rk=root?.dataset.round;
+  if(!isPlayoffRound(rk))return;
+  const rows=[...document.querySelectorAll('#playoffEditorRows .playoff-row')];
+  const locked=playoffFixtureHasResults(rk);
+  const before=activeFixture()[rk]||[],after=[],schedule={},used=new Set();
+  for(const [i,row] of rows.entries()){
+    const home=row.querySelector('.playoff-home').value,away=row.querySelector('.playoff-away').value;
+    const date=row.querySelector('.playoff-date').value,time=row.querySelector('.playoff-time').value;
+    if(home||away){
+      if(!home||!away){alert('Completá los dos clubes del cruce '+(i+1)+'.');return;}
+      if(home===away){alert('Un club no puede enfrentarse a sí mismo en el cruce '+(i+1)+'.');return;}
+      if(used.has(home)||used.has(away)){alert('Un club aparece en más de un cruce. Revisá el partido '+(i+1)+'.');return;}
+      used.add(home);used.add(away);
+      after.push({home,away});
+      if(date||time)schedule[after.length-1]={date,time};
+    }else if(date||time){alert('Completá los clubes del partido '+(i+1)+' o borrá su programación.');return;}
+  }
+  if(locked&&(before.length!==after.length||before.some((g,i)=>g.home!==after[i]?.home||g.away!==after[i]?.away))){
+    alert('No se pueden modificar los cruces porque ya hay resultados o puntajes de esa fecha. Solo podés cambiar días y horarios.');return;
+  }
+  if(!after.length&&!confirm('No hay ningún cruce cargado. ¿Querés guardar el fixture vacío?'))return;
+  if(!confirm(`Guardar ${after.length} partido${after.length===1?'':'s'} de ${playoffStage(rk)} (Fecha ${rk})?`))return;
+  state.fixtureByRound ||= {};
+  state.fixtureByRound[rk]=after;
+  state.matchSchedules ||= {};
+  state.matchSchedules[rk]=schedule;
+  persist();
+  document.getElementById('playoffEditorBody').hidden=true;
+  renderMatchScores();
+  document.getElementById('playoffEditorMessage').textContent='Fixture guardado para la Fecha '+rk+'.';
+  document.getElementById('playoffEditorToggle').setAttribute('aria-expanded','false');
+  document.getElementById('playoffEditorToggle').textContent='Editar cruces';
+}
+(function(){
+  function bind(){
+    document.getElementById('playoffEditorToggle')?.addEventListener('click',togglePlayoffFixtureEditor);
+    document.getElementById('playoffEditorCancel')?.addEventListener('click',togglePlayoffFixtureEditor);
+    document.getElementById('playoffEditorSave')?.addEventListener('click',savePlayoffFixtureEditor);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
+})();
+</script>
+
 </body></html>

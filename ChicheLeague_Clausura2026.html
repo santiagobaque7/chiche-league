@@ -4558,6 +4558,19 @@ body.home-active .top>.nav{display:none!important}
       </div>
     </div>
     <div id="transferStatus" class="callout">Todavía no hay una ronda de cambios iniciada.</div>
+    <div id="transferEligibleClubsSummary" class="transfer-eligible-summary" aria-live="polite"></div>
+    <details id="transferEligibleClubsPanel" class="transfer-eligible-panel" style="display:none">
+      <summary>⚙ Administrar clubes habilitados para sorteos <span id="transferEligibleClubsCount"></span></summary>
+      <div class="transfer-eligible-body">
+        <p>Marcá los clubes que siguen en competencia. Los desmarcados no aparecerán en nuevos sorteos de Cambios. No se modifican los planteles, el Draft ni los sorteos ya realizados.</p>
+        <div id="transferEligibleClubsList" class="transfer-eligible-grid"></div>
+        <div class="transfer-eligible-actions">
+          <button id="transferEligibleClubsSave" type="button" class="btn primary small">Guardar clubes habilitados</button>
+          <button id="transferEligibleClubsCancel" type="button" class="btn small">Deshacer selección</button>
+        </div>
+        <div id="transferEligibleClubsMessage" class="muted" role="status"></div>
+      </div>
+    </details>
 <div id="transferPublicHint" class="callout" style="display:none;margin-top:8px">Vista pública · podés seguir el estado de la ronda y consultar el historial. Sólo el administrador puede sortear, elegir jugadores, pasar o iniciar una ronda.</div>
   </div>
 
@@ -9211,11 +9224,68 @@ function legalIncomingOptions(m,tr,club,outId=null){
   }
   return options;
 }
+/* V34: clubes que siguen en carrera para el sorteo de CAMBIOS.
+   Son nombres internos de Chiche League (no los nombres largos de la gráfica).
+   Otras ediciones conservan todos los clubes hasta que el administrador los configure. */
+const CHICHE_KNOCKOUT_CLUBS_2026=[
+  'INSTITUTO','HURACÁN','RIVER PLATE','LANÚS',
+  'ARGENTINOS JRS.','INDEPENDIENTE','VÉLEZ','BELGRANO',
+  'ROSARIO CENTRAL','GIMNASIA M.','DEFENSA Y JUSTICIA','BARRACAS',
+  'BOCA JUNIORS','IND. RIVADAVIA','GIMNASIA LP',"NEWELL'S"
+];
+function transferDrawEligibleClubs(){
+  const clubs=allClubs();
+  const saved=state?.transferDrawClubs;
+  const allowed=Array.isArray(saved)
+    ? new Set(saved)
+    : (CLOUD_LEAGUE_ID==='clausura-2026'?new Set(CHICHE_KNOCKOUT_CLUBS_2026):new Set(clubs));
+  return clubs.filter(c=>allowed.has(c));
+}
 function transferEligibleClubs(m,tr){
-  // Un club puede salir aunque el DT ya tenga un jugador de ese club:
-  // será válido si reemplaza precisamente a ese jugador.
+  // La habilitación de la Copa se aplica SOLO a sorteos futuros de Cambios.
+  // Se respetan las condiciones existentes: clubes no sorteados y jugadores legales.
   const used=new Set(tr.draws||[]);
-  return allClubs().filter(c=>!used.has(c)&&legalIncomingOptions(m,tr,c,tr.outPlayer).length>0);
+  return transferDrawEligibleClubs().filter(c=>!used.has(c)&&legalIncomingOptions(m,tr,c,tr.outPlayer).length>0);
+}
+function renderTransferEligibleClubSettings(){
+  const panel=$('transferEligibleClubsPanel');
+  const summary=$('transferEligibleClubsSummary');
+  const list=$('transferEligibleClubsList');
+  const count=$('transferEligibleClubsCount');
+  if(!panel||!summary||!list)return;
+  const enabled=transferDrawEligibleClubs();
+  const total=allClubs().length;
+  summary.textContent=`Clubes habilitados para próximos sorteos: ${enabled.length} de ${total}.`;
+  panel.style.display=isCloudAdmin()?'':'none';
+  if(!isCloudAdmin())return;
+  const current=new Set(enabled);
+  list.innerHTML=allClubs().slice().sort((a,b)=>a.localeCompare(b,'es')).map(c=>
+    `<label class="transfer-eligible-option"><input type="checkbox" value="${esc(c)}" ${current.has(c)?'checked':''}><span>${esc(c)}</span></label>`
+  ).join('');
+  if(count)count.textContent=`(${enabled.length}/${total})`;
+  const message=$('transferEligibleClubsMessage');if(message)message.textContent='';
+}
+function saveTransferEligibleClubs(){
+  if(!isCloudAdmin())return alert('Solo el administrador puede cambiar los clubes sorteables.');
+  const list=$('transferEligibleClubsList');if(!list)return;
+  const clubs=allClubs();
+  const selected=[...list.querySelectorAll('input[type="checkbox"]:checked')].map(x=>x.value).filter(c=>clubs.includes(c));
+  if(!selected.length)return alert('Dejá por lo menos un club habilitado.');
+  const tr=currentTransfer();
+  if(tr&&!tr.done&&tr.activeClub&&!selected.includes(tr.activeClub)){
+    if(!confirm(`El club ${tr.activeClub} ya fue sorteado en la ronda actual. Guardar la lista no anulará ese sorteo ni los cambios realizados. ¿Continuar?`))return;
+  }
+  state.transferDrawClubs=selected;
+  persist();
+  renderTransferEligibleClubSettings();
+  const message=$('transferEligibleClubsMessage');
+  if(message)message.textContent=`Guardado: ${selected.length} clubes habilitados. Se aplicará en los próximos sorteos.`;
+}
+function installTransferEligibleClubControls(){
+  const save=$('transferEligibleClubsSave');
+  const cancel=$('transferEligibleClubsCancel');
+  if(save&&!save.dataset.transferBound){save.dataset.transferBound='1';save.addEventListener('click',saveTransferEligibleClubs)}
+  if(cancel&&!cancel.dataset.transferBound){cancel.dataset.transferBound='1';cancel.addEventListener('click',renderTransferEligibleClubSettings)}
 }
 function transferOrderMarkup(tr){
   return tr.order.map((x,i)=>{
@@ -9546,6 +9616,8 @@ function reconcileFrigoF16Exception(){
 function renderTransferPage(){
   reconcileFrigoF16Exception();
   applyTransferReadOnlyMode();
+  installTransferEligibleClubControls();
+  renderTransferEligibleClubSettings();
 
   // Primera entrada: historial enfocado automáticamente en los cambios
   // previos a la fecha activa. La selección manual se conserva.
@@ -12405,4 +12477,25 @@ renderRankingTables=function(...args){const res=originalRankingsV20(...args);ref
 }
 </style>
 
+
+<style id="chicheV34TransferKnockoutClubs">
+#transfers .transfer-eligible-summary{margin:8px 12px 0;color:#a8c1d8;font-size:12px;line-height:1.4}
+#transfers .transfer-eligible-panel{margin:9px 12px 12px;border:1px solid #2c4861;border-radius:10px;background:#0c1926}
+#transfers .transfer-eligible-panel>summary{cursor:pointer;list-style:revert;padding:12px 14px;font-weight:750;color:#d6e9ff;font-size:12px}
+#transfers .transfer-eligible-panel>summary span{color:#8eafc9;font-weight:500;margin-left:6px}
+#transfers .transfer-eligible-body{padding:2px 13px 14px}
+#transfers .transfer-eligible-body>p{margin:0 0 12px;font-size:12px;color:#a8bdcf;line-height:1.5}
+#transfers .transfer-eligible-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;max-height:330px;overflow-y:auto;padding:2px}
+#transfers .transfer-eligible-option{display:flex;align-items:center;gap:8px;min-width:0;border:1px solid #2a4358;border-radius:7px;padding:8px;background:#102233;cursor:pointer;font-size:12px}
+#transfers .transfer-eligible-option input{width:17px;height:17px;flex:0 0 auto;accent-color:#2786d6}
+#transfers .transfer-eligible-option span{min-width:0;overflow-wrap:anywhere}
+#transfers .transfer-eligible-actions{display:flex;gap:8px;flex-wrap:wrap;margin:13px 0 8px}
+#transfers #transferEligibleClubsMessage{font-size:11px;line-height:1.4}
+@media(max-width:700px){
+ #transfers .transfer-eligible-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #transfers .transfer-eligible-option{font-size:12px;min-height:40px}
+ #transfers .transfer-eligible-actions .btn{flex:1 1 135px;white-space:normal}
+}
+@media(max-width:360px){#transfers .transfer-eligible-grid{grid-template-columns:minmax(0,1fr)}}
+</style>
 </body></html>
